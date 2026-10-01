@@ -1,3 +1,0 @@
-# Prettier chạy trong apps/admin: bỏ qua file Lottie (JSON nén sẵn) và tài liệu như root .prettierignore
-public/lottie
-*.md
