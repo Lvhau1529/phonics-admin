@@ -7,8 +7,11 @@ import { ROUTES } from '@/app/routes';
 import { login } from '@/features/auth/authStore';
 import { useAuth } from '@/features/auth/hooks';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
-import { COLOR_SIDER } from '@/shared/theme';
+import { t } from '@/shared/i18n';
+import { THEME_COLORS } from '@/shared/theme';
+import { useResolvedTheme } from '@/shared/theme/themeStore';
+import { LangSwitch } from '@/shared/ui/LangSwitch';
+import { ThemeSwitch } from '@/shared/ui/ThemeSwitch';
 import { applyFieldErrors, applyServerErrors, parseForm, zodRule } from '@/shared/utils/zodForm';
 
 interface LoginValues {
@@ -23,6 +26,7 @@ export function LoginPage() {
   const [form] = Form.useForm<LoginValues>();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const mode = useResolvedTheme();
 
   useEffect(() => {
     document.title = t.app.title(t.auth.loginTitle);
@@ -56,7 +60,7 @@ export function LoginPage() {
     <Flex
       align="center"
       justify="center"
-      style={{ minHeight: '100vh', background: COLOR_SIDER, padding: 16 }}
+      style={{ minHeight: '100vh', background: THEME_COLORS[mode].sider, padding: 16 }}
     >
       <Card style={{ width: '100%', maxWidth: 400 }}>
         <Flex vertical align="center" gap={4} style={{ marginBottom: 24 }}>
@@ -85,6 +89,10 @@ export function LoginPage() {
             {t.auth.submit}
           </Button>
         </Form>
+        <Flex justify="center" gap={12} style={{ marginTop: 20 }}>
+          <LangSwitch />
+          <ThemeSwitch />
+        </Flex>
       </Card>
     </Flex>
   );

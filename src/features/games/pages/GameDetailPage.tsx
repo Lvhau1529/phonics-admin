@@ -1,4 +1,4 @@
-import { Card, Flex, Table } from 'antd';
+import { Card, Flex } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { GameId, type GameByClassStats } from '@phonics/contracts';
 import { useState } from 'react';
@@ -6,14 +6,15 @@ import { Link, Navigate, useParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { GameTimelineChart } from '@/features/games/components/GameTimelineChart';
 import { useGameByClass } from '@/features/games/hooks';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
+import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { RangePicker } from '@/shared/ui/RangePicker';
 import { DEFAULT_RANGE, rangeParams, type RangeValue } from '@/shared/utils/range';
 import { formatNumber } from '@/shared/utils/format';
 
-const columns: ColumnsType<GameByClassStats> = [
+const buildColumns = (): ColumnsType<GameByClassStats> => [
   {
     title: t.common.class,
     dataIndex: 'className',
@@ -32,12 +33,12 @@ function GameByClassTable({ gameId }: { gameId: GameId }) {
     <Flex vertical gap={12}>
       <RangePicker value={range} onChange={setRange} size="small" />
       <ErrorAlert error={byClass.error} onRetry={() => void byClass.refetch()} />
-      <Table<GameByClassStats>
+      <DataTable.Static<GameByClassStats>
         rowKey="classId"
         size="small"
-        columns={columns}
+        columns={buildColumns()}
         dataSource={byClass.data}
-        loading={byClass.isLoading}
+        loading={byClass.isFetching}
         pagination={false}
       />
     </Flex>

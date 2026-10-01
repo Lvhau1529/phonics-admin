@@ -3,7 +3,7 @@ import type { Role } from '@phonics/contracts';
 import { Link, Outlet } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { useAuth } from '@/features/auth/hooks';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 /** Chặn route theo role (đặt dưới RequireAuth). Sai role → 403 thay vì redirect để người dùng hiểu lý do. */
 export function RequireRole({ roles }: { roles: readonly Role[] }) {

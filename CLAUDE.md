@@ -9,8 +9,22 @@ React 19 + Vite 8 + TS 7 + Ant Design 5 + TanStack Query 5 + React Router 7 + Re
   `src/shared`. `shared` không import `features`; `features` import nhau được (vd `ClassSelect` của classes).
 - **Alias `@/`** → `src`. Không dùng `../`. Import kiểu: `import { type X }` (inline).
 - **Không CSS mới** (không SCSS module / Tailwind): dùng token antd, prop `style` nhỏ, component `Flex`/`Space`.
-- **Chuỗi UI chỉ ở `src/shared/i18n/vi.ts`** (`t.xxx`). Không hard-code tiếng Việt trong component. Mã lỗi API
-  → `t.errors[code]`. Identifier / comment: identifier tiếng Anh, comment tiếng Việt.
+- **Chuỗi UI chỉ ở `src/shared/i18n/`**: thêm vào **cả `vi.ts` và `en.ts`** (en `satisfies Dict` → thiếu khoá là
+  lỗi typecheck; test so tập khoá). Dùng `import { t } from '@/shared/i18n'` (Proxy theo ngôn ngữ hiện tại) —
+  **không** import thẳng `i18n/vi`, **không** cache `t.xxx` ở cấp module (cột bảng → `buildColumns()` trong
+  component). Không hard-code tiếng Việt / tiếng Anh trong component (trừ tên thương hiệu). Mã lỗi API →
+  `t.errors[code]`; ngày / số → `utils/format.ts` (đọc `t.format.*`). Identifier tiếng Anh, comment tiếng Việt.
+
+## Theme & loading
+
+- Theme: `shared/theme.ts` → `buildTheme(mode)`, màu trong `THEME_COLORS[mode]` (vàng game + dark mode). Chữ trên
+  nền primary là mực tối (`colorTextLightSolid`), chữ màu primary / link là hổ phách đậm — đổi màu thì chạy
+  `theme.test.ts` (tương phản ≥ 4.5). Component cần màu: `theme.useToken()` hoặc `THEME_COLORS[useResolvedTheme()]`,
+  **không** hard-code hex; biểu đồ Recharts dùng `useChartTheme()` (màu, grid, tooltip theo dark mode).
+- Loading: spinner là `LottieLoader` (chỉ báo mặc định của `Spin`, `CenteredLoader` cho trang / Suspense). Bảng dùng
+  `DataTable` / `DataTable.Static` với `loading={query.isFetching}`; biểu đồ bọc `ChartFrame`. Hai thứ này đã qua
+  `useDelayedLoading` (200 ms / 400 ms) và giữ dữ liệu cũ (`keepPreviousData`) — không tự `Spin` / `isLoading` để
+  tránh nháy; không unmount bảng / chart khi refetch.
 
 ## API & dữ liệu
 
@@ -36,7 +50,11 @@ React 19 + Vite 8 + TS 7 + Ant Design 5 + TanStack Query 5 + React Router 7 + Re
 - Route gate: `app/router.tsx` (`adminOnly([...])` bọc `RequireRole roles={['ADMIN']}`); menu: `app/layout/menu.ts`
   (`roles`). Không gate bằng cách ẩn link rồi thôi — phải có cả hai.
 - Nút cần quyền: `useAuth().can('points.award')` → ẩn hoặc `disabled` + `Tooltip` giải thích. ADMIN luôn pass.
-  Danh sách quyền: `PERMISSIONS` trong contracts (trang Phân quyền tự hiện quyền mới).
+  Danh sách quyền: `PERMISSIONS` trong contracts (trang Phân quyền tự hiện quyền mới) — thêm quyền thì thêm nhãn
+  `permissionLabel` + `permissionDescription` ở cả hai từ điển.
+- Nhóm quyền (`features/permissions`): API `permissionsApi.groups / createGroup / updateGroup / deleteGroup /
+  setUserGroups`, khoá `qk.permissions.groups` / `qk.permissions.users`; mutation nhóm invalidate cả ma trận user.
+  Form chọn nhóm dùng `PermissionGroupSelect`; checklist quyền theo khu vực dùng `PermissionChecklist`.
 - Giáo viên chỉ thấy lớp mình: server lọc; client không lọc thêm.
 
 ## Thêm trang / endpoint (checklist)
@@ -44,7 +62,7 @@ React 19 + Vite 8 + TS 7 + Ant Design 5 + TanStack Query 5 + React Router 7 + Re
 1. Contracts có schema + `ENDPOINTS`? Chưa có → thêm ở `packages/contracts`, build, rồi mới dùng.
 2. `features/<x>/api.ts` → `features/<x>/hooks.ts` (+ khoá ở `queryKeys.ts`).
 3. `pages/XPage.tsx` export **default** (lazy route) + named; đăng ký `app/router.tsx`, `app/routes.ts`, menu.
-4. Chuỗi → `i18n/vi.ts`. Quyền → `can()`. Test hook / util nếu có logic (Vitest + jsdom, file `*.test.ts(x)`).
+4. Chuỗi → `i18n/vi.ts` **và** `i18n/en.ts`. Quyền → `can()`. Test hook / util nếu có logic (Vitest + jsdom, file `*.test.ts(x)`).
 5. `pnpm typecheck && pnpm lint && pnpm test && pnpm build` xanh (trong `apps/admin`), rồi commit.
 
 ## Không làm

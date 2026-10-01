@@ -1,5 +1,5 @@
 import { ApiErrorBody, type ErrorCode } from '@phonics/contracts';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 /** Mã lỗi của API + hai mã riêng của client (không tới được server / response sai định dạng) */
 export type ApiErrorCode = ErrorCode | 'NETWORK' | 'BAD_RESPONSE';

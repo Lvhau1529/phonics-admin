@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { useMoveClass } from '@/features/students/hooks';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty } from '@/shared/utils/zodForm';
 
 interface MoveClassValues {

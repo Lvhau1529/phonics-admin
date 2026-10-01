@@ -11,7 +11,7 @@ import { PointsTimelineChart } from '@/features/dashboard/components/PointsTimel
 import { TopStudentsChart } from '@/features/dashboard/components/TopStudentsChart';
 import { GameTimelineChart } from '@/features/games/components/GameTimelineChart';
 import { qk } from '@/shared/api/queryKeys';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { RangePicker } from '@/shared/ui/RangePicker';
@@ -81,17 +81,17 @@ export function DashboardPage() {
             <Col xs={24} xl={14}>
               <Typography.Title level={5}>{t.dashboard.pointsTimeline}</Typography.Title>
               <ErrorAlert error={timeline.error} />
-              <PointsTimelineChart data={timeline.data} loading={timeline.isLoading} />
+              <PointsTimelineChart data={timeline.data} loading={timeline.isFetching} />
             </Col>
             <Col xs={24} xl={10}>
               <Typography.Title level={5}>{t.dashboard.topStudents}</Typography.Title>
               <ErrorAlert error={top.error} />
-              <TopStudentsChart data={top.data} loading={top.isLoading} />
+              <TopStudentsChart data={top.data} loading={top.isFetching} />
             </Col>
             <Col span={24}>
               <Typography.Title level={5}>{t.dashboard.classGames}</Typography.Title>
               <ErrorAlert error={games.error} />
-              <ClassGamesTable data={games.data} loading={games.isLoading} />
+              <ClassGamesTable data={games.data} loading={games.isFetching} />
             </Col>
           </Row>
         )}

@@ -3,7 +3,7 @@ import { UpdateGameBody, type GameAdminItem } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useUpdateGame } from '@/features/games/hooks';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { applyFieldErrors, applyServerErrors, diffValues, parseForm } from '@/shared/utils/zodForm';
 
 interface GameFormValues {

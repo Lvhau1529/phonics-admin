@@ -1,7 +1,12 @@
 import {
   ENDPOINTS,
   PermissionDefView,
+  PermissionGroup,
+  PermissionGroupsResponse,
   UserPermissionsResponse,
+  type CreatePermissionGroupBody,
+  type SetUserPermissionGroupsBody,
+  type UpdatePermissionGroupBody,
   type UpdateUserPermissionsBody,
 } from '@phonics/contracts';
 import { z } from 'zod';
@@ -19,4 +24,19 @@ export const permissionsApi = {
       body,
       schema: UserPermissionsResponse,
     }),
+  /** Thay toàn bộ nhóm quyền của user → trả lại quyền hiệu lực mới */
+  setUserGroups: (userId: string, body: SetUserPermissionGroupsBody) =>
+    request(ENDPOINTS.admin.userPermissionGroups(userId), {
+      method: 'PUT',
+      body,
+      schema: UserPermissionsResponse,
+    }),
+
+  groups: () => request(ENDPOINTS.admin.permissionGroups, { schema: PermissionGroupsResponse }),
+  createGroup: (body: CreatePermissionGroupBody) =>
+    request(ENDPOINTS.admin.permissionGroups, { method: 'POST', body, schema: PermissionGroup }),
+  updateGroup: (id: string, body: UpdatePermissionGroupBody) =>
+    request(ENDPOINTS.admin.permissionGroup(id), { method: 'PATCH', body, schema: PermissionGroup }),
+  /** 204; nhóm hệ thống → 403 */
+  deleteGroup: (id: string) => request<void>(ENDPOINTS.admin.permissionGroup(id), { method: 'DELETE' }),
 };

@@ -8,6 +8,7 @@ import type { FormInstance } from 'antd';
 import type { Rule } from 'antd/es/form';
 import type { z, ZodType } from 'zod';
 import { isApiError } from '@/shared/api/errors';
+import { t } from '@/shared/i18n';
 
 export type FieldErrors = Record<string, string[]>;
 
@@ -25,7 +26,7 @@ export function zodRule(schema: ZodType, options: { allowEmpty?: boolean } = {})
       if (allowEmpty && isBlank(value)) return Promise.resolve();
       const result = schema.safeParse(value);
       if (result.success) return Promise.resolve();
-      return Promise.reject(new Error(result.error.issues[0]?.message ?? 'Giá trị không hợp lệ'));
+      return Promise.reject(new Error(result.error.issues[0]?.message ?? t.common.invalidValue));
     },
   };
 }

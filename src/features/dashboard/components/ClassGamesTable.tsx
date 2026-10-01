@@ -1,7 +1,7 @@
-import { Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { ClassGameStats } from '@phonics/contracts';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
+import { DataTable } from '@/shared/ui/DataTable';
 import { formatNumber, formatPercent, gameLabel } from '@/shared/utils/format';
 
 interface ClassGamesTableProps {
@@ -9,7 +9,7 @@ interface ClassGamesTableProps {
   loading: boolean;
 }
 
-const columns: ColumnsType<ClassGameStats> = [
+const buildColumns = (): ColumnsType<ClassGameStats> => [
   { title: t.common.game, dataIndex: 'gameId', render: (id: ClassGameStats['gameId']) => gameLabel(id) },
   { title: t.dashboard.rounds, dataIndex: 'rounds', align: 'right', render: formatNumber },
   { title: t.dashboard.players, dataIndex: 'players', align: 'right', render: formatNumber },
@@ -20,10 +20,10 @@ const columns: ColumnsType<ClassGameStats> = [
 /** Bảng thống kê từng game trong lớp (ván, người chơi, độ chính xác, điểm) */
 export function ClassGamesTable({ data, loading }: ClassGamesTableProps) {
   return (
-    <Table<ClassGameStats>
+    <DataTable.Static<ClassGameStats>
       rowKey="gameId"
       size="small"
-      columns={columns}
+      columns={buildColumns()}
       dataSource={data}
       loading={loading}
       pagination={false}

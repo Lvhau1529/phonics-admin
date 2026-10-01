@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSetClassTeachers } from '@/features/classes/hooks';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { parseForm } from '@/shared/utils/zodForm';
 
 interface AssignTeachersModalProps {

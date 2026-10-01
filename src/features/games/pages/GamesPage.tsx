@@ -1,5 +1,5 @@
 import { EditOutlined, EyeOutlined } from '@ant-design/icons';
-import { Button, Space, Table, Tag, Tooltip } from 'antd';
+import { Button, Space, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { GameAdminItem } from '@phonics/contracts';
 import { useState } from 'react';
@@ -8,7 +8,8 @@ import { ROUTES } from '@/app/routes';
 import { useAuth } from '@/features/auth/hooks';
 import { GameFormDrawer } from '@/features/games/components/GameFormDrawer';
 import { useAdminGames } from '@/features/games/hooks';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
+import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { formatDateTime, formatNumber } from '@/shared/utils/format';
@@ -67,13 +68,13 @@ export function GamesPage() {
     <>
       <PageHeader title={t.games.title} />
       <ErrorAlert error={games.error} onRetry={() => void games.refetch()} />
-      <Table<GameAdminItem>
+      <DataTable.Static<GameAdminItem>
         rowKey="id"
         size="middle"
         scroll={{ x: 'max-content' }}
         columns={columns}
         dataSource={games.data}
-        loading={games.isLoading}
+        loading={games.isFetching}
         pagination={false}
       />
       <GameFormDrawer game={editing} onClose={() => setEditing(undefined)} />

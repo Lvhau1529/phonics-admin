@@ -22,7 +22,7 @@ import { ClassStudentsTab } from '@/features/classes/components/ClassStudentsTab
 import { UnlockGameClassModal } from '@/features/classes/components/UnlockGameClassModal';
 import { useClass, useUpdateClass } from '@/features/classes/hooks';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { formatDateTime, formatNumber } from '@/shared/utils/format';

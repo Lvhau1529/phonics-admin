@@ -1,7 +1,7 @@
 import { Button, Result } from 'antd';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 /** Trang 404 trong AppShell */
 export function NotFoundPage() {

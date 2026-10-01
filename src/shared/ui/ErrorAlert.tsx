@@ -1,6 +1,6 @@
 import { Alert, Button } from 'antd';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 interface ErrorAlertProps {
   error: unknown;

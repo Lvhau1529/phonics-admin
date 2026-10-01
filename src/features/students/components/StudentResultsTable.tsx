@@ -3,7 +3,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { EndedBy, GameId, GameResultView } from '@phonics/contracts';
 import { useStudentGameResults } from '@/features/students/hooks';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { GameSelect } from '@/shared/ui/GameSelect';
@@ -13,7 +13,7 @@ interface StudentResultsTableProps {
   studentId: string;
 }
 
-const columns: ColumnsType<GameResultView> = [
+const buildColumns = (): ColumnsType<GameResultView> => [
   {
     title: t.students.results.playedAt,
     dataIndex: 'playedAt',
@@ -59,7 +59,7 @@ export function StudentResultsTable({ studentId }: StudentResultsTableProps) {
       </Flex>
       <ErrorAlert error={list.error} onRetry={() => void list.refetch()} />
       <DataTable<GameResultView>
-        columns={columns}
+        columns={buildColumns()}
         data={list.data}
         loading={list.isFetching}
         page={table.page}

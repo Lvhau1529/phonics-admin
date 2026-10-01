@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { auditApi } from '@/features/audit/api';
 import { qk } from '@/shared/api/queryKeys';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
@@ -52,7 +52,7 @@ function JsonBlock({ label, value }: { label: string; value: unknown }) {
   );
 }
 
-const columns: ColumnsType<AuditLogView> = [
+const buildColumns = (): ColumnsType<AuditLogView> => [
   {
     title: t.common.time,
     dataIndex: 'createdAt',
@@ -112,7 +112,7 @@ export function AuditPage() {
       </PageHeader>
       <ErrorAlert error={list.error} onRetry={() => void list.refetch()} />
       <DataTable<AuditLogView>
-        columns={columns}
+        columns={buildColumns()}
         data={list.data}
         loading={list.isFetching}
         page={table.page}

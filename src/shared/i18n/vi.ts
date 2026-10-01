@@ -1,6 +1,7 @@
 /**
- * Toàn bộ chuỗi giao diện Web Admin (tiếng Việt). Không hard-code chuỗi trong component — thêm vào đây.
- * Nhóm theo màn hình; `common` cho nút / nhãn dùng chung; `errors` map `ErrorCode` của API.
+ * Toàn bộ chuỗi giao diện Web Admin — tiếng Việt (từ điển NGUỒN: `en.ts` phải có đúng cấu trúc khoá này).
+ * Không hard-code chuỗi trong component — thêm vào đây VÀ `en.ts`. Nhóm theo màn hình; `common` cho nút / nhãn
+ * dùng chung; `errors` map `ErrorCode` của API; `format` cho định dạng ngày / số theo ngôn ngữ.
  */
 import type {
   AuditAction,
@@ -14,7 +15,7 @@ import type {
   UnlockSource,
 } from '@phonics/contracts';
 
-export const t = {
+export const vi = {
   app: {
     name: 'Phonics Arcade',
     subtitle: 'Quản trị',
@@ -109,6 +110,30 @@ export const t = {
     retry: 'Thử lại',
     collapse: 'Thu gọn',
     expand: 'Mở rộng',
+    invalidValue: 'Giá trị không hợp lệ',
+    language: 'Ngôn ngữ',
+    theme: 'Giao diện',
+    themeLight: 'Sáng',
+    themeDark: 'Tối',
+    themeSystem: 'Theo hệ thống',
+    members: 'Thành viên',
+    description: 'Mô tả',
+    permissions: 'Quyền',
+    source: 'Nguồn',
+    system: 'Hệ thống',
+    loadingAlt: 'Đang tải',
+    selectAll: 'Chọn tất cả',
+    clearAll: 'Bỏ chọn',
+  },
+
+  format: {
+    /** Locale cho Intl.NumberFormat */
+    numberLocale: 'vi-VN',
+    /** Dấu thập phân trong formatPercent */
+    decimal: ',',
+    date: 'DD/MM/YYYY',
+    dateTime: 'DD/MM/YYYY HH:mm',
+    bucket: 'DD/MM',
   },
 
   role: {
@@ -238,6 +263,8 @@ export const t = {
     hasPassword: 'Có mật khẩu',
     classesCol: 'Lớp phụ trách',
     noClasses: 'Chưa gán lớp',
+    groups: 'Nhóm quyền',
+    groupsHint: 'Quyền của nhóm được cộng thêm vào quyền mặc định của giáo viên',
     filterStatus: 'Trạng thái',
     filterClass: 'Lớp',
   },
@@ -383,6 +410,42 @@ export const t = {
     noteLabel: 'Ghi chú thay đổi',
     saved: 'Đã cập nhật quyền',
     legend: 'Mặc định = theo role; Cấp / Thu hồi = ghi đè riêng cho giáo viên này.',
+    tabGroups: 'Nhóm quyền',
+    tabUsers: 'Theo giáo viên',
+    groupsHint: 'Nhóm quyền = vai trò tuỳ biến: gom nhiều quyền rồi gán cho giáo viên.',
+    addGroup: 'Thêm nhóm quyền',
+    editGroup: 'Sửa nhóm quyền',
+    groupName: 'Tên nhóm',
+    groupDescription: 'Mô tả',
+    groupPermissions: 'Quyền trong nhóm',
+    members: 'Thành viên',
+    membersCount: (n: number) => `${n} giáo viên`,
+    systemGroup: 'Hệ thống',
+    systemGroupHint: 'Nhóm hệ thống: sửa được quyền nhưng không xoá được',
+    noPermissions: 'Chưa có quyền nào',
+    confirmDeleteGroup: (name: string) =>
+      `Xoá nhóm quyền "${name}"? Giáo viên trong nhóm sẽ mất các quyền này.`,
+    groupCreated: 'Đã tạo nhóm quyền',
+    groupUpdated: 'Đã cập nhật nhóm quyền',
+    groupDeleted: 'Đã xoá nhóm quyền',
+    userGroups: 'Nhóm quyền của giáo viên',
+    userGroupsPlaceholder: 'Chọn nhóm quyền…',
+    userGroupsSaved: 'Đã cập nhật nhóm quyền',
+    source: 'Nguồn',
+    sourceDefault: 'Mặc định của role',
+    sourceGroup: (name: string) => `Nhóm: ${name}`,
+    sourceGranted: 'Cấp riêng',
+    sourceRevoked: 'Thu hồi riêng',
+    sourceNone: 'Không có',
+    area: {
+      class: 'Lớp học',
+      points: 'Điểm',
+      students: 'Học sinh',
+      games: 'Game',
+      reports: 'Báo cáo',
+      stats: 'Thống kê',
+      other: 'Khác',
+    },
   },
 
   audit: {
@@ -405,6 +468,10 @@ export const t = {
       'class.setTeachers': 'Gán giáo viên lớp',
       'points.bonus': 'Cộng điểm thưởng',
       'permission.update': 'Đổi quyền',
+      'permission.setGroups': 'Gán nhóm quyền',
+      'permissionGroup.create': 'Tạo nhóm quyền',
+      'permissionGroup.update': 'Sửa nhóm quyền',
+      'permissionGroup.delete': 'Xoá nhóm quyền',
       'game.update': 'Sửa game',
       'game.unlock': 'Mở khoá game HS',
       'game.unlockClass': 'Mở khoá game lớp',
@@ -450,6 +517,17 @@ export const t = {
     'reports.export': 'Xuất báo cáo',
     'stats.view': 'Xem thống kê',
   } satisfies Record<Permission, string>,
-} as const;
 
-export type Translations = typeof t;
+  /** Mô tả dài theo ngôn ngữ; thiếu mã nào thì trang Phân quyền dùng `description` từ contracts (tiếng Việt) */
+  permissionDescription: {
+    'class.changeStudentClass': 'Chuyển học sinh sang lớp khác',
+    'points.award': 'Cộng điểm thưởng cho học sinh',
+    'points.revoke': 'Tạo bút toán âm / sửa điểm',
+    'students.edit': 'Sửa tên, avatar học sinh',
+    'students.viewParentContact': 'Xem liên hệ phụ huynh',
+    'games.unlock': 'Mở / thu hồi khoá game cho học sinh',
+    'games.manage': 'Sửa catalog game (bật / tắt, giá, thứ tự)',
+    'reports.export': 'Xuất báo cáo xlsx / pdf',
+    'stats.view': 'Xem thống kê lớp / game',
+  } satisfies Partial<Record<Permission, string>>,
+};

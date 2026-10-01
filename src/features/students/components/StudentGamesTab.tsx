@@ -1,10 +1,11 @@
-import { App, Switch, Table, Tag, Tooltip } from 'antd';
+import { App, Switch, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { StudentGameStatus } from '@phonics/contracts';
 import { useAuth } from '@/features/auth/hooks';
 import { useSetStudentGameUnlock, useStudentGames } from '@/features/students/hooks';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
+import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { formatDateTime, formatNumber, gameLabel } from '@/shared/utils/format';
 
@@ -67,12 +68,12 @@ export function StudentGamesTab({ studentId }: StudentGamesTabProps) {
   return (
     <>
       <ErrorAlert error={games.error} onRetry={() => void games.refetch()} />
-      <Table<StudentGameStatus>
+      <DataTable.Static<StudentGameStatus>
         rowKey="gameId"
         size="middle"
         columns={columns}
         dataSource={games.data}
-        loading={games.isLoading}
+        loading={games.isFetching}
         pagination={false}
       />
     </>

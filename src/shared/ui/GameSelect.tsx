@@ -1,6 +1,6 @@
 import { Select, type SelectProps } from 'antd';
 import { GAME_IDS, type GameId } from '@phonics/contracts';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 type GameSelectProps = Omit<SelectProps<GameId>, 'options'>;
 

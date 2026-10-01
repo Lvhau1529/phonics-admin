@@ -5,7 +5,7 @@ import { useAuth } from '@/features/auth/hooks';
 import { reportsApi } from '@/features/reports/api';
 import type { QueryParams } from '@/shared/api/client';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { saveBlob } from '@/shared/utils/download';
 
 export type ReportKind = 'ranking-xlsx' | 'ranking-pdf' | 'points-xlsx';
@@ -17,11 +17,11 @@ interface ExportButtonProps extends Omit<ButtonProps, 'onClick' | 'loading' | 'i
   query: QueryParams;
 }
 
-const LABELS: Record<ReportKind, string> = {
+const labels = (): Record<ReportKind, string> => ({
   'ranking-xlsx': t.reports.rankingXlsx,
   'ranking-pdf': t.reports.rankingPdf,
   'points-xlsx': t.reports.pointsXlsx,
-};
+});
 
 /** Nút xuất báo cáo (quyền reports.export): tải blob rồi lưu với tên từ Content-Disposition */
 export function ExportButton({ kind, classId, query, ...rest }: ExportButtonProps) {
@@ -56,7 +56,7 @@ export function ExportButton({ kind, classId, query, ...rest }: ExportButtonProp
         onClick={handleClick}
         {...rest}
       >
-        {LABELS[kind]}
+        {labels()[kind]}
       </Button>
     </Tooltip>
   );

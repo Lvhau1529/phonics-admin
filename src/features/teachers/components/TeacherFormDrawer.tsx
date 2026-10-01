@@ -4,16 +4,19 @@ import {
   DisplayName,
   Email,
   Password,
+  SetUserPermissionGroupsBody,
   UpdateTeacherBody,
   UserStatus,
   type AvatarKey,
   type TeacherSummary,
 } from '@phonics/contracts';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
+import { PermissionGroupSelect } from '@/features/permissions/components/PermissionGroupSelect';
+import { useSetUserPermissionGroups, useUserPermissions } from '@/features/permissions/hooks';
 import { useCreateTeacher, useUpdateTeacher } from '@/features/teachers/hooks';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { AvatarSelect } from '@/shared/ui/AvatarSelect';
 import {
   applyFieldErrors,
@@ -31,6 +34,8 @@ interface TeacherFormValues {
   avatarKey?: AvatarKey;
   status?: UserStatus;
   classIds?: string[];
+  /** Nhóm quyền (tuỳ chọn) — lưu bằng PUT /admin/users/:id/permission-groups sau khi tạo / sửa */
+  groupIds?: string[];
 }
 
 interface TeacherFormDrawerProps {
@@ -40,13 +45,22 @@ interface TeacherFormDrawerProps {
   onClose: () => void;
 }
 
-/** Tạo / sửa giáo viên. Mật khẩu để trống = đăng nhập Google (tạo) hoặc giữ nguyên (sửa). */
+const sameIds = (a: readonly string[], b: readonly string[]): boolean =>
+  a.length === b.length && a.every((id) => b.includes(id));
+
+/**
+ * Tạo / sửa giáo viên. Mật khẩu để trống = đăng nhập Google (tạo) hoặc giữ nguyên (sửa).
+ * Nhóm quyền: tạo → POST teacher rồi PUT nhóm (nếu chọn); sửa → nạp nhóm hiện có, chỉ PUT khi đổi.
+ */
 export function TeacherFormDrawer({ open, teacher, onClose }: TeacherFormDrawerProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<TeacherFormValues>();
   const create = useCreateTeacher();
   const update = useUpdateTeacher();
-  const saving = create.isPending || update.isPending;
+  const setGroups = useSetUserPermissionGroups();
+  const userPerms = useUserPermissions(open ? teacher?.id : undefined);
+  const saving = create.isPending || update.isPending || setGroups.isPending;
+  const currentGroupIds = useMemo(() => userPerms.data?.groups.map((g) => g.id), [userPerms.data]);
 
   useEffect(() => {
     if (!open) return;
@@ -59,9 +73,23 @@ export function TeacherFormDrawer({ open, teacher, onClose }: TeacherFormDrawerP
         status: teacher.status,
       });
     } else {
-      form.setFieldsValue({ avatarKey: 'pip', classIds: [] });
+      form.setFieldsValue({ avatarKey: 'pip', classIds: [], groupIds: [] });
     }
   }, [open, teacher, form]);
+
+  // Nhóm hiện có của giáo viên tới sau khi mở drawer → điền vào form
+  useEffect(() => {
+    if (open && teacher && currentGroupIds) form.setFieldsValue({ groupIds: currentGroupIds });
+  }, [open, teacher, currentGroupIds, form]);
+
+  const saveGroups = async (userId: string, groupIds: string[] | undefined) => {
+    const next = groupIds ?? [];
+    if (teacher && currentGroupIds && sameIds(next, currentGroupIds)) return;
+    if (!teacher && next.length === 0) return;
+    const parsed = parseForm(SetUserPermissionGroupsBody, { groupIds: next });
+    if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
+    await setGroups.mutateAsync({ userId, body: parsed.data });
+  };
 
   const handleFinish = async (raw: TeacherFormValues) => {
     const values = stripEmpty(raw as unknown as Record<string, unknown>) as unknown as TeacherFormValues;
@@ -82,18 +110,24 @@ export function TeacherFormDrawer({ open, teacher, onClose }: TeacherFormDrawerP
             password: values.password,
           },
         );
-        if (Object.keys(diff).length === 0) {
+        const groupsChanged = !!currentGroupIds && !sameIds(values.groupIds ?? [], currentGroupIds);
+        if (Object.keys(diff).length === 0 && !groupsChanged) {
           message.info(t.common.noChanges);
           return;
         }
-        const parsed = parseForm(UpdateTeacherBody, diff);
-        if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
-        await update.mutateAsync({ id: teacher.id, body: parsed.data });
+        if (Object.keys(diff).length > 0) {
+          const parsed = parseForm(UpdateTeacherBody, diff);
+          if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
+          await update.mutateAsync({ id: teacher.id, body: parsed.data });
+        }
+        await saveGroups(teacher.id, values.groupIds);
         message.success(t.common.updated);
       } else {
-        const parsed = parseForm(CreateTeacherBody, values);
+        const { groupIds, ...rest } = values;
+        const parsed = parseForm(CreateTeacherBody, rest);
         if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
-        await create.mutateAsync(parsed.data);
+        const created = await create.mutateAsync(parsed.data);
+        await saveGroups(created.id, groupIds);
         message.success(t.common.created);
       }
       onClose();
@@ -153,6 +187,13 @@ export function TeacherFormDrawer({ open, teacher, onClose }: TeacherFormDrawerP
             <ClassSelect mode="multiple" style={{ width: '100%' }} />
           </Form.Item>
         )}
+        <Form.Item
+          name="groupIds"
+          label={`${t.teachers.groups} ${t.common.optional}`}
+          extra={t.teachers.groupsHint}
+        >
+          <PermissionGroupSelect style={{ width: '100%' }} disabled={!!teacher && userPerms.isLoading} />
+        </Form.Item>
       </Form>
     </Drawer>
   );

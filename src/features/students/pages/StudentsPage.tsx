@@ -10,7 +10,7 @@ import { MoveClassModal } from '@/features/students/components/MoveClassModal';
 import { StudentsTable } from '@/features/students/components/StudentsTable';
 import { useStudentsList } from '@/features/students/hooks';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 

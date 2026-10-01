@@ -2,7 +2,7 @@ import { Select, type SelectProps } from 'antd';
 import { useState } from 'react';
 import { useTeacherOptions } from '@/features/teachers/hooks';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 type TeacherSelectProps = Omit<SelectProps<string | string[]>, 'options' | 'loading'> & {
   /** Tìm server-side theo q (mặc định tải 100 GV đầu rồi lọc tại chỗ) */

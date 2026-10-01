@@ -3,7 +3,7 @@ import { Password, ResetPasswordBody, type StudentSummary } from '@phonics/contr
 import { useEffect } from 'react';
 import { useResetPassword } from '@/features/students/hooks';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { applyFieldErrors, applyServerErrors, parseForm, zodRule } from '@/shared/utils/zodForm';
 
 interface ResetPasswordValues {

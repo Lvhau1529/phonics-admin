@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 import { useAuth } from '@/features/auth/hooks';
 import { useUpdateStudent } from '@/features/students/hooks';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { AvatarSelect } from '@/shared/ui/AvatarSelect';
 import {
   applyFieldErrors,

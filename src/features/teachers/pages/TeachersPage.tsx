@@ -11,7 +11,7 @@ import { TeacherFormDrawer } from '@/features/teachers/components/TeacherFormDra
 import { useTeachersList, useUpdateTeacher } from '@/features/teachers/hooks';
 import { errorMessage } from '@/shared/api/errors';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';

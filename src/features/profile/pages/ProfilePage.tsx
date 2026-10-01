@@ -13,7 +13,7 @@ import { setCurrentUser, signOut } from '@/features/auth/authStore';
 import { useAuth } from '@/features/auth/hooks';
 import { useMutation } from '@tanstack/react-query';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
 import { AvatarSelect } from '@/shared/ui/AvatarSelect';
 import { PageHeader } from '@/shared/ui/PageHeader';

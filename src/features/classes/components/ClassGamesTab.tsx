@@ -1,12 +1,13 @@
 import { UnlockOutlined } from '@ant-design/icons';
-import { Button, Table, Tag, Tooltip } from 'antd';
+import { Button, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { ClassSummary, GameCatalogItem, GameId } from '@phonics/contracts';
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks';
 import { UnlockGameClassModal } from '@/features/classes/components/UnlockGameClassModal';
 import { useGameCatalog } from '@/features/games/hooks';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
+import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { formatNumber } from '@/shared/utils/format';
 
@@ -57,12 +58,12 @@ export function ClassGamesTab({ cls }: ClassGamesTabProps) {
   return (
     <>
       <ErrorAlert error={catalog.error} onRetry={() => void catalog.refetch()} />
-      <Table<GameCatalogItem>
+      <DataTable.Static<GameCatalogItem>
         rowKey="id"
         size="middle"
         columns={columns}
         dataSource={catalog.data}
-        loading={catalog.isLoading}
+        loading={catalog.isFetching}
         pagination={false}
       />
       <UnlockGameClassModal

@@ -6,7 +6,7 @@ import { useAuth } from '@/features/auth/hooks';
 import { useAwardBonus, useAwardBonusBatch } from '@/features/classes/hooks';
 import { StudentSelect } from '@/features/students/components/StudentSelect';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { GameSelect } from '@/shared/ui/GameSelect';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty, zodRule } from '@/shared/utils/zodForm';
 

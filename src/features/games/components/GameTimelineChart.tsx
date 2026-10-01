@@ -1,10 +1,11 @@
-import { Empty, Flex, Segmented, Spin } from 'antd';
+import { Empty, Flex, Segmented } from 'antd';
 import type { Bucket, GameId } from '@phonics/contracts';
 import { useState } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useGameTimeline } from '@/features/games/hooks';
-import { t } from '@/shared/i18n/vi';
-import { CHART_COLORS } from '@/shared/theme';
+import { useChartTheme } from '@/shared/hooks/useChartTheme';
+import { t } from '@/shared/i18n';
+import { ChartFrame } from '@/shared/ui/ChartFrame';
 import { RangePicker } from '@/shared/ui/RangePicker';
 import { DEFAULT_RANGE, rangeParams, type RangeValue } from '@/shared/utils/range';
 import { formatBucket } from '@/shared/utils/format';
@@ -20,7 +21,8 @@ interface GameTimelineChartProps {
 export function GameTimelineChart({ gameId, height = 280, initialRange }: GameTimelineChartProps) {
   const [range, setRange] = useState<RangeValue>(initialRange ?? { ...DEFAULT_RANGE, range: 'month' });
   const [bucket, setBucket] = useState<Bucket>('day');
-  const { data, isLoading } = useGameTimeline(gameId, { ...rangeParams(range), bucket });
+  const { data, isFetching } = useGameTimeline(gameId, { ...rangeParams(range), bucket });
+  const chart = useChartTheme();
   const rows = (data ?? []).map((b) => ({ ...b, label: formatBucket(b.bucketStart) }));
 
   return (
@@ -37,43 +39,43 @@ export function GameTimelineChart({ gameId, height = 280, initialRange }: GameTi
           ]}
         />
       </Flex>
-      {isLoading && !data ? (
-        <Spin style={{ display: 'block', margin: '48px auto' }} />
-      ) : rows.length === 0 ? (
-        <Empty description={t.common.noData} />
-      ) : (
-        <ResponsiveContainer width="100%" height={height}>
-          <LineChart data={rows} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-            <XAxis dataKey="label" fontSize={12} />
-            <YAxis fontSize={12} allowDecimals={false} />
-            <Tooltip />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="views"
-              name={t.dashboard.views}
-              stroke={CHART_COLORS[3]}
-              dot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="plays"
-              name={t.dashboard.plays}
-              stroke={CHART_COLORS[0]}
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="uniquePlayers"
-              name={t.dashboard.uniquePlayers}
-              stroke={CHART_COLORS[2]}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      )}
+      <ChartFrame loading={isFetching} hasData={!!data} height={height}>
+        {rows.length === 0 ? (
+          <Empty description={t.common.noData} />
+        ) : (
+          <ResponsiveContainer width="100%" height={height}>
+            <LineChart data={rows} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+              <XAxis dataKey="label" fontSize={12} stroke={chart.axis} tick={{ fill: chart.text }} />
+              <YAxis fontSize={12} allowDecimals={false} stroke={chart.axis} tick={{ fill: chart.text }} />
+              <Tooltip {...chart.tooltip} />
+              <Legend {...chart.legend} />
+              <Line
+                type="monotone"
+                dataKey="views"
+                name={t.dashboard.views}
+                stroke={chart.colors[3]}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="plays"
+                name={t.dashboard.plays}
+                stroke={chart.colors[0]}
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="uniquePlayers"
+                name={t.dashboard.uniquePlayers}
+                stroke={chart.colors[2]}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </ChartFrame>
     </Flex>
   );
 }

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Providers } from '@/app/providers';
 import { resetAuthStoreForTests } from '@/features/auth/authStore';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 describe('LoginPage', () => {
   beforeEach(() => resetAuthStoreForTests());

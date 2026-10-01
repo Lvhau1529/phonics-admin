@@ -1,11 +1,11 @@
 import type { ComponentType } from 'react';
-import { Spin } from 'antd';
 import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RequireAuth } from '@/app/guards/RequireAuth';
 import { RequireRole } from '@/app/guards/RequireRole';
 import { AppShell } from '@/app/layout/AppShell';
 import { ROUTES } from '@/app/routes';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
+import { CenteredLoader } from '@/shared/ui/LottieLoader';
 import { NotFoundPage } from '@/shared/ui/NotFoundPage';
 
 /** Route gate theo role: ADMIN mới vào được (menu cũng ẩn, nhưng gõ URL tay vẫn bị chặn) */
@@ -51,4 +51,6 @@ export const routes: RouteObject[] = [
 ];
 
 /** Route gốc không path chỉ để khai báo HydrateFallback (trang con tải lazy — React Router cần fallback lúc render đầu) */
-export const router = createBrowserRouter([{ HydrateFallback: () => <Spin fullscreen />, children: routes }]);
+export const router = createBrowserRouter([
+  { HydrateFallback: () => <CenteredLoader minHeight="100vh" />, children: routes },
+]);

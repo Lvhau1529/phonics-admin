@@ -2,7 +2,7 @@ import { Card, Empty } from 'antd';
 import { useSearchParams } from 'react-router';
 import { ClassReportsTab } from '@/features/classes/components/ClassReportsTab';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { PageHeader } from '@/shared/ui/PageHeader';
 
 /** Báo cáo: chọn lớp → khoảng thời gian / game → xuất xếp hạng (xlsx / pdf), sổ điểm (xlsx) + xem trước */

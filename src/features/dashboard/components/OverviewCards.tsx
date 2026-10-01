@@ -6,11 +6,10 @@ import {
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Card, Col, Row, Skeleton, Statistic } from 'antd';
+import { Card, Col, Row, Skeleton, Statistic, theme } from 'antd';
 import type { OverviewStats } from '@phonics/contracts';
 import type { ReactNode } from 'react';
-import { t } from '@/shared/i18n/vi';
-import { COLOR_PRIMARY } from '@/shared/theme';
+import { t } from '@/shared/i18n';
 
 interface OverviewCardsProps {
   data: OverviewStats | undefined;
@@ -19,6 +18,7 @@ interface OverviewCardsProps {
 
 /** 6 thẻ số liệu tổng (học sinh, giáo viên, lớp, điểm / ván / lượt xem-chơi 7 ngày) */
 export function OverviewCards({ data, loading }: OverviewCardsProps) {
+  const { token } = theme.useToken();
   const cards: { title: string; value: number | undefined; icon: ReactNode; suffix?: string }[] = [
     { title: t.dashboard.students, value: data?.students, icon: <TeamOutlined /> },
     { title: t.dashboard.teachers, value: data?.teachers, icon: <UserOutlined /> },
@@ -43,7 +43,7 @@ export function OverviewCards({ data, loading }: OverviewCardsProps) {
               <Statistic
                 title={card.title}
                 value={card.value ?? 0}
-                prefix={<span style={{ color: COLOR_PRIMARY }}>{card.icon}</span>}
+                prefix={<span style={{ color: token.colorPrimaryText }}>{card.icon}</span>}
                 suffix={card.suffix && <span style={{ fontSize: 12 }}>{card.suffix}</span>}
               />
             )}

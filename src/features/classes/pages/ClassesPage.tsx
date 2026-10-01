@@ -11,7 +11,7 @@ import { ClassFormDrawer } from '@/features/classes/components/ClassFormDrawer';
 import { useClassesList, useUpdateClass } from '@/features/classes/hooks';
 import { errorMessage } from '@/shared/api/errors';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';

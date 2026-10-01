@@ -12,16 +12,21 @@ import {
   TrophyOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Button, Dropdown, Flex, Grid, Layout, Menu, Typography, type MenuProps } from 'antd';
-import { useState, type ReactNode } from 'react';
+import { Button, Dropdown, Flex, Grid, Layout, Menu, theme, Typography, type MenuProps } from 'antd';
+import { Suspense, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { activeMenuKey, menuForRole, type MenuEntry } from '@/app/layout/menu';
 import { ROUTES } from '@/app/routes';
 import { signOut } from '@/features/auth/authStore';
 import { useAuth } from '@/features/auth/hooks';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
+import { THEME_COLORS } from '@/shared/theme';
+import { useResolvedTheme } from '@/shared/theme/themeStore';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
+import { LangSwitch } from '@/shared/ui/LangSwitch';
+import { CenteredLoader } from '@/shared/ui/LottieLoader';
 import { RoleTag } from '@/shared/ui/RoleTag';
+import { ThemeSwitch } from '@/shared/ui/ThemeSwitch';
 
 const ICONS: Record<MenuEntry['icon'], ReactNode> = {
   dashboard: <DashboardOutlined />,
@@ -35,7 +40,7 @@ const ICONS: Record<MenuEntry['icon'], ReactNode> = {
   report: <FileExcelOutlined />,
 };
 
-/** Khung admin: sider tím + header (user menu) + nội dung route con */
+/** Khung admin: sider nâu đậm (mực arcade) + header (đổi theme / ngôn ngữ, user menu) + nội dung route con */
 export function AppShell() {
   const auth = useAuth();
   const location = useLocation();
@@ -43,16 +48,20 @@ export function AppShell() {
   const screens = Grid.useBreakpoint();
   const [collapsed, setCollapsed] = useState(false);
   const isMobile = screens.lg === false;
+  const mode = useResolvedTheme();
+  const colors = THEME_COLORS[mode];
+  const { token } = theme.useToken();
 
   const items: MenuProps['items'] = menuForRole(auth.role).map((entry) => ({
     key: entry.key,
     icon: ICONS[entry.icon],
-    label: <Link to={entry.path}>{entry.label}</Link>,
+    label: <Link to={entry.path}>{t.nav[entry.labelKey]}</Link>,
   }));
   const selected = activeMenuKey(location.pathname);
 
   const userMenu: MenuProps['items'] = [
     { key: 'profile', icon: <UserOutlined />, label: t.nav.profile, onClick: () => navigate(ROUTES.profile) },
+    ...(isMobile ? [{ key: 'theme', label: <ThemeSwitch size="middle" /> }] : []),
     { type: 'divider' },
     { key: 'signout', icon: <LogoutOutlined />, label: t.nav.signOut, onClick: () => void signOut() },
   ];
@@ -68,10 +77,10 @@ export function AppShell() {
         collapsedWidth={isMobile ? 0 : 64}
         style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'auto' }}
       >
-        <Flex align="center" gap={8} style={{ height: 56, padding: '0 16px', color: '#fff' }}>
+        <Flex align="center" gap={8} style={{ height: 56, padding: '0 16px', color: colors.siderSelectedBg }}>
           <TrophyOutlined style={{ fontSize: 22 }} />
           {!collapsed && (
-            <Typography.Text strong style={{ color: '#fff', whiteSpace: 'nowrap' }}>
+            <Typography.Text strong style={{ color: colors.siderText, whiteSpace: 'nowrap' }}>
               {t.app.name}
             </Typography.Text>
           )}
@@ -84,7 +93,7 @@ export function AppShell() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
+            borderBottom: `2px solid ${colors.headerBorder}`,
             position: 'sticky',
             top: 0,
             zIndex: 10,
@@ -106,18 +115,31 @@ export function AppShell() {
             )}
             <Typography.Text type="secondary">{t.app.subtitle}</Typography.Text>
           </Flex>
-          {auth.user && (
-            <Dropdown menu={{ items: userMenu }} trigger={['click']} placement="bottomRight">
-              <Flex align="center" gap={8} style={{ cursor: 'pointer' }}>
-                <AvatarImg avatarKey={auth.user.avatarKey} name={auth.user.displayName} size="small" />
-                <Typography.Text>{auth.user.displayName}</Typography.Text>
-                <RoleTag role={auth.user.role} />
-              </Flex>
-            </Dropdown>
-          )}
+          <Flex align="center" gap={isMobile ? 8 : 16}>
+            {!isMobile && <ThemeSwitch />}
+            <LangSwitch />
+            {auth.user && (
+              <Dropdown menu={{ items: userMenu }} trigger={['click']} placement="bottomRight">
+                <Flex align="center" gap={8} style={{ cursor: 'pointer' }}>
+                  <AvatarImg avatarKey={auth.user.avatarKey} name={auth.user.displayName} size="small" />
+                  {!isMobile && <Typography.Text>{auth.user.displayName}</Typography.Text>}
+                  {!isMobile && <RoleTag role={auth.user.role} />}
+                </Flex>
+              </Dropdown>
+            )}
+          </Flex>
         </Layout.Header>
-        <Layout.Content style={{ padding: isMobile ? 16 : 24, maxWidth: 1400, width: '100%' }}>
-          <Outlet />
+        <Layout.Content
+          style={{
+            padding: isMobile ? 16 : 24,
+            maxWidth: 1400,
+            width: '100%',
+            background: token.colorBgLayout,
+          }}
+        >
+          <Suspense fallback={<CenteredLoader minHeight="60vh" />}>
+            <Outlet />
+          </Suspense>
         </Layout.Content>
       </Layout>
     </Layout>

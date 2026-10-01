@@ -4,7 +4,7 @@ import type { StudentSummary, UserStatus } from '@phonics/contracts';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
 import { DataTable, type DataTableProps } from '@/shared/ui/DataTable';
 import { StatusTag } from '@/shared/ui/RoleTag';

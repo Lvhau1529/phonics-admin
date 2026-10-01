@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { RankingTable } from '@/features/classes/components/RankingTable';
 import { useClassRanking } from '@/features/classes/hooks';
 import { ExportButton } from '@/features/reports/components/ExportButton';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { GameSelect } from '@/shared/ui/GameSelect';
 import { RangePicker } from '@/shared/ui/RangePicker';

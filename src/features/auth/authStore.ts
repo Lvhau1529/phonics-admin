@@ -12,7 +12,7 @@ import { authApi } from '@/features/auth/api';
 import { clearSession, getSession, refreshSession, setSession, subscribeSession } from '@/shared/api/client';
 import { isApiError } from '@/shared/api/errors';
 import { AUTH_STORAGE_KEY } from '@/shared/config';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 

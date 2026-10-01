@@ -51,6 +51,9 @@ export const qk = {
   permissions: {
     all: ['permissions'] as const,
     catalog: ['permissions', 'catalog'] as const,
+    groups: ['permissions', 'groups'] as const,
+    /** Prefix mọi ma trận quyền theo user (invalidate khi nhóm đổi) */
+    users: ['permissions', 'user'] as const,
     user: (userId: string) => ['permissions', 'user', userId] as const,
   },
   audit: {

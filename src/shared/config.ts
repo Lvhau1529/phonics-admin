@@ -12,3 +12,9 @@ export const AUTH_STORAGE_KEY = 'phonics-admin:auth';
 
 /** Số dòng mặc định của bảng */
 export const DEFAULT_PAGE_SIZE = 20;
+
+/** Khoá localStorage lưu chế độ giao diện ('light' | 'dark'; không có = theo hệ điều hành) */
+export const THEME_STORAGE_KEY = 'phonics-admin:theme';
+
+/** Khoá localStorage lưu ngôn ngữ giao diện ('vi' | 'en'; không có = theo navigator.language) */
+export const LANG_STORAGE_KEY = 'phonics-admin:lang';

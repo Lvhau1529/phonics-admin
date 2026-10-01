@@ -2,7 +2,7 @@ import { Empty } from 'antd';
 import { useSearchParams } from 'react-router';
 import { ClassPointsTab } from '@/features/classes/components/ClassPointsTab';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { PageHeader } from '@/shared/ui/PageHeader';
 
 /** Sổ điểm toàn cục: API chỉ có sổ điểm theo lớp nên bắt buộc chọn lớp trước */

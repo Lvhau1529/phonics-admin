@@ -11,7 +11,7 @@ import { useEffect } from 'react';
 import { useCreateClass, useUpdateClass } from '@/features/classes/hooks';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import {
   applyFieldErrors,
   applyServerErrors,

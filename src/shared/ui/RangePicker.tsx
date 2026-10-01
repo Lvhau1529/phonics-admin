@@ -2,7 +2,7 @@ import { DatePicker, Select, Space } from 'antd';
 import { RangePreset } from '@phonics/contracts';
 import { type RangeValue } from '@/shared/utils/range';
 import dayjs from 'dayjs';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { toIsoDate } from '@/shared/utils/format';
 
 interface RangePickerProps {
@@ -45,7 +45,7 @@ export function RangePicker({ value, onChange, allowCustom = true, size }: Range
         <DatePicker.RangePicker
           size={size}
           allowClear={false}
-          format="DD/MM/YYYY"
+          format={t.format.date}
           value={[dayjs(value.from), dayjs(value.to)]}
           onChange={(dates) => {
             if (!dates || !dates[0] || !dates[1]) return;

@@ -1,6 +1,6 @@
 import { Select, type SelectProps } from 'antd';
 import { useStudentOptions } from '@/features/students/hooks';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 type StudentSelectProps = Omit<SelectProps<string>, 'options' | 'loading'> & {
   /** Lớp cần liệt kê học sinh; không có lớp thì ô bị khoá */

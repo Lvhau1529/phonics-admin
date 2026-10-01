@@ -1,6 +1,6 @@
 import { Select, type SelectProps } from 'antd';
 import { useClassOptions } from '@/features/classes/hooks';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { classLabel } from '@/shared/utils/format';
 
 type ClassSelectProps<V extends string | string[]> = Omit<SelectProps<V>, 'options' | 'loading'> & {

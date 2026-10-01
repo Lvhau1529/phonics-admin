@@ -3,7 +3,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { PointEntryView, PointKind } from '@phonics/contracts';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { DataTable, type DataTableProps } from '@/shared/ui/DataTable';
 import { formatDateTime, formatSigned, gameLabel } from '@/shared/utils/format';
 

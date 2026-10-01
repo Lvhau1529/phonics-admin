@@ -3,7 +3,7 @@ import { UnlockClassBody, type ClassSummary, type GameId } from '@phonics/contra
 import { useEffect } from 'react';
 import { useUnlockClassGame } from '@/features/classes/hooks';
 import { errorMessage } from '@/shared/api/errors';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { GameSelect } from '@/shared/ui/GameSelect';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty } from '@/shared/utils/zodForm';
 

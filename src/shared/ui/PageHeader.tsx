@@ -2,7 +2,7 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button, Flex, Typography } from 'antd';
 import { useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 
 interface PageHeaderProps {
   title: ReactNode;

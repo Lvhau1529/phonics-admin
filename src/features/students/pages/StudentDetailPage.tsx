@@ -14,7 +14,7 @@ import { StudentPointsByGame } from '@/features/students/components/StudentPoint
 import { StudentResultsTable } from '@/features/students/components/StudentResultsTable';
 import { useStudent, useStudentPoints } from '@/features/students/hooks';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { GameSelect } from '@/shared/ui/GameSelect';

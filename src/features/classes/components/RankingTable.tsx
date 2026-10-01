@@ -1,10 +1,11 @@
-import { Space, Table, Tag } from 'antd';
+import { Space, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { RankingEntry } from '@phonics/contracts';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { t } from '@/shared/i18n/vi';
+import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
+import { DataTable } from '@/shared/ui/DataTable';
 import { formatNumber } from '@/shared/utils/format';
 
 interface RankingTableProps {
@@ -14,7 +15,7 @@ interface RankingTableProps {
 
 const RANK_COLORS: Record<number, string> = { 1: 'gold', 2: 'default', 3: 'volcano' };
 
-const columns: ColumnsType<RankingEntry> = [
+const buildColumns = (): ColumnsType<RankingEntry> => [
   {
     title: t.common.rank,
     dataIndex: 'rank',
@@ -35,13 +36,13 @@ const columns: ColumnsType<RankingEntry> = [
   { title: t.common.points, dataIndex: 'points', align: 'right', render: formatNumber },
 ];
 
-/** Bảng xếp hạng lớp (không phân trang — một lớp ≤ vài chục học sinh) */
+/** Bảng xếp hạng lớp (không phân trang — một lớp ≤ vài chục học sinh); giữ dữ liệu cũ khi refetch */
 export function RankingTable({ items, loading }: RankingTableProps) {
   return (
-    <Table<RankingEntry>
+    <DataTable.Static<RankingEntry>
       rowKey="studentId"
       size="middle"
-      columns={columns}
+      columns={buildColumns()}
       dataSource={items}
       loading={loading}
       pagination={false}
