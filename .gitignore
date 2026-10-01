@@ -1,0 +1,11 @@
+node_modules
+dist
+dev-dist
+coverage
+*.tsbuildinfo
+*.local
+.DS_Store
+# Secret: chỉ commit *.env.example
+.env
+.env.*
+!.env.example

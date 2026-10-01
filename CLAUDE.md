@@ -1,7 +1,23 @@
-# Quy tắc cho Claude — apps/admin (@phonics/admin)
+# Quy tắc cho Claude — phonics-admin
 
-Đọc [README.md](README.md) (cấu trúc, chạy, env) và rule chung ở [../../CLAUDE.md](../../CLAUDE.md). Stack:
-React 19 + Vite 8 + TS 7 + Ant Design 5 + TanStack Query 5 + React Router 7 + Recharts ([ADR 0008](../../docs/adr/0008-admin-stack.md)).
+Đọc [README.md](README.md) (cấu trúc, chạy, env). Stack: React 19 + Vite 8 + TS 7 + Ant Design 5 + TanStack Query 5 +
+React Router 7 + Recharts (ADR 0008 trong phonics-workspace). API: repo phonics-api.
+
+## Git
+
+- **Không tự `git push`.** Chỉ push khi người dùng yêu cầu rõ ràng. Làm xong thì commit (nếu phù hợp) và báo lại.
+- Trước mỗi lần push: `pnpm build` (gồm typecheck) phải qua; đóng server dev / preview mình đã mở.
+- Commit message **không** có dòng ghi công Claude. Subject tiếng Anh, body có thể tiếng Việt.
+- Dùng **pnpm**; thêm / đổi package thì commit kèm `pnpm-lock.yaml` (deploy cài bằng `--frozen-lockfile`).
+- Secret chỉ trong `.env` (gitignored); mẫu ở `.env.example`. Không ghi secret vào docs / commit / log.
+- Giao diện song ngữ EN / VI: mọi chuỗi phải có trong cả `src/shared/i18n/vi.ts` và `en.ts` (ADR 0014).
+- Validate hai lớp: validate bằng chính schema contracts trước khi gửi; API validate lại.
+
+## Dev cùng các repo khác
+
+Repo này độc lập (clone, cài, build, deploy riêng). Muốn chạy cả hệ thống (API + game + admin) và sửa
+`@phonics/contracts` thấy ngay ở mọi app: dùng repo **phonics-workspace** (README ở đó). Trong workspace, chạy lệnh
+từ gốc workspace (`pnpm --filter <app> ...`), không `cd` vào repo rồi `pnpm install` (sẽ ghi đè liên kết contracts local).
 
 ## Kiến trúc
 
@@ -59,11 +75,12 @@ React 19 + Vite 8 + TS 7 + Ant Design 5 + TanStack Query 5 + React Router 7 + Re
 
 ## Thêm trang / endpoint (checklist)
 
-1. Contracts có schema + `ENDPOINTS`? Chưa có → thêm ở `packages/contracts`, build, rồi mới dùng.
+1. Contracts có schema + `ENDPOINTS`? Chưa có → thêm ở phonics-api (`packages/contracts`), phát hành bản mới (hoặc
+   làm trong phonics-workspace), `pnpm up @phonics/contracts`, rồi mới dùng.
 2. `features/<x>/api.ts` → `features/<x>/hooks.ts` (+ khoá ở `queryKeys.ts`).
 3. `pages/XPage.tsx` export **default** (lazy route) + named; đăng ký `app/router.tsx`, `app/routes.ts`, menu.
 4. Chuỗi → `i18n/vi.ts` **và** `i18n/en.ts`. Quyền → `can()`. Test hook / util nếu có logic (Vitest + jsdom, file `*.test.ts(x)`).
-5. `pnpm typecheck && pnpm lint && pnpm test && pnpm build` xanh (trong `apps/admin`), rồi commit.
+5. `pnpm typecheck && pnpm lint && pnpm test && pnpm build` xanh, rồi commit.
 
 ## Không làm
 

@@ -1,0 +1,9 @@
+# Repo một gói; file này chỉ chứa thiết lập pnpm.
+# pnpm 11+: gói có build script phải được cho phép / chặn rõ ràng (bỏ qua ngầm = lỗi khi cài).
+allowBuilds:
+  # @parcel/watcher (phụ thuộc của Sass) có sẵn bản dựng cho từng hệ điều hành: không cần chạy build script.
+  '@parcel/watcher': false
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - globals@17.13.0

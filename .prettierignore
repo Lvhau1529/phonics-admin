@@ -1,0 +1,8 @@
+dist
+dev-dist
+node_modules
+coverage
+pnpm-lock.yaml
+*.md
+# Lottie JSON nén sẵn
+public/lottie

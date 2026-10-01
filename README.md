@@ -1,31 +1,26 @@
-# @phonics/admin — Web Admin Phonics Arcade
+# phonics-admin — Web Admin Phonics Arcade
 
 Trang quản trị cho **admin** và **giáo viên**: tổng quan, lớp học, học sinh, sổ điểm, cộng điểm thưởng, mở khoá
 game, phân quyền (nhóm quyền + ma trận theo giáo viên), nhật ký, báo cáo xlsx / pdf. Giao diện **tiếng Việt /
 tiếng Anh** (chuyển ở header), theme **vàng trùng game** có **dark mode**.
 
-Stack ([ADR 0008](../../docs/adr/0008-admin-stack.md)): React 19 + Vite 8 + TypeScript 7 + Ant Design 5 +
+Stack (ADR 0008 trong phonics-workspace): React 19 + Vite 8 + TypeScript 7 + Ant Design 5 +
 TanStack Query 5 + React Router 7 + Recharts + dayjs + zod (schema dùng chung từ `@phonics/contracts`).
 
 ## Chạy
 
 ```bash
-# ở root
-pnpm install
-pnpm --filter @phonics/contracts build   # lần đầu (admin import type / schema từ dist)
-pnpm dev:admin                           # http://localhost:5174 — cần API chạy (pnpm dev:api)
-
-# trong apps/admin
-pnpm dev          # vite --port 5174
+pnpm install      # cần token GitHub Packages cho @phonics/contracts (xem mục Gói @phonics/contracts)
+pnpm dev          # vite --port 5174 — cần API (repo phonics-api) chạy ở VITE_API_URL
 pnpm build        # typecheck + vite build → dist/
 pnpm preview      # xem bản build (port 4174)
 pnpm typecheck    # tsc (src) + tsc (vite.config)
-pnpm lint         # eslint (flat config ở root)
+pnpm lint         # eslint
 pnpm test         # vitest (jsdom + Testing Library)
 ```
 
-Tài khoản demo (API seed với `SEED_DEMO=true`): admin `admin@phonics.local` (mật khẩu trong `apps/api/.env`
-`ADMIN_PASSWORD`), giáo viên `teacher1@demo.local` / `Demo1234!`. Học sinh **không** đăng nhập được admin.
+Tài khoản demo (API seed với `SEED_DEMO=true`): admin `admin@phonics.local` (mật khẩu trong `.env` của
+phonics-api, `ADMIN_PASSWORD`), giáo viên `teacher1@demo.local` / `Demo1234!`. Học sinh **không** đăng nhập được admin.
 
 ## Env
 
@@ -73,7 +68,7 @@ src/
 ## Theme (vàng trùng game + dark mode)
 
 `src/shared/theme.ts` → `buildTheme(mode)` cho `ConfigProvider`; màu lấy từ palette game
-(`apps/game/src/platform/styles/tailwind.css`: gold `#ffd23f`, honey `#ffc83d`, ink `#2e1608`, paper `#fffaf0`…).
+(phonics-game `src/platform/styles/tailwind.css`: gold `#ffd23f`, honey `#ffc83d`, ink `#2e1608`, paper `#fffaf0`…).
 
 | Token                                    | Light                       | Dark                  | Tương phản (WCAG)          |
 | ---------------------------------------- | --------------------------- | --------------------- | -------------------------- |
@@ -133,7 +128,8 @@ palette `THEME_COLORS[mode].chart`) nên tự đổi theo dark mode — **không
 
 ## Thêm trang mới
 
-1. Contracts: schema / `ENDPOINTS` đã có? Chưa thì thêm ở `packages/contracts` rồi `pnpm --filter @phonics/contracts build`.
+1. Contracts: schema / `ENDPOINTS` đã có? Chưa thì thêm ở phonics-api
+   (`packages/contracts`), phát hành bản mới rồi `pnpm up @phonics/contracts` ở đây (hoặc làm trong phonics-workspace).
 2. `src/features/<feature>/api.ts`: hàm gọi `request(ENDPOINTS.x, { schema })`.
 3. `src/features/<feature>/hooks.ts`: `useQuery({ queryKey: qk.<feature>.list(params) })`; thêm khoá vào
    `shared/api/queryKeys.ts`; mutation `onSuccess` invalidate theo prefix.
@@ -143,7 +139,23 @@ palette `THEME_COLORS[mode].chart`) nên tự đổi theo dark mode — **không
 6. Bảng phân trang: `useTableQuery` + `DataTable`; form: antd `Form` + `zodRule(schema)` + `parseForm(Body, values)`
    trước khi gọi API, `applyServerErrors(form, error)` khi API trả 400.
 
+## Gói `@phonics/contracts` (GitHub Packages)
+
+Schema / type / hằng số dùng chung với API là gói `@lvhau1529/phonics-contracts` (phát hành từ repo phonics-api), cài qua alias
+`"@phonics/contracts": "npm:@lvhau1529/phonics-contracts@^1"` nên code vẫn `import … from '@phonics/contracts'`.
+GitHub Packages cần token kể cả khi chỉ đọc; pnpm **không** đọc token trong `.npmrc` của repo, nên đặt ở cấp user:
+
+- Máy dev: tạo GitHub PAT (classic) quyền `read:packages`, rồi
+  `pnpm config set //npm.pkg.github.com/:_authToken <token> --location=user`.
+- CI (GitHub Actions): đã cấu hình sẵn bằng `GITHUB_TOKEN`; ở trang package `phonics-contracts` > Package settings >
+  Manage Actions access, thêm repo này với quyền Read.
+- Vercel: biến môi trường `NPM_RC` gồm 2 dòng `@lvhau1529:registry=https://npm.pkg.github.com` và
+  `//npm.pkg.github.com/:_authToken=<token>`.
+
+Nâng version: `pnpm up @phonics/contracts` rồi commit lockfile. Sửa contracts và thấy ngay ở app (không cần phát hành):
+chạy trong phonics-workspace.
+
 ## Deploy
 
-Vercel, _Root Directory_ = `apps/admin` (`vercel.json`: build bằng `turbo run build --filter=@phonics/admin`,
-rewrite SPA về `index.html`). Đặt `VITE_API_URL`, `VITE_GAME_URL` trong project settings.
+Vercel, _Root Directory_ = gốc repo (`vercel.json`: build bằng `pnpm run build`, rewrite SPA về `index.html`).
+Đặt `NPM_RC` (token đọc GitHub Packages, xem trên), `VITE_API_URL`, `VITE_GAME_URL` trong project settings.
