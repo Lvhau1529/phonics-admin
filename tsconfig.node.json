@@ -1,0 +1,10 @@
+{
+  "extends": "@phonics/config/tsconfig/base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node", "vitest/config"],
+    "noEmit": true
+  },
+  "include": ["vite.config.ts"]
+}

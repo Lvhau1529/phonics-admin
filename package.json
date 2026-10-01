@@ -1,0 +1,45 @@
+{
+  "name": "@phonics/admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Phonics Arcade — Web Admin cho admin / giáo viên (React 19 + Ant Design 5 + TanStack Query)",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "vite --port 5174",
+    "build": "pnpm run typecheck && vite build",
+    "preview": "vite preview --port 4174",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@phonics/contracts": "workspace:*",
+    "@tanstack/react-query": "^5.104.0",
+    "antd": "^5.29.3",
+    "dayjs": "^1.11.23",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-router": "^7.18.4",
+    "recharts": "^3.10.1",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@phonics/config": "workspace:*",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.3",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "jsdom": "^30.1.1",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
