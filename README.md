@@ -33,7 +33,7 @@ Sao chép `.env.example` → `.env`:
 
 | Biến            | Mặc định                | Ý nghĩa                                                               |
 | --------------- | ----------------------- | --------------------------------------------------------------------- |
-| `VITE_API_URL`  | `http://localhost:3000` | Gốc API (admin gọi `${VITE_API_URL}/api/...`)                         |
+| `VITE_API_URL`  | `http://localhost:3000` | Gốc API (admin gọi `${VITE_API_URL}/api/v1/...`)                         |
 | `VITE_GAME_URL` | `http://localhost:5173` | Gốc app game — ảnh avatar preset lấy từ `${VITE_GAME_URL}/assets/...` |
 
 API phải cho phép origin của admin trong `CORS_ORIGINS` và expose header `Content-Disposition` (đã có sẵn).

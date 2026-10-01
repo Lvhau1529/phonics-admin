@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { API_PREFIX } from '@phonics/contracts';
 import { z } from 'zod';
 import {
   clearSession,
@@ -61,7 +62,7 @@ describe('client.request', () => {
     });
     expect(data).toEqual({ total: 0 });
     const [url, init] = fetchMock.mock.calls[0];
-    expect(String(url)).toBe('http://localhost:3000/api/classes?page=1&sort=name%3Aasc');
+    expect(String(url)).toBe(`http://localhost:3000${API_PREFIX}/classes?page=1&sort=name%3Aasc`);
     expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer access-old');
   });
 
