@@ -7,3 +7,5 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - globals@17.13.0
+  # Gói của chính dự án (contracts phát hành từ phonics-api): cài được ngay sau khi phát hành
+  - '@lvhau1529/*'
