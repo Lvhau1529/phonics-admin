@@ -4,7 +4,7 @@ Trang quản trị cho **admin** và **giáo viên**: tổng quan, lớp học, 
 game, phân quyền (nhóm quyền + ma trận theo giáo viên), nhật ký, báo cáo xlsx / pdf. Giao diện **tiếng Việt /
 tiếng Anh** (chuyển ở header), theme **vàng trùng game** có **dark mode**.
 
-Stack (ADR 0008 trong phonics-workspace): React 19 + Vite 8 + TypeScript 7 + Ant Design 5 +
+Stack (ADR 0008 trong phonics-dev): React 19 + Vite 8 + TypeScript 7 + Ant Design 5 +
 TanStack Query 5 + React Router 7 + Recharts + dayjs + zod (schema dùng chung từ `@phonics/contracts`).
 
 ## Chạy
@@ -129,7 +129,7 @@ palette `THEME_COLORS[mode].chart`) nên tự đổi theo dark mode — **không
 ## Thêm trang mới
 
 1. Contracts: schema / `ENDPOINTS` đã có? Chưa thì thêm ở phonics-api
-   (`packages/contracts`), phát hành bản mới rồi `pnpm up @phonics/contracts` ở đây (hoặc làm trong phonics-workspace).
+   (`packages/contracts`), phát hành bản mới rồi `pnpm up @phonics/contracts` ở đây (hoặc làm trong phonics-dev).
 2. `src/features/<feature>/api.ts`: hàm gọi `request(ENDPOINTS.x, { schema })`.
 3. `src/features/<feature>/hooks.ts`: `useQuery({ queryKey: qk.<feature>.list(params) })`; thêm khoá vào
    `shared/api/queryKeys.ts`; mutation `onSuccess` invalidate theo prefix.
@@ -153,7 +153,7 @@ GitHub Packages cần token kể cả khi chỉ đọc; pnpm **không** đọc t
   `//npm.pkg.github.com/:_authToken=<token>`.
 
 Nâng version: `pnpm up @phonics/contracts` rồi commit lockfile. Sửa contracts và thấy ngay ở app (không cần phát hành):
-chạy trong phonics-workspace.
+chạy qua launcher phonics-dev (`pnpm dev`).
 
 ## Deploy
 

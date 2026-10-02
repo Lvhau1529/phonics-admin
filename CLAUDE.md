@@ -1,7 +1,7 @@
 # Quy tắc cho Claude — phonics-admin
 
 Đọc [README.md](README.md) (cấu trúc, chạy, env). Stack: React 19 + Vite 8 + TS 7 + Ant Design 5 + TanStack Query 5 +
-React Router 7 + Recharts (ADR 0008 trong phonics-workspace). API: repo phonics-api.
+React Router 7 + Recharts (ADR 0008 trong phonics-dev). API: repo phonics-api.
 
 ## Git
 
@@ -15,9 +15,10 @@ React Router 7 + Recharts (ADR 0008 trong phonics-workspace). API: repo phonics-
 
 ## Dev cùng các repo khác
 
-Repo này độc lập (clone, cài, build, deploy riêng). Muốn chạy cả hệ thống (API + game + admin) và sửa
-`@phonics/contracts` thấy ngay ở mọi app: dùng repo **phonics-workspace** (README ở đó). Trong workspace, chạy lệnh
-từ gốc workspace (`pnpm --filter <app> ...`), không `cd` vào repo rồi `pnpm install` (sẽ ghi đè liên kết contracts local).
+Repo này độc lập (clone, cài, build, deploy riêng). Muốn chạy cả hệ thống cùng lúc (API + game + admin): đặt 3 repo
+nằm cạnh nhau cùng repo **phonics-dev** rồi `pnpm dev` trong phonics-dev (README ở đó). Khi chạy qua phonics-dev, game /
+admin đọc `@phonics/contracts` thẳng từ mã nguồn `../phonics-api/packages/contracts` (biến `PHONICS_CONTRACTS_SRC`,
+xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không cần phát hành.
 
 ## Kiến trúc
 
@@ -76,7 +77,7 @@ từ gốc workspace (`pnpm --filter <app> ...`), không `cd` vào repo rồi `p
 ## Thêm trang / endpoint (checklist)
 
 1. Contracts có schema + `ENDPOINTS`? Chưa có → thêm ở phonics-api (`packages/contracts`), phát hành bản mới (hoặc
-   làm trong phonics-workspace), `pnpm up @phonics/contracts`, rồi mới dùng.
+   làm trong phonics-dev), `pnpm up @phonics/contracts`, rồi mới dùng.
 2. `features/<x>/api.ts` → `features/<x>/hooks.ts` (+ khoá ở `queryKeys.ts`).
 3. `pages/XPage.tsx` export **default** (lazy route) + named; đăng ký `app/router.tsx`, `app/routes.ts`, menu.
 4. Chuỗi → `i18n/vi.ts` **và** `i18n/en.ts`. Quyền → `can()`. Test hook / util nếu có logic (Vitest + jsdom, file `*.test.ts(x)`).
