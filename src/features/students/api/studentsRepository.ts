@@ -1,3 +1,7 @@
+/**
+ * Repository học sinh: chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, method, body, schema contracts) và trả DTO
+ * đúng như BE. Không map / format ở đây — việc đó của `studentsService`.
+ */
 import {
   ENDPOINTS,
   GameResultView,
@@ -21,7 +25,7 @@ const PointsPage = paginated(PointEntryView);
 const ResultsPage = paginated(GameResultView);
 const PointsByGameResponse = z.object({ items: z.array(PointsByGame) });
 
-export const studentsApi = {
+export const studentsRepository = {
   list: (query: QueryParams) => request(ENDPOINTS.students.list, { query, schema: StudentPage }),
   detail: (id: string) => request(ENDPOINTS.students.detail(id), { schema: StudentDetail }),
   update: (id: string, body: UpdateStudentBody) =>

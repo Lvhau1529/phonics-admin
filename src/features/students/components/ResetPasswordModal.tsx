@@ -1,5 +1,6 @@
 import { App, Form, Input, Modal } from 'antd';
-import { Password, ResetPasswordBody, type StudentSummary } from '@phonics/contracts';
+import { Password, ResetPasswordBody } from '@phonics/contracts';
+import type { StudentModel } from '@/features/students/models/StudentModel';
 import { useEffect } from 'react';
 import { useResetPassword } from '@/features/students/hooks';
 import { errorMessage } from '@/shared/api/errors';
@@ -11,7 +12,7 @@ interface ResetPasswordValues {
 }
 
 interface ResetPasswordModalProps {
-  student: StudentSummary | undefined;
+  student: StudentModel | undefined;
   onClose: () => void;
 }
 

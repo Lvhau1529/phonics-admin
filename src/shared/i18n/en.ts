@@ -115,7 +115,6 @@ export const en = {
     theme: 'Theme',
     themeLight: 'Light',
     themeDark: 'Dark',
-    themeSystem: 'System',
     members: 'Members',
     description: 'Description',
     permissions: 'Permissions',

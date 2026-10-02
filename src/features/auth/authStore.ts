@@ -8,7 +8,8 @@
 import { User, type LoginBody, type Permission } from '@phonics/contracts';
 import { useSyncExternalStore } from 'react';
 import { z } from 'zod';
-import { authApi } from '@/features/auth/api';
+import { authService } from '@/features/auth/api/authService';
+import { UserModel } from '@/features/auth/models/UserModel';
 import { clearSession, getSession, refreshSession, setSession, subscribeSession } from '@/shared/api/client';
 import { isApiError } from '@/shared/api/errors';
 import { AUTH_STORAGE_KEY } from '@/shared/config';
@@ -18,7 +19,7 @@ export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 
 export interface AuthState {
   status: AuthStatus;
-  user: User | null;
+  user: UserModel | null;
   permissions: readonly Permission[];
 }
 
@@ -35,12 +36,14 @@ function setState(next: AuthState): void {
   for (const listener of listeners) listener();
 }
 
-function readStorage(): StoredAuth | null {
+function readStorage(): { user: UserModel; refreshToken: string } | null {
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
     if (!raw) return null;
     const parsed = StoredAuth.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : null;
+    return parsed.success
+      ? { user: new UserModel(parsed.data.user), refreshToken: parsed.data.refreshToken }
+      : null;
   } catch {
     return null;
   }
@@ -55,9 +58,9 @@ function writeStorage(snapshot: StoredAuth | null): void {
   }
 }
 
-function persist(user: User): void {
+function persist(user: UserModel): void {
   const { refreshToken } = getSession();
-  writeStorage(refreshToken ? { user, refreshToken } : null);
+  writeStorage(refreshToken ? { user: user.toJSON(), refreshToken } : null);
 }
 
 function signedOut(): void {
@@ -69,7 +72,7 @@ function signedOut(): void {
 // Client refresh xong → lưu refresh token mới; client mất phiên → về anonymous
 subscribeSession((event) => {
   if (event.type === 'refreshed') {
-    persist(state.user ?? event.auth.user);
+    persist(state.user ?? new UserModel(event.auth.user));
   } else if (state.status !== 'anonymous') {
     signedOut();
   }
@@ -77,7 +80,7 @@ subscribeSession((event) => {
 
 /** Nạp user + quyền từ /auth/me vào store */
 async function loadMe(): Promise<void> {
-  const me = await authApi.me();
+  const me = await authService.me();
   setState({ status: 'authenticated', user: me.user, permissions: me.permissions });
   persist(me.user);
 }
@@ -113,12 +116,13 @@ export class StudentNotAllowedError extends Error {
 
 /** Đăng nhập; học sinh bị từ chối (thu hồi phiên vừa cấp) */
 export async function login(body: LoginBody): Promise<void> {
-  const auth = await authApi.login(body);
-  if (auth.user.role === 'STUDENT') {
-    if (auth.refreshToken) await authApi.logout({ refreshToken: auth.refreshToken }).catch(() => undefined);
+  const auth = await authService.login(body);
+  if (auth.user.isStudent) {
+    if (auth.refreshToken)
+      await authService.logout({ refreshToken: auth.refreshToken }).catch(() => undefined);
     throw new StudentNotAllowedError();
   }
-  setSession({ accessToken: auth.accessToken, refreshToken: auth.refreshToken ?? null });
+  setSession({ accessToken: auth.accessToken, refreshToken: auth.refreshToken });
   try {
     await loadMe();
   } catch (error) {
@@ -132,7 +136,7 @@ export async function signOut(all = false): Promise<void> {
   const { refreshToken } = getSession();
   try {
     if (refreshToken || all)
-      await authApi.logout({ refreshToken: refreshToken ?? undefined, all: all || undefined });
+      await authService.logout({ refreshToken: refreshToken ?? undefined, all: all || undefined });
   } catch (error) {
     if (!isApiError(error)) throw error;
   } finally {
@@ -141,7 +145,7 @@ export async function signOut(all = false): Promise<void> {
 }
 
 /** Sau khi sửa hồ sơ: cập nhật user trong store + localStorage */
-export function setCurrentUser(user: User): void {
+export function setCurrentUser(user: UserModel): void {
   if (state.status !== 'authenticated') return;
   setState({ ...state, user });
   persist(user);

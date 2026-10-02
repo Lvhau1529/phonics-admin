@@ -4,10 +4,10 @@ import { AwardBonusBatchBody, AwardBonusBody, BonusPoints, type GameId } from '@
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks';
 import { useAwardBonus, useAwardBonusBatch } from '@/features/classes/hooks';
+import { GameSelect } from '@/features/games/components/GameSelect';
 import { StudentSelect } from '@/features/students/components/StudentSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
-import { GameSelect } from '@/shared/ui/GameSelect';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty, zodRule } from '@/shared/utils/zodForm';
 
 type Mode = 'single' | 'batch';

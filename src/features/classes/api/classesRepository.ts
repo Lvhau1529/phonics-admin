@@ -1,3 +1,7 @@
+/**
+ * Repository lớp học: chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, method, body, schema contracts) và trả DTO
+ * đúng như BE. Không map / format ở đây — việc đó của `classesService`.
+ */
 import {
   AwardBonusBatchResponse,
   AwardBonusResponse,
@@ -21,7 +25,7 @@ const ClassPage = paginated(ClassSummary);
 const StudentPage = paginated(StudentSummary);
 const PointsPage = paginated(PointEntryView);
 
-export const classesApi = {
+export const classesRepository = {
   list: (query: QueryParams) => request(ENDPOINTS.classes.list, { query, schema: ClassPage }),
   detail: (id: string) => request(ENDPOINTS.classes.detail(id), { schema: ClassSummary }),
   create: (body: CreateClassBody) =>

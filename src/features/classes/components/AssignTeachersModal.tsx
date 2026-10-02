@@ -1,21 +1,22 @@
 import { App, Modal } from 'antd';
-import { SetClassTeachersBody, type ClassSummary } from '@phonics/contracts';
+import { SetClassTeachersBody } from '@phonics/contracts';
 import { useState } from 'react';
 import { useSetClassTeachers } from '@/features/classes/hooks';
+import type { ClassModel } from '@/features/classes/models/ClassModel';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { parseForm } from '@/shared/utils/zodForm';
 
 interface AssignTeachersModalProps {
-  cls: ClassSummary | undefined;
+  cls: ClassModel | undefined;
   onClose: () => void;
 }
 
 /** Gán giáo viên cho lớp (ADMIN, thay thế toàn bộ danh sách). Mount lại theo `key={cls.id}` để reset state. */
 export function AssignTeachersModal({ cls, onClose }: AssignTeachersModalProps) {
   const { message } = App.useApp();
-  const [teacherIds, setTeacherIds] = useState<string[]>(() => cls?.teachers.map((tc) => tc.id) ?? []);
+  const [teacherIds, setTeacherIds] = useState<string[]>(() => cls?.teacherIds ?? []);
   const setTeachers = useSetClassTeachers();
 
   const handleOk = async () => {

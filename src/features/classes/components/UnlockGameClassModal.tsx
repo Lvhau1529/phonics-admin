@@ -1,10 +1,11 @@
 import { App, Form, Input, Modal, Typography } from 'antd';
-import { UnlockClassBody, type ClassSummary, type GameId } from '@phonics/contracts';
+import { UnlockClassBody, type GameId } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useUnlockClassGame } from '@/features/classes/hooks';
+import type { ClassModel } from '@/features/classes/models/ClassModel';
+import { GameSelect } from '@/features/games/components/GameSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
-import { GameSelect } from '@/shared/ui/GameSelect';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty } from '@/shared/utils/zodForm';
 
 interface UnlockFormValues {
@@ -13,7 +14,7 @@ interface UnlockFormValues {
 }
 
 interface UnlockGameClassModalProps {
-  cls: ClassSummary;
+  cls: ClassModel;
   open: boolean;
   onClose: () => void;
   /** Game chọn sẵn (từ bảng game của lớp) */

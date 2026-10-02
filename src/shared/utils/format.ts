@@ -1,4 +1,4 @@
-import type { ClassSummary, GameId } from '@phonics/contracts';
+import type { GameId } from '@phonics/contracts';
 import dayjs, { type ConfigType } from 'dayjs';
 import { t } from '@/shared/i18n';
 
@@ -51,7 +51,3 @@ export const formatBucket = (isoDate: string): string => dayjs(isoDate).format(t
 
 /** Tên hiển thị của game theo id (catalog có title riêng nhưng admin dùng tên cố định cho gọn) */
 export const gameLabel = (id: GameId | null | undefined): string => (id ? t.gameName[id] : t.common.none);
-
-/** Nhãn lớp trong ô chọn: "K2A · Lớp 2 · 2026-2027" */
-export const classLabel = (cls: Pick<ClassSummary, 'name' | 'grade' | 'schoolYear'>): string =>
-  `${cls.name} · ${cls.grade} · ${cls.schoolYear}`;

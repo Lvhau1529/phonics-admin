@@ -1,7 +1,8 @@
 import { App, Button, Drawer, Flex, Form, Input, InputNumber, Switch } from 'antd';
-import { UpdateGameBody, type GameAdminItem } from '@phonics/contracts';
+import { UpdateGameBody } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useUpdateGame } from '@/features/games/hooks';
+import type { GameAdminModel } from '@/features/games/models/GameAdminModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { applyFieldErrors, applyServerErrors, diffValues, parseForm } from '@/shared/utils/zodForm';
@@ -15,7 +16,7 @@ interface GameFormValues {
 }
 
 interface GameFormDrawerProps {
-  game: GameAdminItem | undefined;
+  game: GameAdminModel | undefined;
   onClose: () => void;
 }
 

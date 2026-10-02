@@ -14,7 +14,7 @@ export function TeacherSelect({ remoteSearch = false, ...props }: TeacherSelectP
   const [search, setSearch] = useState('');
   const q = useDebouncedValue(remoteSearch ? search : '', 300);
   const { data, isLoading } = useTeacherOptions(q);
-  const options = (data ?? []).map((tc) => ({ value: tc.id, label: `${tc.displayName} · ${tc.email}` }));
+  const options = (data ?? []).map((tc) => ({ value: tc.id, label: tc.optionLabel }));
   return (
     <Select
       showSearch

@@ -22,8 +22,9 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 
 ## Kiến trúc
 
-- **Feature folder**: `src/features/<feature>/{api.ts,hooks.ts,pages/,components/}`. Code dùng chung ở
-  `src/shared`. `shared` không import `features`; `features` import nhau được (vd `ClassSelect` của classes).
+- **Feature folder**: `src/features/<feature>/{api/,models/,hooks.ts,pages/,components/}`. Code dùng chung ở
+  `src/shared`. `shared` không import `features`; `features` import nhau được (vd `ClassSelect` của classes,
+  `PointEntryModel` của points).
 - **Alias `@/`** → `src`. Không dùng `../`. Import kiểu: `import { type X }` (inline).
 - **Không CSS mới** (không SCSS module / Tailwind): dùng token antd, prop `style` nhỏ, component `Flex`/`Space`.
 - **Chuỗi UI chỉ ở `src/shared/i18n/`**: thêm vào **cả `vi.ts` và `en.ts`** (en `satisfies Dict` → thiếu khoá là
@@ -34,20 +35,36 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 
 ## Theme & loading
 
-- Theme: `shared/theme.ts` → `buildTheme(mode)`, màu trong `THEME_COLORS[mode]` (vàng game + dark mode). Chữ trên
-  nền primary là mực tối (`colorTextLightSolid`), chữ màu primary / link là hổ phách đậm — đổi màu thì chạy
-  `theme.test.ts` (tương phản ≥ 4.5). Component cần màu: `theme.useToken()` hoặc `THEME_COLORS[useResolvedTheme()]`,
-  **không** hard-code hex; biểu đồ Recharts dùng `useChartTheme()` (màu, grid, tooltip theo dark mode).
-- Loading: spinner là `LottieLoader` (chỉ báo mặc định của `Spin`, `CenteredLoader` cho trang / Suspense). Bảng dùng
-  `DataTable` / `DataTable.Static` với `loading={query.isFetching}`; biểu đồ bọc `ChartFrame`. Hai thứ này đã qua
-  `useDelayedLoading` (200 ms / 400 ms) và giữ dữ liệu cũ (`keepPreviousData`) — không tự `Spin` / `isLoading` để
-  tránh nháy; không unmount bảng / chart khi refetch.
+- Theme: `shared/theme/theme.ts` → `buildTheme(mode)`. Giữ kiểu dáng antd, chỉ đổi màu trong `THEME_COLORS[mode]`:
+  điểm nhấn vàng `#ffdc58` + nền / viền xám trung tính zinc (kiểu shadcn / Vercel). Chỉ hai chế độ sáng / tối, **mặc
+  định tối** (`themeStore`: `useThemeMode` / `setThemeMode`, nút `ThemeSwitch`). Chữ trên nền primary là mực
+  (`colorTextLightSolid`), link light mode là nâu vàng đậm — đổi màu thì chạy `theme.test.ts` (tương phản ≥ 4.5).
+  Component cần màu: `theme.useToken()` hoặc `THEME_COLORS[useThemeMode()]`, **không** hard-code hex; biểu đồ Recharts
+  dùng `useChartTheme()`.
+- Header: góc phải là `LangSwitch` (dropdown tên ngôn ngữ) + `ThemeSwitch` + user menu; trang đăng nhập đặt hai nút
+  này ở góc trên phải. Nội dung `AppShell` trải hết bề ngang (không `maxWidth`).
+- Loading (`shared/ui/Loading.tsx`, không Lottie): lần tải đầu là **skeleton** — `PageSkeleton` (Suspense trang lazy),
+  `DataTable` / `DataTable.Static` tự hiện hàng skeleton khi chưa có dữ liệu, `ChartFrame` → `BlockSkeleton`;
+  tải lại / khôi phục phiên là spinner `Spin` mặc định (`FullscreenLoader` cho HydrateFallback / RequireAuth). Bảng
+  truyền `loading={query.isFetching}`, biểu đồ bọc `ChartFrame` — đã qua `useDelayedLoading` (200 ms / 400 ms) và giữ
+  dữ liệu cũ (`keepPreviousData`); không tự `Spin` / `isLoading` để tránh nháy, không unmount bảng / chart khi refetch.
 
-## API & dữ liệu
+## API & dữ liệu (repository → service → model)
 
-- Gọi API qua `request(path, { method, body, query, schema })` trong `shared/api/client.ts`; đường dẫn từ
-  `ENDPOINTS` của `@phonics/contracts`; **luôn truyền `schema`** (zod contracts) để parse response. Không `fetch`
-  trực tiếp trong feature.
+- **Repository** `features/<x>/api/<x>Repository.ts`: chỉ khai báo endpoint —
+  `request(ENDPOINTS..., { method, body, query, schema })` trong `shared/api/client.ts`, **luôn truyền `schema`**
+  (zod contracts), trả DTO đúng như BE. Không map / format / logic. Không `fetch` trực tiếp trong feature.
+- **Service** `features/<x>/api/<x>Service.ts`: gọi repository rồi đổi DTO → model (`new XModel(dto)`, trang phân
+  trang dùng `mapPage(page, fn)` ở `shared/api/pagination.ts`). Số liệu thống kê / biểu đồ, catalog tĩnh, response
+  xác nhận của mutation thì trả thẳng DTO (ghi chú ngắn). Hook / store / component **chỉ gọi service** (query /
+  mutation qua `hooks.ts`), không gọi repository.
+- **Model** `features/<x>/models/<Name>Model.ts`: class, `constructor(data: Dto)` gán từng field `readonly` **cùng
+  tên với DTO** (bảng sort server / `dataIndex` / form vẫn dùng tên field), thêm **getter** cho dữ liệu chỉ FE dùng
+  (nhãn, text đã format theo `t`, cờ boolean...) — vd `ClassModel.label`, `StudentModel.lastLoginText`,
+  `PointEntryModel.pointsText`. Format / nhãn lặp lại ở nhiều component → đưa vào getter, không viết lại trong
+  `render`. Model cần lưu localStorage có `toJSON(): Dto` (đọc lại: parse schema → `new XModel`, xem
+  `UserModel` + `authStore`). **Không spread model** (`{ ...model }` mất getter) — tạo instance mới. Test getter
+  bằng `models/*.test.ts`.
 - Token: access token trong bộ nhớ client, refresh token trong localStorage (`phonics-admin:auth`), 401 → refresh
   single-flight → gọi lại một lần → nếu vẫn lỗi → `signedOut`. Không tự xử lý 401 ở feature.
 - TanStack Query: khoá cache **chỉ** từ `shared/api/queryKeys.ts` (`qk.classes.list(params)`); mutation
@@ -69,8 +86,9 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 - Nút cần quyền: `useAuth().can('points.award')` → ẩn hoặc `disabled` + `Tooltip` giải thích. ADMIN luôn pass.
   Danh sách quyền: `PERMISSIONS` trong contracts (trang Phân quyền tự hiện quyền mới) — thêm quyền thì thêm nhãn
   `permissionLabel` + `permissionDescription` ở cả hai từ điển.
-- Nhóm quyền (`features/permissions`): API `permissionsApi.groups / createGroup / updateGroup / deleteGroup /
-  setUserGroups`, khoá `qk.permissions.groups` / `qk.permissions.users`; mutation nhóm invalidate cả ma trận user.
+- Nhóm quyền (`features/permissions`): `permissionsService.groups / createGroup / updateGroup / deleteGroup /
+  setUserGroups` (→ `PermissionGroupModel`, `UserPermissionsModel` có `sourceOf` / `overrideOf` / `has`), khoá
+  `qk.permissions.groups` / `qk.permissions.users`; mutation nhóm invalidate cả ma trận user.
   Form chọn nhóm dùng `PermissionGroupSelect`; checklist quyền theo khu vực dùng `PermissionChecklist`.
 - Giáo viên chỉ thấy lớp mình: server lọc; client không lọc thêm.
 
@@ -78,9 +96,11 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 
 1. Contracts có schema + `ENDPOINTS`? Chưa có → thêm ở phonics-api (`packages/contracts`), phát hành bản mới (hoặc
    làm trong phonics-dev), `pnpm up @phonics/contracts`, rồi mới dùng.
-2. `features/<x>/api.ts` → `features/<x>/hooks.ts` (+ khoá ở `queryKeys.ts`).
+2. `features/<x>/api/<x>Repository.ts` (endpoint + schema) → `models/<Name>Model.ts` (getter FE) →
+   `api/<x>Service.ts` (DTO → model) → `features/<x>/hooks.ts` (+ khoá ở `queryKeys.ts`).
 3. `pages/XPage.tsx` export **default** (lazy route) + named; đăng ký `app/router.tsx`, `app/routes.ts`, menu.
-4. Chuỗi → `i18n/vi.ts` **và** `i18n/en.ts`. Quyền → `can()`. Test hook / util nếu có logic (Vitest + jsdom, file `*.test.ts(x)`).
+4. Chuỗi → `i18n/vi.ts` **và** `i18n/en.ts`. Quyền → `can()`. Test hook / util / getter của model nếu có logic
+   (Vitest + jsdom, file `*.test.ts(x)`).
 5. `pnpm typecheck && pnpm lint && pnpm test && pnpm build` xanh, rồi commit.
 
 ## Không làm

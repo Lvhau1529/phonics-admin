@@ -1,6 +1,7 @@
 import { Space, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { StudentSummary, UserStatus } from '@phonics/contracts';
+import type { UserStatus } from '@phonics/contracts';
+import type { StudentModel } from '@/features/students/models/StudentModel';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
@@ -10,16 +11,16 @@ import { DataTable, type DataTableProps } from '@/shared/ui/DataTable';
 import { StatusTag } from '@/shared/ui/RoleTag';
 import { formatDateTime, formatNumber } from '@/shared/utils/format';
 
-interface StudentsTableProps extends Omit<DataTableProps<StudentSummary>, 'columns'> {
+interface StudentsTableProps extends Omit<DataTableProps<StudentModel>, 'columns'> {
   /** Ẩn cột lớp (bảng trong trang lớp) */
   hideClass?: boolean;
   /** Cột thao tác (nút theo quyền của trang) */
-  renderActions?: (student: StudentSummary) => ReactNode;
+  renderActions?: (student: StudentModel) => ReactNode;
 }
 
 /** Bảng học sinh dùng chung cho trang Học sinh và tab Học sinh của lớp */
 export function StudentsTable({ hideClass, renderActions, ...rest }: StudentsTableProps) {
-  const columns: ColumnsType<StudentSummary> = [
+  const columns: ColumnsType<StudentModel> = [
     {
       title: t.common.name,
       key: 'displayName',
@@ -40,7 +41,7 @@ export function StudentsTable({ hideClass, renderActions, ...rest }: StudentsTab
           {
             title: t.common.class,
             dataIndex: 'class',
-            render: (cls: StudentSummary['class']) =>
+            render: (cls: StudentModel['class']) =>
               cls ? (
                 <Link to={ROUTES.classDetail(cls.id)}>{cls.name}</Link>
               ) : (
@@ -68,7 +69,7 @@ export function StudentsTable({ hideClass, renderActions, ...rest }: StudentsTab
       dataIndex: 'lastLoginAt',
       key: 'lastLoginAt',
       sorter: true,
-      render: (v: string | null) => (v ? formatDateTime(v) : t.common.never),
+      render: (_: unknown, s: StudentModel) => s.lastLoginText,
     },
     {
       title: t.common.createdAt,
@@ -83,10 +84,10 @@ export function StudentsTable({ hideClass, renderActions, ...rest }: StudentsTab
             title: t.common.actions,
             key: 'actions',
             fixed: 'right' as const,
-            render: (_: unknown, s: StudentSummary) => renderActions(s),
+            render: (_: unknown, s: StudentModel) => renderActions(s),
           },
         ]
       : []),
   ];
-  return <DataTable<StudentSummary> columns={columns} {...rest} />;
+  return <DataTable<StudentModel> columns={columns} {...rest} />;
 }

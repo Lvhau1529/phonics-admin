@@ -8,13 +8,13 @@ import {
   UpdateTeacherBody,
   UserStatus,
   type AvatarKey,
-  type TeacherSummary,
 } from '@phonics/contracts';
 import { useEffect, useMemo } from 'react';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { PermissionGroupSelect } from '@/features/permissions/components/PermissionGroupSelect';
 import { useSetUserPermissionGroups, useUserPermissions } from '@/features/permissions/hooks';
 import { useCreateTeacher, useUpdateTeacher } from '@/features/teachers/hooks';
+import type { TeacherModel } from '@/features/teachers/models/TeacherModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarSelect } from '@/shared/ui/AvatarSelect';
@@ -41,7 +41,7 @@ interface TeacherFormValues {
 interface TeacherFormDrawerProps {
   open: boolean;
   /** Có = sửa, không = tạo mới */
-  teacher?: TeacherSummary;
+  teacher?: TeacherModel;
   onClose: () => void;
 }
 
@@ -60,7 +60,7 @@ export function TeacherFormDrawer({ open, teacher, onClose }: TeacherFormDrawerP
   const setGroups = useSetUserPermissionGroups();
   const userPerms = useUserPermissions(open ? teacher?.id : undefined);
   const saving = create.isPending || update.isPending || setGroups.isPending;
-  const currentGroupIds = useMemo(() => userPerms.data?.groups.map((g) => g.id), [userPerms.data]);
+  const currentGroupIds = useMemo(() => userPerms.data?.groupIds, [userPerms.data]);
 
   useEffect(() => {
     if (!open) return;

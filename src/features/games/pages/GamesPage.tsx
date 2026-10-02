@@ -1,13 +1,13 @@
 import { EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Space, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { GameAdminItem } from '@phonics/contracts';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { useAuth } from '@/features/auth/hooks';
 import { GameFormDrawer } from '@/features/games/components/GameFormDrawer';
 import { useAdminGames } from '@/features/games/hooks';
+import type { GameAdminModel } from '@/features/games/models/GameAdminModel';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -18,11 +18,11 @@ export function GamesPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const games = useAdminGames();
-  const [editing, setEditing] = useState<GameAdminItem>();
+  const [editing, setEditing] = useState<GameAdminModel>();
   const canManage = auth.can('games.manage');
 
-  const columns: ColumnsType<GameAdminItem> = [
-    { title: t.games.gameTitle, dataIndex: 'title', render: (title: string, g) => `${title} (${g.id})` },
+  const columns: ColumnsType<GameAdminModel> = [
+    { title: t.games.gameTitle, dataIndex: 'title', render: (_, g) => g.titleWithId },
     {
       title: t.common.status,
       key: 'status',
@@ -39,7 +39,7 @@ export function GamesPage() {
       title: t.games.price,
       dataIndex: 'price',
       align: 'right',
-      render: (p: number | null) => (p === null ? t.games.priceFree : formatNumber(p)),
+      render: (_, g) => g.priceText,
     },
     { title: t.games.sortOrder, dataIndex: 'sortOrder', align: 'right' },
     { title: t.games.views, dataIndex: 'views', align: 'right', render: formatNumber },
@@ -68,7 +68,7 @@ export function GamesPage() {
     <>
       <PageHeader title={t.games.title} />
       <ErrorAlert error={games.error} onRetry={() => void games.refetch()} />
-      <DataTable.Static<GameAdminItem>
+      <DataTable.Static<GameAdminModel>
         rowKey="id"
         size="middle"
         scroll={{ x: 'max-content' }}

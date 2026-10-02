@@ -1,12 +1,11 @@
 import { DatePicker, Flex, Select, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { AuditAction, type AuditLogView } from '@phonics/contracts';
+import { AuditAction } from '@phonics/contracts';
 import dayjs from 'dayjs';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { useQuery } from '@tanstack/react-query';
-import { auditApi } from '@/features/audit/api';
-import { qk } from '@/shared/api/queryKeys';
+import { useAuditList } from '@/features/audit/hooks';
+import type { AuditLogModel, AuditTargetKind } from '@/features/audit/models/AuditLogModel';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
@@ -14,20 +13,21 @@ import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { formatDateTime, toIsoDate } from '@/shared/utils/format';
 
+const TARGET_ROUTE: Record<AuditTargetKind, (id: string) => string> = {
+  student: ROUTES.studentDetail,
+  class: ROUTES.classDetail,
+  game: ROUTES.gameDetail,
+};
+
 /** Link tới trang chi tiết theo loại đối tượng (nếu có) */
-function targetLink(log: AuditLogView) {
-  if (!log.targetId) return <Typography.Text type="secondary">{log.targetType}</Typography.Text>;
-  const type = log.targetType.toLowerCase();
-  const to =
-    type === 'student' || type === 'user'
-      ? ROUTES.studentDetail(log.targetId)
-      : type === 'class'
-        ? ROUTES.classDetail(log.targetId)
-        : type === 'game'
-          ? ROUTES.gameDetail(log.targetId)
-          : undefined;
-  const label = `${log.targetType} · ${log.targetId.slice(0, 8)}`;
-  return to ? <Link to={to}>{label}</Link> : <Typography.Text code>{label}</Typography.Text>;
+function targetLink(log: AuditLogModel) {
+  if (!log.targetId) return <Typography.Text type="secondary">{log.targetLabel}</Typography.Text>;
+  const kind = log.targetKind;
+  return kind ? (
+    <Link to={TARGET_ROUTE[kind](log.targetId)}>{log.targetLabel}</Link>
+  ) : (
+    <Typography.Text code>{log.targetLabel}</Typography.Text>
+  );
 }
 
 /** JSON trước / sau của một dòng nhật ký */
@@ -52,7 +52,7 @@ function JsonBlock({ label, value }: { label: string; value: unknown }) {
   );
 }
 
-const buildColumns = (): ColumnsType<AuditLogView> => [
+const buildColumns = (): ColumnsType<AuditLogModel> => [
   {
     title: t.common.time,
     dataIndex: 'createdAt',
@@ -61,11 +61,11 @@ const buildColumns = (): ColumnsType<AuditLogView> => [
     render: formatDateTime,
     width: 150,
   },
-  { title: t.audit.actor, dataIndex: 'actorName', render: (n: string | null) => n ?? t.points.system },
+  { title: t.audit.actor, dataIndex: 'actorName', render: (_, log) => log.actorText },
   {
     title: t.audit.action,
     dataIndex: 'action',
-    render: (a: AuditAction) => <Tag color="purple">{t.audit.actions[a]}</Tag>,
+    render: (_, log) => <Tag color="purple">{log.actionLabel}</Tag>,
   },
   { title: t.audit.target, key: 'target', render: (_, log) => targetLink(log) },
 ];
@@ -75,10 +75,7 @@ export function AuditPage() {
     filterKeys: ['action', 'from', 'to'] as const,
     defaultSort: 'createdAt:desc',
   });
-  const list = useQuery({
-    queryKey: qk.audit.list(table.params),
-    queryFn: () => auditApi.list(table.params),
-  });
+  const list = useAuditList(table.params);
   const { from, to } = table.filters;
 
   return (
@@ -111,7 +108,7 @@ export function AuditPage() {
         </Flex>
       </PageHeader>
       <ErrorAlert error={list.error} onRetry={() => void list.refetch()} />
-      <DataTable<AuditLogView>
+      <DataTable<AuditLogModel>
         columns={buildColumns()}
         data={list.data}
         loading={list.isFetching}

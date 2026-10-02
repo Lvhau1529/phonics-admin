@@ -1,14 +1,8 @@
 import { App, Button, Drawer, Flex, Form, Input, Switch } from 'antd';
-import {
-  ClassName,
-  CreateClassBody,
-  Grade,
-  SchoolYear,
-  UpdateClassBody,
-  type ClassSummary,
-} from '@phonics/contracts';
+import { ClassName, CreateClassBody, Grade, SchoolYear, UpdateClassBody } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useCreateClass, useUpdateClass } from '@/features/classes/hooks';
+import type { ClassModel } from '@/features/classes/models/ClassModel';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -31,7 +25,7 @@ interface ClassFormValues {
 
 interface ClassFormDrawerProps {
   open: boolean;
-  cls?: ClassSummary;
+  cls?: ClassModel;
   onClose: () => void;
 }
 

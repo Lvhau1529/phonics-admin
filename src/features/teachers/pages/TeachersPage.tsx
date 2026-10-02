@@ -1,7 +1,7 @@
 import { EditOutlined, LockOutlined, PlusOutlined, ReadOutlined, UnlockOutlined } from '@ant-design/icons';
 import { App, Button, Flex, Input, Popconfirm, Select, Space, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { UserStatus, type TeacherSummary } from '@phonics/contracts';
+import { UserStatus } from '@phonics/contracts';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
@@ -9,6 +9,7 @@ import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { TeacherClassesModal } from '@/features/teachers/components/TeacherClassesModal';
 import { TeacherFormDrawer } from '@/features/teachers/components/TeacherFormDrawer';
 import { useTeachersList, useUpdateTeacher } from '@/features/teachers/hooks';
+import type { TeacherModel } from '@/features/teachers/models/TeacherModel';
 import { errorMessage } from '@/shared/api/errors';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
@@ -24,11 +25,11 @@ export function TeachersPage() {
   const table = useTableQuery({ filterKeys: ['status', 'classId'] as const, defaultSort: 'createdAt:desc' });
   const list = useTeachersList(table.params);
   const update = useUpdateTeacher();
-  const [drawer, setDrawer] = useState<{ open: boolean; teacher?: TeacherSummary }>({ open: false });
-  const [classesFor, setClassesFor] = useState<TeacherSummary>();
+  const [drawer, setDrawer] = useState<{ open: boolean; teacher?: TeacherModel }>({ open: false });
+  const [classesFor, setClassesFor] = useState<TeacherModel>();
 
-  const toggleStatus = async (teacher: TeacherSummary) => {
-    const status: UserStatus = teacher.status === 'ACTIVE' ? 'DISABLED' : 'ACTIVE';
+  const toggleStatus = async (teacher: TeacherModel) => {
+    const status: UserStatus = teacher.isActive ? 'DISABLED' : 'ACTIVE';
     try {
       await update.mutateAsync({ id: teacher.id, body: { status } });
       message.success(t.common.updated);
@@ -37,7 +38,7 @@ export function TeachersPage() {
     }
   };
 
-  const columns: ColumnsType<TeacherSummary> = [
+  const columns: ColumnsType<TeacherModel> = [
     {
       title: t.common.name,
       key: 'displayName',
@@ -53,13 +54,12 @@ export function TeachersPage() {
     {
       title: t.common.password,
       dataIndex: 'hasPassword',
-      render: (has: boolean, tc) =>
-        has ? t.teachers.hasPassword : `${t.teachers.noPassword} (${t.provider[tc.provider]})`,
+      render: (_, tc) => tc.passwordText,
     },
     {
       title: t.teachers.classesCol,
       dataIndex: 'classes',
-      render: (classes: TeacherSummary['classes']) =>
+      render: (classes: TeacherModel['classes']) =>
         classes.length === 0 ? (
           <Typography.Text type="secondary">{t.teachers.noClasses}</Typography.Text>
         ) : (
@@ -105,7 +105,7 @@ export function TeachersPage() {
           </Tooltip>
           <Popconfirm
             title={
-              tc.status === 'ACTIVE'
+              tc.isActive
                 ? t.teachers.confirmDisable(tc.displayName)
                 : t.teachers.confirmEnable(tc.displayName)
             }
@@ -113,11 +113,11 @@ export function TeachersPage() {
             okText={t.common.confirm}
             cancelText={t.common.cancel}
           >
-            <Tooltip title={tc.status === 'ACTIVE' ? t.teachers.disable : t.teachers.enable}>
+            <Tooltip title={tc.isActive ? t.teachers.disable : t.teachers.enable}>
               <Button
                 type="text"
-                danger={tc.status === 'ACTIVE'}
-                icon={tc.status === 'ACTIVE' ? <LockOutlined /> : <UnlockOutlined />}
+                danger={tc.isActive}
+                icon={tc.isActive ? <LockOutlined /> : <UnlockOutlined />}
               />
             </Tooltip>
           </Popconfirm>
@@ -160,7 +160,7 @@ export function TeachersPage() {
         </Flex>
       </PageHeader>
       <ErrorAlert error={list.error} onRetry={() => void list.refetch()} />
-      <DataTable<TeacherSummary>
+      <DataTable<TeacherModel>
         columns={columns}
         data={list.data}
         loading={list.isFetching}

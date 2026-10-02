@@ -1,7 +1,6 @@
 import { EditOutlined, InboxOutlined, PlusOutlined, RollbackOutlined, TeamOutlined } from '@ant-design/icons';
 import { App, Button, Flex, Input, Popconfirm, Segmented, Space, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { ClassSummary } from '@phonics/contracts';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
@@ -9,6 +8,7 @@ import { useAuth } from '@/features/auth/hooks';
 import { AssignTeachersModal } from '@/features/classes/components/AssignTeachersModal';
 import { ClassFormDrawer } from '@/features/classes/components/ClassFormDrawer';
 import { useClassesList, useUpdateClass } from '@/features/classes/hooks';
+import type { ClassModel } from '@/features/classes/models/ClassModel';
 import { errorMessage } from '@/shared/api/errors';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
@@ -26,11 +26,11 @@ export function ClassesPage() {
   });
   const list = useClassesList(table.params);
   const update = useUpdateClass();
-  const [drawer, setDrawer] = useState<{ open: boolean; cls?: ClassSummary }>({ open: false });
-  const [assignFor, setAssignFor] = useState<ClassSummary>();
+  const [drawer, setDrawer] = useState<{ open: boolean; cls?: ClassModel }>({ open: false });
+  const [assignFor, setAssignFor] = useState<ClassModel>();
   const showArchived = table.filters.archived === 'true';
 
-  const setArchived = async (cls: ClassSummary, archived: boolean) => {
+  const setArchived = async (cls: ClassModel, archived: boolean) => {
     try {
       await update.mutateAsync({ id: cls.id, body: { archived } });
       message.success(t.common.updated);
@@ -39,7 +39,7 @@ export function ClassesPage() {
     }
   };
 
-  const columns: ColumnsType<ClassSummary> = [
+  const columns: ColumnsType<ClassModel> = [
     {
       title: t.classes.name,
       key: 'name',
@@ -63,7 +63,7 @@ export function ClassesPage() {
     {
       title: t.classes.teachers,
       dataIndex: 'teachers',
-      render: (teachers: ClassSummary['teachers']) =>
+      render: (teachers: ClassModel['teachers']) =>
         teachers.length === 0 ? (
           <Typography.Text type="secondary">{t.common.none}</Typography.Text>
         ) : (
@@ -77,12 +77,12 @@ export function ClassesPage() {
     {
       title: t.common.status,
       dataIndex: 'archivedAt',
-      render: (archivedAt: string | null, cls) => (
+      render: (_, cls) => (
         <Space size={4}>
-          <Tag color={archivedAt ? 'default' : 'success'}>
-            {archivedAt ? t.classes.archived : t.classes.active}
+          <Tag color={cls.isArchived ? 'default' : 'success'}>
+            {cls.isArchived ? t.classes.archived : t.classes.active}
           </Tag>
-          {cls.joinVisible && !archivedAt && <Tag color="blue">{t.classes.joinVisible}</Tag>}
+          {cls.isJoinable && <Tag color="blue">{t.classes.joinVisible}</Tag>}
         </Space>
       ),
     },
@@ -99,7 +99,7 @@ export function ClassesPage() {
             title: t.common.actions,
             key: 'actions',
             fixed: 'right' as const,
-            render: (_: unknown, cls: ClassSummary) => (
+            render: (_: unknown, cls: ClassModel) => (
               <Space size={0}>
                 <Tooltip title={t.common.edit}>
                   <Button
@@ -188,7 +188,7 @@ export function ClassesPage() {
         </Flex>
       </PageHeader>
       <ErrorAlert error={list.error} onRetry={() => void list.refetch()} />
-      <DataTable<ClassSummary>
+      <DataTable<ClassModel>
         columns={columns}
         data={list.data}
         loading={list.isFetching}

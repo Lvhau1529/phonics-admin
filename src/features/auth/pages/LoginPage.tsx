@@ -8,8 +8,9 @@ import { login } from '@/features/auth/authStore';
 import { useAuth } from '@/features/auth/hooks';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
-import { THEME_COLORS } from '@/shared/theme';
-import { useResolvedTheme } from '@/shared/theme/themeStore';
+import { THEME_COLORS } from '@/shared/theme/theme';
+import { useThemeMode } from '@/shared/theme/themeStore';
+import { BrandMark } from '@/shared/ui/BrandMark';
 import { LangSwitch } from '@/shared/ui/LangSwitch';
 import { ThemeSwitch } from '@/shared/ui/ThemeSwitch';
 import { applyFieldErrors, applyServerErrors, parseForm, zodRule } from '@/shared/utils/zodForm';
@@ -26,7 +27,8 @@ export function LoginPage() {
   const [form] = Form.useForm<LoginValues>();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const mode = useResolvedTheme();
+  const mode = useThemeMode();
+  const colors = THEME_COLORS[mode];
 
   useEffect(() => {
     document.title = t.app.title(t.auth.loginTitle);
@@ -60,10 +62,21 @@ export function LoginPage() {
     <Flex
       align="center"
       justify="center"
-      style={{ minHeight: '100vh', background: THEME_COLORS[mode].sider, padding: 16 }}
+      style={{
+        position: 'relative',
+        minHeight: '100vh',
+        background: colors.bgLayout,
+        padding: '72px 16px 16px',
+      }}
     >
-      <Card style={{ width: '100%', maxWidth: 400 }}>
-        <Flex vertical align="center" gap={4} style={{ marginBottom: 24 }}>
+      {/* Ngôn ngữ + sáng / tối ở góc trên bên phải, giống header trong app */}
+      <Flex gap={12} style={{ position: 'absolute', top: 16, right: 16 }}>
+        <LangSwitch />
+        <ThemeSwitch />
+      </Flex>
+      <Card style={{ width: '100%', maxWidth: 420 }} styles={{ body: { padding: 32 } }}>
+        <Flex vertical align="center" gap={8} style={{ marginBottom: 28 }}>
+          <BrandMark size={52} />
           <Typography.Title level={3} style={{ margin: 0 }}>
             {t.app.name}
           </Typography.Title>
@@ -85,14 +98,10 @@ export function LoginPage() {
           >
             <Input.Password prefix={<LockOutlined />} autoComplete="current-password" />
           </Form.Item>
-          <Button type="primary" htmlType="submit" block loading={submitting}>
+          <Button type="primary" htmlType="submit" size="large" block loading={submitting}>
             {t.auth.submit}
           </Button>
         </Form>
-        <Flex justify="center" gap={12} style={{ marginTop: 20 }}>
-          <LangSwitch />
-          <ThemeSwitch />
-        </Flex>
       </Card>
     </Flex>
   );

@@ -1,10 +1,9 @@
-import { App, Button, Drawer, Flex, Form, Input, Tag } from 'antd';
+import { App, Button, Drawer, Flex, Form, Input, Skeleton, Tag } from 'antd';
 import {
   CreatePermissionGroupBody,
   PermissionGroupName,
   UpdatePermissionGroupBody,
   type Permission,
-  type PermissionGroup,
 } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { PermissionChecklist } from '@/features/permissions/components/PermissionChecklist';
@@ -13,9 +12,9 @@ import {
   usePermissionCatalog,
   useUpdatePermissionGroup,
 } from '@/features/permissions/hooks';
+import type { PermissionGroupModel } from '@/features/permissions/models/PermissionGroupModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
-import { CenteredLoader } from '@/shared/ui/LottieLoader';
 import {
   applyFieldErrors,
   applyServerErrors,
@@ -34,7 +33,7 @@ interface GroupFormValues {
 interface PermissionGroupDrawerProps {
   open: boolean;
   /** Có = sửa, không = tạo mới */
-  group?: PermissionGroup;
+  group?: PermissionGroupModel;
   onClose: () => void;
 }
 
@@ -118,7 +117,11 @@ export function PermissionGroupDrawer({ open, group, onClose }: PermissionGroupD
           <Input.TextArea maxLength={200} rows={2} showCount />
         </Form.Item>
         <Form.Item name="permissions" label={t.permissions.groupPermissions}>
-          {catalog.data ? <PermissionChecklist catalog={catalog.data} /> : <CenteredLoader minHeight={120} />}
+          {catalog.data ? (
+            <PermissionChecklist catalog={catalog.data} />
+          ) : (
+            <Skeleton active paragraph={{ rows: 6 }} />
+          )}
         </Form.Item>
       </Form>
     </Drawer>

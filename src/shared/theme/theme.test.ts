@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildTheme, THEME_COLORS, type ThemeMode } from '@/shared/theme';
+import { buildTheme, THEME_COLORS, type ThemeMode } from '@/shared/theme/theme';
 import { contrastRatio, hexToRgb, relativeLuminance } from '@/shared/utils/contrast';
 
 describe('contrast (WCAG)', () => {
@@ -36,20 +36,33 @@ describe.each<ThemeMode>(['light', 'dark'])('buildTheme(%s) — tương phản',
   it('sider: chữ thường và mục đang chọn đủ tương phản', () => {
     expect(contrastRatio(colors.siderText, colors.sider)).toBeGreaterThanOrEqual(7);
     expect(contrastRatio(colors.siderSelectedText, colors.siderSelectedBg)).toBeGreaterThanOrEqual(7);
+    expect(contrastRatio(colors.siderText, colors.siderHoverBg)).toBeGreaterThanOrEqual(7);
   });
 
-  it('token chung: radius 8, font Inter, algorithm theo mode', () => {
+  it('tooltip tách khỏi nền thẻ / nền trang và chữ đọc rõ', () => {
+    expect(config.components?.Tooltip?.colorBgSpotlight).toBe(colors.tooltipBg);
+    expect(contrastRatio(colors.tooltipText, colors.tooltipBg)).toBeGreaterThanOrEqual(7);
+    expect(contrastRatio(colors.tooltipBg, colors.bgContainer)).toBeGreaterThanOrEqual(3);
+    expect(contrastRatio(colors.tooltipBg, colors.bgLayout)).toBeGreaterThanOrEqual(3);
+  });
+
+  it('token chung: radius 8, font Inter, algorithm theo mode + ghim màu primary', () => {
     expect(token.borderRadius).toBe(8);
     expect(token.fontFamily).toMatch(/Inter/);
     expect(token.colorInfo).toBe(colors.primary);
-    expect(config.algorithm).toBeDefined();
+    expect(Array.isArray(config.algorithm)).toBe(true);
   });
 });
 
 describe('THEME_COLORS', () => {
-  it('light: nút vàng chữ mực ≥ 7:1 (AAA), dark: honey', () => {
-    expect(contrastRatio(THEME_COLORS.light.onPrimary, THEME_COLORS.light.primary)).toBeGreaterThanOrEqual(7);
-    expect(THEME_COLORS.dark.primary).toBe('#ffc83d');
-    expect(THEME_COLORS.light.bgLayout).toBe('#fffaf0');
+  it('vàng #ffdc58 chữ mực ≥ 7:1 (AAA) ở cả hai chế độ; nền xám trung tính', () => {
+    for (const mode of ['light', 'dark'] as const) {
+      expect(THEME_COLORS[mode].primary).toBe('#ffdc58');
+      expect(contrastRatio(THEME_COLORS[mode].onPrimary, THEME_COLORS[mode].primary)).toBeGreaterThanOrEqual(
+        7,
+      );
+    }
+    expect(THEME_COLORS.light.bgLayout).toBe('#f4f4f5');
+    expect(THEME_COLORS.dark.bgLayout).toBe('#09090b');
   });
 });

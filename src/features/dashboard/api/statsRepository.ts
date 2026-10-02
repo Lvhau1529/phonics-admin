@@ -1,3 +1,7 @@
+/**
+ * Repository thống kê (dashboard): chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, schema contracts) và trả DTO
+ * đúng như BE.
+ */
 import {
   ClassGameStats,
   ENDPOINTS,
@@ -8,7 +12,7 @@ import {
 import { z } from 'zod';
 import { request, type QueryParams } from '@/shared/api/client';
 
-export const statsApi = {
+export const statsRepository = {
   overview: () => request(ENDPOINTS.stats.overview, { schema: OverviewStats }),
   classTimeline: (classId: string, query: QueryParams) =>
     request(ENDPOINTS.stats.classPointsTimeline(classId), { query, schema: z.array(PointsTimelineBucket) }),

@@ -1,5 +1,6 @@
 import { App, Form, Input, Modal } from 'antd';
-import { MoveClassBody, type StudentSummary } from '@phonics/contracts';
+import { MoveClassBody } from '@phonics/contracts';
+import type { StudentModel } from '@/features/students/models/StudentModel';
 import { useEffect } from 'react';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { useMoveClass } from '@/features/students/hooks';
@@ -13,7 +14,7 @@ interface MoveClassValues {
 }
 
 interface MoveClassModalProps {
-  student: StudentSummary | undefined;
+  student: StudentModel | undefined;
   onClose: () => void;
 }
 

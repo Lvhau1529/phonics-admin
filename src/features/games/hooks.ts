@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UpdateGameBody } from '@phonics/contracts';
-import { gamesApi } from '@/features/games/api';
+import { gamesService } from '@/features/games/api/gamesService';
 import type { QueryParams } from '@/shared/api/client';
 import { qk } from '@/shared/api/queryKeys';
 
@@ -8,18 +8,17 @@ import { qk } from '@/shared/api/queryKeys';
 export const useGameCatalog = () =>
   useQuery({
     queryKey: qk.games.catalog,
-    queryFn: () => gamesApi.catalog(),
-    select: (data) => data.items,
+    queryFn: () => gamesService.catalog(),
     staleTime: 5 * 60_000,
   });
 
 export const useAdminGames = () =>
-  useQuery({ queryKey: qk.games.admin, queryFn: () => gamesApi.adminList(), select: (data) => data.items });
+  useQuery({ queryKey: qk.games.admin, queryFn: () => gamesService.adminList() });
 
 export function useUpdateGame() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: UpdateGameBody }) => gamesApi.update(id, body),
+    mutationFn: ({ id, body }: { id: string; body: UpdateGameBody }) => gamesService.update(id, body),
     onSuccess: () => void qc.invalidateQueries({ queryKey: qk.games.all }),
   });
 }
@@ -27,11 +26,11 @@ export function useUpdateGame() {
 export const useGameTimeline = (gameId: string, params: QueryParams) =>
   useQuery({
     queryKey: qk.stats.gameTimeline(gameId, params),
-    queryFn: () => gamesApi.timeline(gameId, params),
+    queryFn: () => gamesService.timeline(gameId, params),
   });
 
 export const useGameByClass = (gameId: string, params: QueryParams) =>
   useQuery({
     queryKey: qk.stats.gameByClass(gameId, params),
-    queryFn: () => gamesApi.byClass(gameId, params),
+    queryFn: () => gamesService.byClass(gameId, params),
   });

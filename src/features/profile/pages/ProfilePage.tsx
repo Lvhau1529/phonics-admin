@@ -8,10 +8,8 @@ import {
   type AvatarKey,
 } from '@phonics/contracts';
 import { useEffect } from 'react';
-import { authApi } from '@/features/auth/api';
-import { setCurrentUser, signOut } from '@/features/auth/authStore';
-import { useAuth } from '@/features/auth/hooks';
-import { useMutation } from '@tanstack/react-query';
+import { signOut } from '@/features/auth/authStore';
+import { useAuth, useChangePassword, useUpdateProfile } from '@/features/auth/hooks';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
@@ -50,8 +48,8 @@ export function ProfilePage() {
     profileForm.setFieldsValue({ displayName: user.displayName, avatarKey: user.avatarKey });
   }, [user, profileForm]);
 
-  const updateProfile = useMutation({ mutationFn: authApi.updateProfile, onSuccess: setCurrentUser });
-  const changePassword = useMutation({ mutationFn: authApi.changePassword });
+  const updateProfile = useUpdateProfile();
+  const changePassword = useChangePassword();
 
   const handleProfile = async (raw: ProfileValues) => {
     const diff = diffValues(
@@ -99,7 +97,7 @@ export function ProfilePage() {
               <Descriptions size="small" column={1}>
                 <Descriptions.Item label={t.common.email}>{user.email}</Descriptions.Item>
                 <Descriptions.Item label={t.common.status}>
-                  <RoleTag role={user.role} /> {t.provider[user.provider]}
+                  <RoleTag role={user.role} /> {user.providerLabel}
                 </Descriptions.Item>
                 <Descriptions.Item label={t.common.createdAt}>
                   {formatDateTime(user.createdAt)}

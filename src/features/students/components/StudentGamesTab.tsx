@@ -1,13 +1,13 @@
 import { App, Switch, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { StudentGameStatus } from '@phonics/contracts';
+import type { StudentGameModel } from '@/features/students/models/StudentGameModel';
 import { useAuth } from '@/features/auth/hooks';
 import { useSetStudentGameUnlock, useStudentGames } from '@/features/students/hooks';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
-import { formatDateTime, formatNumber, gameLabel } from '@/shared/utils/format';
+import { formatDateTime, formatNumber } from '@/shared/utils/format';
 
 interface StudentGamesTabProps {
   studentId: string;
@@ -21,7 +21,7 @@ export function StudentGamesTab({ studentId }: StudentGamesTabProps) {
   const games = useStudentGames(studentId);
   const setUnlock = useSetStudentGameUnlock(studentId);
 
-  const toggle = async (game: StudentGameStatus, unlocked: boolean) => {
+  const toggle = async (game: StudentGameModel, unlocked: boolean) => {
     try {
       await setUnlock.mutateAsync({ gameId: game.gameId, body: { unlocked } });
       message.success(t.students.unlockToggled);
@@ -30,8 +30,8 @@ export function StudentGamesTab({ studentId }: StudentGamesTabProps) {
     }
   };
 
-  const columns: ColumnsType<StudentGameStatus> = [
-    { title: t.common.game, dataIndex: 'gameId', render: gameLabel },
+  const columns: ColumnsType<StudentGameModel> = [
+    { title: t.common.game, dataIndex: 'gameId', render: (_, game) => game.gameName },
     {
       title: t.common.status,
       dataIndex: 'unlocked',
@@ -44,7 +44,7 @@ export function StudentGamesTab({ studentId }: StudentGamesTabProps) {
     {
       title: t.students.unlockSource,
       dataIndex: 'source',
-      render: (s: StudentGameStatus['source']) => (s ? t.unlockSource[s] : t.common.none),
+      render: (_, game) => game.sourceText,
     },
     { title: t.students.unlockedAt, dataIndex: 'unlockedAt', render: formatDateTime },
     { title: t.common.points, dataIndex: 'points', align: 'right', render: formatNumber },
@@ -68,7 +68,7 @@ export function StudentGamesTab({ studentId }: StudentGamesTabProps) {
   return (
     <>
       <ErrorAlert error={games.error} onRetry={() => void games.refetch()} />
-      <DataTable.Static<StudentGameStatus>
+      <DataTable.Static<StudentGameModel>
         rowKey="gameId"
         size="middle"
         columns={columns}

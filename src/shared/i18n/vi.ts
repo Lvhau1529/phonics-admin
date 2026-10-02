@@ -115,7 +115,6 @@ export const vi = {
     theme: 'Giao diện',
     themeLight: 'Sáng',
     themeDark: 'Tối',
-    themeSystem: 'Theo hệ thống',
     members: 'Thành viên',
     description: 'Mô tả',
     permissions: 'Quyền',

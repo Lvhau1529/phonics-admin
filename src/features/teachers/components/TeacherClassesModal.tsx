@@ -1,21 +1,22 @@
 import { App, Modal } from 'antd';
-import { SetTeacherClassesBody, type TeacherSummary } from '@phonics/contracts';
+import { SetTeacherClassesBody } from '@phonics/contracts';
 import { useState } from 'react';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { useSetTeacherClasses } from '@/features/teachers/hooks';
+import type { TeacherModel } from '@/features/teachers/models/TeacherModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { parseForm } from '@/shared/utils/zodForm';
 
 interface TeacherClassesModalProps {
-  teacher: TeacherSummary | undefined;
+  teacher: TeacherModel | undefined;
   onClose: () => void;
 }
 
 /** Gán danh sách lớp cho một giáo viên (thay thế toàn bộ). Mount lại theo `key={teacher.id}` để reset state. */
 export function TeacherClassesModal({ teacher, onClose }: TeacherClassesModalProps) {
   const { message } = App.useApp();
-  const [classIds, setClassIds] = useState<string[]>(() => teacher?.classes.map((c) => c.id) ?? []);
+  const [classIds, setClassIds] = useState<string[]>(() => teacher?.classIds ?? []);
   const setClasses = useSetTeacherClasses();
 
   const handleOk = async () => {

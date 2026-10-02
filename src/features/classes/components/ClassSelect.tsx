@@ -1,7 +1,6 @@
 import { Select, type SelectProps } from 'antd';
 import { useClassOptions } from '@/features/classes/hooks';
 import { t } from '@/shared/i18n';
-import { classLabel } from '@/shared/utils/format';
 
 type ClassSelectProps<V extends string | string[]> = Omit<SelectProps<V>, 'options' | 'loading'> & {
   /** Chỉ hiện lớp lưu trữ (mặc định lớp đang hoạt động) */
@@ -19,7 +18,7 @@ export function ClassSelect<V extends string | string[] = string>({
   const { data, isLoading } = useClassOptions(archived);
   const options = (data ?? [])
     .filter((cls) => cls.id !== excludeId)
-    .map((cls) => ({ value: cls.id, label: classLabel(cls) }));
+    .map((cls) => ({ value: cls.id, label: cls.label }));
   return (
     <Select<V>
       showSearch

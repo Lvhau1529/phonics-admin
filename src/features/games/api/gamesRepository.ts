@@ -1,3 +1,7 @@
+/**
+ * Repository game: chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, method, body, schema contracts) và trả DTO
+ * đúng như BE. Không map / format ở đây — việc đó của `gamesService`.
+ */
 import {
   ENDPOINTS,
   GameAdminItem,
@@ -12,7 +16,7 @@ import { request, type QueryParams } from '@/shared/api/client';
 
 const AdminGamesResponse = z.object({ items: z.array(GameAdminItem) });
 
-export const gamesApi = {
+export const gamesRepository = {
   /** Catalog public (mọi role) — tên / giá / trạng thái */
   catalog: () => request(ENDPOINTS.public.games, { schema: PublicGamesResponse, auth: false }),
   /** ADMIN: catalog + số liệu tổng */

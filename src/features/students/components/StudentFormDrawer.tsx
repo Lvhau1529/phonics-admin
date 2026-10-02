@@ -6,11 +6,11 @@ import {
   UpdateStudentBody,
   UserStatus,
   type AvatarKey,
-  type StudentDetail,
 } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useAuth } from '@/features/auth/hooks';
 import { useUpdateStudent } from '@/features/students/hooks';
+import type { StudentDetailModel } from '@/features/students/models/StudentDetailModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarSelect } from '@/shared/ui/AvatarSelect';
@@ -40,7 +40,7 @@ interface StudentFormValues {
 
 interface StudentFormDrawerProps {
   open: boolean;
-  student: StudentDetail;
+  student: StudentDetailModel;
   onClose: () => void;
 }
 

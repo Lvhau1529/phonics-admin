@@ -1,10 +1,11 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { App, Button, Flex, Popconfirm, Space, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { Permission, PermissionGroup } from '@phonics/contracts';
+import type { Permission } from '@phonics/contracts';
 import { useState } from 'react';
 import { PermissionGroupDrawer } from '@/features/permissions/components/PermissionGroupDrawer';
 import { useDeletePermissionGroup, usePermissionGroups } from '@/features/permissions/hooks';
+import type { PermissionGroupModel } from '@/features/permissions/models/PermissionGroupModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
@@ -16,9 +17,9 @@ export function PermissionGroupsTab() {
   const { message } = App.useApp();
   const groups = usePermissionGroups();
   const remove = useDeletePermissionGroup();
-  const [drawer, setDrawer] = useState<{ open: boolean; group?: PermissionGroup }>({ open: false });
+  const [drawer, setDrawer] = useState<{ open: boolean; group?: PermissionGroupModel }>({ open: false });
 
-  const handleDelete = async (group: PermissionGroup) => {
+  const handleDelete = async (group: PermissionGroupModel) => {
     try {
       await remove.mutateAsync(group.id);
       message.success(t.permissions.groupDeleted);
@@ -27,7 +28,7 @@ export function PermissionGroupsTab() {
     }
   };
 
-  const columns: ColumnsType<PermissionGroup> = [
+  const columns: ColumnsType<PermissionGroupModel> = [
     {
       title: t.permissions.groupName,
       dataIndex: 'name',
@@ -83,7 +84,7 @@ export function PermissionGroupsTab() {
           <Tooltip title={t.common.edit}>
             <Button type="text" icon={<EditOutlined />} onClick={() => setDrawer({ open: true, group: g })} />
           </Tooltip>
-          {g.isSystem ? (
+          {!g.canDelete ? (
             <Tooltip title={t.permissions.systemGroupHint}>
               <Button type="text" icon={<DeleteOutlined />} disabled />
             </Tooltip>
@@ -114,7 +115,7 @@ export function PermissionGroupsTab() {
         </Button>
       </Flex>
       <ErrorAlert error={groups.error} onRetry={() => void groups.refetch()} />
-      <DataTable.Static<PermissionGroup>
+      <DataTable.Static<PermissionGroupModel>
         rowKey="id"
         columns={columns}
         dataSource={groups.data}

@@ -1,3 +1,7 @@
+/**
+ * Repository phân quyền: chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, method, body, schema contracts) và trả DTO
+ * đúng như BE. Không map / format ở đây — việc đó của `permissionsService`.
+ */
 import {
   ENDPOINTS,
   PermissionDefView,
@@ -14,7 +18,7 @@ import { request } from '@/shared/api/client';
 
 const CatalogResponse = z.object({ items: z.array(PermissionDefView) });
 
-export const permissionsApi = {
+export const permissionsRepository = {
   catalog: () => request(ENDPOINTS.admin.permissions, { schema: CatalogResponse }),
   user: (userId: string) =>
     request(ENDPOINTS.admin.userPermissions(userId), { schema: UserPermissionsResponse }),

@@ -1,6 +1,6 @@
 import { EyeOutlined, PlusCircleOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Space, Tooltip } from 'antd';
-import type { StudentSummary } from '@phonics/contracts';
+import type { StudentModel } from '@/features/students/models/StudentModel';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
@@ -23,8 +23,8 @@ export function ClassStudentsTab({ classId }: ClassStudentsTabProps) {
   const navigate = useNavigate();
   const table = useTableQuery({ defaultSort: 'points:desc' });
   const list = useClassStudents(classId, table.params);
-  const [moving, setMoving] = useState<StudentSummary>();
-  const [bonusFor, setBonusFor] = useState<StudentSummary>();
+  const [moving, setMoving] = useState<StudentModel>();
+  const [bonusFor, setBonusFor] = useState<StudentModel>();
   const canMove = auth.can('class.changeStudentClass');
   const canAward = auth.can('points.award');
 

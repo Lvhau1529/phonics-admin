@@ -1,6 +1,7 @@
 import { EyeOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Select, Space, Tooltip } from 'antd';
-import { UserStatus, type StudentSummary } from '@phonics/contracts';
+import { UserStatus } from '@phonics/contracts';
+import type { StudentModel } from '@/features/students/models/StudentModel';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
@@ -19,7 +20,7 @@ export function StudentsPage() {
   const navigate = useNavigate();
   const table = useTableQuery({ filterKeys: ['classId', 'status'] as const, defaultSort: 'createdAt:desc' });
   const list = useStudentsList(table.params);
-  const [moving, setMoving] = useState<StudentSummary>();
+  const [moving, setMoving] = useState<StudentModel>();
   const canMove = auth.can('class.changeStudentClass');
 
   return (

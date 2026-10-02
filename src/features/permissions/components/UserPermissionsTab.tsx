@@ -8,7 +8,7 @@ import {
   type Role,
 } from '@phonics/contracts';
 import { useMemo, useState } from 'react';
-import { permissionDescription, permissionSource, type PermissionSource } from '@/features/permissions/utils';
+import { permissionDescription, type PermissionSource } from '@/features/permissions/utils';
 import { PermissionGroupSelect } from '@/features/permissions/components/PermissionGroupSelect';
 import {
   usePermissionCatalog,
@@ -90,7 +90,7 @@ export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabP
     (code) => draft[code] !== (serverState[code] ?? 'default'),
   );
 
-  const serverGroupIds = useMemo(() => userPerms.data?.groups.map((g) => g.id) ?? [], [userPerms.data]);
+  const serverGroupIds = useMemo(() => userPerms.data?.groupIds ?? [], [userPerms.data]);
   const groupIds = groupDraft ?? serverGroupIds;
   const groupsChanged =
     groupDraft !== null &&
@@ -160,14 +160,13 @@ export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabP
       title: t.permissions.source,
       key: 'source',
       width: 200,
-      render: (_, def) =>
-        userPerms.data ? <SourceTag source={permissionSource(userPerms.data, def.code)} /> : null,
+      render: (_, def) => (userPerms.data ? <SourceTag source={userPerms.data.sourceOf(def.code)} /> : null),
     },
     {
       title: t.permissions.state,
       key: 'state',
       render: (_, def) => {
-        const override = userPerms.data?.overrides.find((o) => o.permission === def.code);
+        const override = userPerms.data?.overrideOf(def.code);
         return (
           <Flex vertical gap={4}>
             <Segmented<State>
@@ -198,11 +197,7 @@ export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabP
       align: 'center',
       width: 100,
       render: (_, def) =>
-        userPerms.data?.effective.includes(def.code) ? (
-          <Tag color="gold">{t.common.yes}</Tag>
-        ) : (
-          <Tag>{t.common.no}</Tag>
-        ),
+        userPerms.data?.has(def.code) ? <Tag color="gold">{t.common.yes}</Tag> : <Tag>{t.common.no}</Tag>,
     },
   ];
 

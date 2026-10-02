@@ -1,3 +1,7 @@
+/**
+ * Repository giáo viên: chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, method, body, schema contracts) và trả DTO
+ * đúng như BE. Không map / format ở đây — việc đó của `teachersService`.
+ */
 import {
   ENDPOINTS,
   paginated,
@@ -10,7 +14,7 @@ import { request, type QueryParams } from '@/shared/api/client';
 
 const TeacherPage = paginated(TeacherSummary);
 
-export const teachersApi = {
+export const teachersRepository = {
   list: (query: QueryParams) => request(ENDPOINTS.admin.teachers, { query, schema: TeacherPage }),
   create: (body: CreateTeacherBody) =>
     request(ENDPOINTS.admin.teachers, { method: 'POST', body, schema: TeacherSummary }),

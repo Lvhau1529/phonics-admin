@@ -1,10 +1,9 @@
-import { Table, type TableProps } from 'antd';
+import { Skeleton, Table, type TableProps } from 'antd';
 import type { ColumnsType, SorterResult } from 'antd/es/table/interface';
 import type { Paginated } from '@phonics/contracts';
 import { useMemo } from 'react';
 import { useDelayedLoading } from '@/shared/hooks/useDelayedLoading';
 import { t } from '@/shared/i18n';
-import { LottieLoader } from '@/shared/ui/LottieLoader';
 
 export interface DataTableProps<T extends { id: string }> extends Omit<
   TableProps<T>,
@@ -13,7 +12,7 @@ export interface DataTableProps<T extends { id: string }> extends Omit<
   columns: ColumnsType<T>;
   /** Trang dữ liệu từ API; undefined khi đang tải lần đầu */
   data: Paginated<T> | undefined;
-  /** Đang tải / refetch — spinner chỉ hiện sau 200 ms và giữ ≥ 400 ms (chống nháy) */
+  /** Đang tải / refetch — lần đầu (chưa có `data`) hiện hàng skeleton; refetch phủ spinner sau 200 ms, giữ ≥ 400 ms */
   loading?: boolean;
   page: number;
   pageSize: number;
@@ -30,10 +29,30 @@ function parseSort(sort: string | undefined): { field: string; order: 'ascend' |
   return { field, order: dir === 'asc' ? 'ascend' : 'descend' };
 }
 
-/** Prop `loading` của antd Table với chỉ báo Lottie, đã qua useDelayedLoading */
+/** Prop `loading` của antd Table (spinner mặc định), đã qua useDelayedLoading */
 function useTableLoading(loading: boolean | undefined): TableProps<never>['loading'] {
   const spinning = useDelayedLoading(!!loading);
-  return useMemo(() => ({ spinning, indicator: <LottieLoader size={40} indicator />, delay: 0 }), [spinning]);
+  return useMemo(() => ({ spinning, delay: 0 }), [spinning]);
+}
+
+const SKELETON_ROWS = 6;
+const skeletonCell = () => <Skeleton.Input active size="small" block style={{ height: 16, minWidth: 48 }} />;
+
+/**
+ * Lần tải đầu (chưa có dữ liệu): giữ header thật của bảng, thay thân bảng bằng `SKELETON_ROWS` hàng ô skeleton
+ * thay vì bảng rỗng + spinner.
+ */
+function useSkeletonRows<T extends object>(
+  columns: ColumnsType<T>,
+  active: boolean,
+): { columns: ColumnsType<T>; dataSource: T[] } | null {
+  return useMemo(() => {
+    if (!active) return null;
+    return {
+      columns: columns.map((col) => ({ ...col, render: skeletonCell }) as ColumnsType<T>[number]),
+      dataSource: Array.from({ length: SKELETON_ROWS }, (_, i) => ({ id: `skeleton-${i}` }) as unknown as T),
+    };
+  }, [columns, active]);
 }
 
 /**
@@ -53,7 +72,8 @@ export function DataTable<T extends { id: string }>({
   ...rest
 }: DataTableProps<T>) {
   const current = parseSort(sort);
-  const tableLoading = useTableLoading(loading);
+  const skeleton = useSkeletonRows(columns, !!loading && !data);
+  const tableLoading = useTableLoading(loading && !skeleton);
 
   // Gắn sortOrder điều khiển để mũi tên khớp URL
   const controlledColumns = useMemo<ColumnsType<T>>(
@@ -85,17 +105,21 @@ export function DataTable<T extends { id: string }>({
       scroll={{ x: 'max-content' }}
       {...rest}
       loading={tableLoading}
-      columns={controlledColumns}
-      dataSource={data?.items}
+      columns={skeleton?.columns ?? controlledColumns}
+      dataSource={skeleton?.dataSource ?? data?.items}
       onChange={handleChange}
-      pagination={{
-        current: page,
-        pageSize,
-        total: data?.total ?? 0,
-        showSizeChanger: true,
-        pageSizeOptions: [10, 20, 50, 100],
-        showTotal: (total, range) => t.common.pageTotal([range[0], range[1]], total),
-      }}
+      pagination={
+        skeleton
+          ? false
+          : {
+              current: page,
+              pageSize,
+              total: data?.total ?? 0,
+              showSizeChanger: true,
+              pageSizeOptions: [10, 20, 50, 100],
+              showTotal: (total, range) => t.common.pageTotal([range[0], range[1]], total),
+            }
+      }
     />
   );
 }
@@ -104,10 +128,27 @@ export interface StaticTableProps<T> extends Omit<TableProps<T>, 'loading'> {
   loading?: boolean;
 }
 
-/** antd Table thường (không phân trang server) nhưng dùng cùng chỉ báo Lottie + chống nháy */
-function StaticTable<T extends object>({ loading, ...rest }: StaticTableProps<T>) {
-  const tableLoading = useTableLoading(loading);
-  return <Table<T> size="middle" {...rest} loading={tableLoading} />;
+/** antd Table thường (không phân trang server) nhưng cùng skeleton lần đầu + spinner chống nháy */
+function StaticTable<T extends object>({
+  loading,
+  columns,
+  dataSource,
+  rowKey,
+  ...rest
+}: StaticTableProps<T>) {
+  const skeleton = useSkeletonRows(columns ?? [], !!loading && !dataSource);
+  const tableLoading = useTableLoading(loading && !skeleton);
+  return (
+    <Table<T>
+      size="middle"
+      {...rest}
+      rowKey={skeleton ? 'id' : rowKey}
+      loading={tableLoading}
+      columns={skeleton?.columns ?? columns}
+      dataSource={skeleton?.dataSource ?? dataSource}
+      pagination={skeleton ? false : rest.pagination}
+    />
+  );
 }
 
 DataTable.Static = StaticTable;

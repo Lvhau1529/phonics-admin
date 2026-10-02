@@ -1,10 +1,11 @@
 import { EditOutlined, KeyOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Card, Descriptions, Flex, Select, Skeleton, Space, Statistic, Tabs, Typography } from 'antd';
-import { PointKind, type GameId, type StudentDetail } from '@phonics/contracts';
+import { PointKind, type GameId } from '@phonics/contracts';
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { useAuth } from '@/features/auth/hooks';
+import { GameSelect } from '@/features/games/components/GameSelect';
 import { PointsTable } from '@/features/points/components/PointsTable';
 import { MoveClassModal } from '@/features/students/components/MoveClassModal';
 import { ResetPasswordModal } from '@/features/students/components/ResetPasswordModal';
@@ -13,11 +14,11 @@ import { StudentGamesTab } from '@/features/students/components/StudentGamesTab'
 import { StudentPointsByGame } from '@/features/students/components/StudentPointsByGame';
 import { StudentResultsTable } from '@/features/students/components/StudentResultsTable';
 import { useStudent, useStudentPoints } from '@/features/students/hooks';
+import type { StudentDetailModel } from '@/features/students/models/StudentDetailModel';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
-import { GameSelect } from '@/shared/ui/GameSelect';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { RangePicker } from '@/shared/ui/RangePicker';
 import { DEFAULT_RANGE, rangeParams, type RangeValue } from '@/shared/utils/range';
@@ -69,8 +70,8 @@ export function StudentDetailPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const student = useStudent(id);
   const [editOpen, setEditOpen] = useState(false);
-  const [moving, setMoving] = useState<StudentDetail>();
-  const [resetting, setResetting] = useState<StudentDetail>();
+  const [moving, setMoving] = useState<StudentDetailModel>();
+  const [resetting, setResetting] = useState<StudentDetailModel>();
   const tab = (searchParams.get('tab') as TabKey | null) ?? 'by-game';
   const setTab = (key: string) => setSearchParams(new URLSearchParams({ tab: key }), { replace: true });
   const canEdit = auth.can('students.edit');
@@ -127,24 +128,16 @@ export function StudentDetailPage() {
             <StatusTag status={s.status} />
           </Descriptions.Item>
           <Descriptions.Item label={t.common.class}>
-            {s.class ? (
-              <Link
-                to={ROUTES.classDetail(s.class.id)}
-              >{`${s.class.name} · ${s.class.grade} · ${s.class.schoolYear}`}</Link>
-            ) : (
-              t.students.noClass
-            )}
+            {s.class ? <Link to={ROUTES.classDetail(s.class.id)}>{s.classLabel}</Link> : t.students.noClass}
           </Descriptions.Item>
           <Descriptions.Item label={t.students.joinedAt}>
             {formatDateTime(s.class?.joinedAt)}
           </Descriptions.Item>
-          <Descriptions.Item label={t.common.lastLogin}>
-            {s.lastLoginAt ? formatDateTime(s.lastLoginAt) : t.common.never}
-          </Descriptions.Item>
+          <Descriptions.Item label={t.common.lastLogin}>{s.lastLoginText}</Descriptions.Item>
           <Descriptions.Item label={t.common.createdAt}>{formatDateTime(s.createdAt)}</Descriptions.Item>
           {s.parent && (
             <Descriptions.Item label={t.students.parent}>
-              {[s.parent.name, s.parent.email, s.parent.phone].filter(Boolean).join(' · ') || t.common.none}
+              {s.parentContactText || t.common.none}
             </Descriptions.Item>
           )}
           {auth.isAdmin && (

@@ -1,3 +1,7 @@
+/**
+ * Repository xác thực / hồ sơ: chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, method, body, schema contracts) và
+ * trả DTO đúng như BE. Không map / format ở đây — việc đó của `authService`.
+ */
 import {
   AuthResponse,
   ENDPOINTS,
@@ -10,7 +14,7 @@ import {
 } from '@phonics/contracts';
 import { request } from '@/shared/api/client';
 
-export const authApi = {
+export const authRepository = {
   /** Đăng nhập email / mật khẩu (header body-transport do client tự gắn cho /auth/*) */
   login: (body: LoginBody) =>
     request(ENDPOINTS.auth.login, { method: 'POST', body, schema: AuthResponse, auth: false }),

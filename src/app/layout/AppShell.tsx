@@ -20,11 +20,12 @@ import { ROUTES } from '@/app/routes';
 import { signOut } from '@/features/auth/authStore';
 import { useAuth } from '@/features/auth/hooks';
 import { t } from '@/shared/i18n';
-import { THEME_COLORS } from '@/shared/theme';
-import { useResolvedTheme } from '@/shared/theme/themeStore';
+import { THEME_COLORS } from '@/shared/theme/theme';
+import { useThemeMode } from '@/shared/theme/themeStore';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
+import { BrandMark } from '@/shared/ui/BrandMark';
 import { LangSwitch } from '@/shared/ui/LangSwitch';
-import { CenteredLoader } from '@/shared/ui/LottieLoader';
+import { PageSkeleton } from '@/shared/ui/Loading';
 import { RoleTag } from '@/shared/ui/RoleTag';
 import { ThemeSwitch } from '@/shared/ui/ThemeSwitch';
 
@@ -40,7 +41,10 @@ const ICONS: Record<MenuEntry['icon'], ReactNode> = {
   report: <FileExcelOutlined />,
 };
 
-/** Khung admin: sider nâu đậm (mực arcade) + header (đổi theme / ngôn ngữ, user menu) + nội dung route con */
+/**
+ * Khung admin: sider + header (góc phải: ngôn ngữ, sáng / tối, user menu) + nội dung route
+ * con trải hết chiều ngang còn lại.
+ */
 export function AppShell() {
   const auth = useAuth();
   const location = useLocation();
@@ -48,7 +52,7 @@ export function AppShell() {
   const screens = Grid.useBreakpoint();
   const [collapsed, setCollapsed] = useState(false);
   const isMobile = screens.lg === false;
-  const mode = useResolvedTheme();
+  const mode = useThemeMode();
   const colors = THEME_COLORS[mode];
   const { token } = theme.useToken();
 
@@ -61,7 +65,6 @@ export function AppShell() {
 
   const userMenu: MenuProps['items'] = [
     { key: 'profile', icon: <UserOutlined />, label: t.nav.profile, onClick: () => navigate(ROUTES.profile) },
-    ...(isMobile ? [{ key: 'theme', label: <ThemeSwitch size="middle" /> }] : []),
     { type: 'divider' },
     { key: 'signout', icon: <LogoutOutlined />, label: t.nav.signOut, onClick: () => void signOut() },
   ];
@@ -73,27 +76,55 @@ export function AppShell() {
         collapsed={isMobile ? true : collapsed}
         trigger={null}
         breakpoint="lg"
-        width={220}
-        collapsedWidth={isMobile ? 0 : 64}
-        style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'auto' }}
+        width={232}
+        collapsedWidth={isMobile ? 0 : 72}
+        style={{
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          overflow: 'auto',
+          borderRight: isMobile ? undefined : `1px solid ${colors.headerBorder}`,
+        }}
       >
-        <Flex align="center" gap={8} style={{ height: 56, padding: '0 16px', color: colors.siderSelectedBg }}>
-          <TrophyOutlined style={{ fontSize: 22 }} />
+        <Flex
+          align="center"
+          justify={collapsed ? 'center' : 'flex-start'}
+          gap={10}
+          style={{
+            height: 64,
+            padding: collapsed ? 0 : '0 16px',
+            borderBottom: `1px solid ${colors.headerBorder}`,
+          }}
+        >
+          <BrandMark size={32} />
           {!collapsed && (
-            <Typography.Text strong style={{ color: colors.siderText, whiteSpace: 'nowrap' }}>
+            <Typography.Text
+              strong
+              style={{
+                color: colors.siderText,
+                whiteSpace: 'nowrap',
+                fontSize: 16,
+              }}
+            >
               {t.app.name}
             </Typography.Text>
           )}
         </Flex>
-        <Menu theme="dark" mode="inline" selectedKeys={selected ? [selected] : []} items={items} />
+        <Menu
+          mode="inline"
+          selectedKeys={selected ? [selected] : []}
+          items={items}
+          style={{ paddingTop: 12, borderInlineEnd: 'none' }}
+        />
       </Layout.Sider>
-      <Layout>
+      <Layout style={{ minWidth: 0 }}>
         <Layout.Header
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: `2px solid ${colors.headerBorder}`,
+            height: 64,
+            borderBottom: `1px solid ${colors.headerBorder}`,
             position: 'sticky',
             top: 0,
             zIndex: 10,
@@ -113,11 +144,11 @@ export function AppShell() {
                 <Button type="text" icon={<MenuUnfoldOutlined />} aria-label={t.common.expand} />
               </Dropdown>
             )}
-            <Typography.Text type="secondary">{t.app.subtitle}</Typography.Text>
+            <Typography.Text strong>{t.app.subtitle}</Typography.Text>
           </Flex>
-          <Flex align="center" gap={isMobile ? 8 : 16}>
-            {!isMobile && <ThemeSwitch />}
-            <LangSwitch />
+          <Flex align="center" gap={isMobile ? 8 : 12}>
+            <LangSwitch compact={isMobile} />
+            <ThemeSwitch />
             {auth.user && (
               <Dropdown menu={{ items: userMenu }} trigger={['click']} placement="bottomRight">
                 <Flex align="center" gap={8} style={{ cursor: 'pointer' }}>
@@ -129,15 +160,16 @@ export function AppShell() {
             )}
           </Flex>
         </Layout.Header>
+        {/* Nội dung trải hết bề ngang còn lại (không giới hạn maxWidth → không bị dồn sang trái trên màn rộng) */}
         <Layout.Content
           style={{
-            padding: isMobile ? 16 : 24,
-            maxWidth: 1400,
+            padding: isMobile ? 16 : 28,
             width: '100%',
+            minWidth: 0,
             background: token.colorBgLayout,
           }}
         >
-          <Suspense fallback={<CenteredLoader minHeight="60vh" />}>
+          <Suspense fallback={<PageSkeleton />}>
             <Outlet />
           </Suspense>
         </Layout.Content>

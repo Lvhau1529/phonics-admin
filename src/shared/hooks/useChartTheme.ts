@@ -1,7 +1,7 @@
 import { theme } from 'antd';
 import type { CSSProperties } from 'react';
-import { THEME_COLORS } from '@/shared/theme';
-import { useResolvedTheme } from '@/shared/theme/themeStore';
+import { THEME_COLORS } from '@/shared/theme/theme';
+import { useThemeMode } from '@/shared/theme/themeStore';
 
 export interface ChartTheme {
   /** Màu series theo thứ tự (khác nhau giữa light / dark để đủ tương phản trên nền) */
@@ -22,7 +22,7 @@ export interface ChartTheme {
 /** Màu cho Recharts lấy từ token antd của theme hiện tại (sáng / tối) */
 export function useChartTheme(): ChartTheme {
   const { token } = theme.useToken();
-  const mode = useResolvedTheme();
+  const mode = useThemeMode();
   return {
     colors: THEME_COLORS[mode].chart,
     grid: token.colorSplit,

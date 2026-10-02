@@ -1,4 +1,4 @@
-import { App as AntApp, ConfigProvider, Spin } from 'antd';
+import { App as AntApp, ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
 import viVN from 'antd/locale/vi_VN';
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
@@ -9,14 +9,10 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { bootstrapAuth } from '@/features/auth/authStore';
 import { createQueryClient } from '@/app/queryClient';
 import { useLang, type Lang } from '@/shared/i18n';
-import { buildTheme } from '@/shared/theme';
-import { useResolvedTheme } from '@/shared/theme/themeStore';
-import { LottieLoader } from '@/shared/ui/LottieLoader';
+import { buildTheme } from '@/shared/theme/theme';
+import { useThemeMode } from '@/shared/theme/themeStore';
 
 const ANTD_LOCALES = { vi: viVN, en: enUS } as const satisfies Record<Lang, unknown>;
-
-// Chỉ báo mặc định cho mọi <Spin> (Table loading, Spin fullscreen…) — Lottie ba chấm nảy
-Spin.setDefaultIndicator(<LottieLoader size={40} indicator />);
 
 interface ProvidersProps {
   children: ReactNode;
@@ -33,7 +29,7 @@ interface ProvidersProps {
 export function Providers({ children, queryClient, bootstrap = true }: ProvidersProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
   const lang = useLang();
-  const mode = useResolvedTheme();
+  const mode = useThemeMode();
   const theme = useMemo(() => buildTheme(mode), [mode]);
 
   // dayjs.locale toàn cục phải đặt trước khi render con (format ngày / RangePicker)

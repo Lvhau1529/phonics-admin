@@ -40,51 +40,57 @@ src/
 ├── main.tsx                 Mount: Providers + RouterProvider
 ├── app/
 │   ├── providers.tsx        ConfigProvider (locale + theme theo langStore / themeStore, key={lang}) + antd App
-│   │                        + QueryClient + khôi phục phiên; Spin.setDefaultIndicator(LottieLoader)
-│   ├── router.tsx           createBrowserRouter; trang tải lười; HydrateFallback Lottie; RequireAuth → AppShell
+│   │                        + QueryClient + khôi phục phiên
+│   ├── router.tsx           createBrowserRouter; trang tải lười; HydrateFallback FullscreenLoader; RequireAuth → AppShell
 │   ├── routes.ts            Hằng số đường dẫn (ROUTES.classDetail(id)...)
-│   ├── layout/              AppShell (sider + header: ThemeSwitch, LangSwitch, Suspense), menu.ts (labelKey + role)
+│   ├── layout/              AppShell (sider + header góc phải: LangSwitch, ThemeSwitch; Suspense PageSkeleton), menu.ts (labelKey + role)
 │   └── guards/              RequireAuth (chưa đăng nhập → /login), RequireRole (sai role → 403)
 ├── features/<feature>/
-│   ├── api.ts               Hàm gọi endpoint (request + schema contracts)
-│   ├── hooks.ts             useQuery / useMutation + invalidate
+│   ├── api/
+│   │   ├── <x>Repository.ts Khai báo endpoint: request(ENDPOINTS..., { schema }) → DTO đúng như BE
+│   │   └── <x>Service.ts    Gọi repository, đổi DTO → model (mapPage cho trang phân trang)
+│   ├── models/              <Name>Model.ts — class nhận DTO, field cùng tên + getter dữ liệu chỉ FE dùng
+│   ├── hooks.ts             useQuery / useMutation (gọi service) + invalidate
 │   ├── pages/               Trang (export default cho lazy route)
 │   └── components/          Drawer / Modal / Tab / bảng riêng của feature
 └── shared/
     ├── api/client.ts        fetch + bearer + refresh single-flight + parse zod; downloadFile
     ├── api/errors.ts        ApiError, errorMessage (mã lỗi → tiếng Việt)
     ├── api/queryKeys.ts     qk.* — khoá cache TanStack Query
+    ├── api/pagination.ts    mapPage(page, fn) — đổi item của trang DTO → model
     ├── hooks/               useTableQuery (bảng ↔ URL), useDebouncedValue, useDelayedLoading (chống nháy),
     │                        useChartTheme (màu Recharts từ token antd)
-    ├── ui/                  PageHeader, DataTable (+ DataTable.Static), ChartFrame, LottieLoader / CenteredLoader,
-    │                        ThemeSwitch, LangSwitch, RangePicker, GameSelect, AvatarImg, RoleTag, ErrorAlert…
+    ├── ui/                  PageHeader, DataTable (+ DataTable.Static), ChartFrame, Loading (FullscreenLoader / PageSkeleton / BlockSkeleton),
+    │                        BrandMark, ThemeSwitch, LangSwitch, RangePicker, AvatarImg, RoleTag, ErrorAlert…
     ├── utils/               format (ngày, số theo ngôn ngữ), zodForm (antd ↔ zod), contrast (WCAG), download…
     ├── i18n/                vi.ts (từ điển nguồn), en.ts (`satisfies Dict`), langStore.ts, index.ts (`t` Proxy)
-    ├── theme.ts             buildTheme(mode) + THEME_COLORS (light / dark) + GAME_COLORS
-    ├── theme/themeStore.ts  'light' | 'dark' | 'system' (localStorage `phonics-admin:theme`, data-theme trên html)
+    ├── theme/theme.ts       buildTheme(mode) + THEME_COLORS (light / dark) + GAME_COLORS
+    ├── theme/themeStore.ts  'light' | 'dark', mặc định dark (localStorage `phonics-admin:theme`, data-theme trên html)
     └── config.ts            VITE_API_URL, VITE_GAME_URL, khoá localStorage
 ```
 
-## Theme (vàng trùng game + dark mode)
+## Theme (giữ kiểu antd, màu vàng + xám trung tính, mặc định tối)
 
-`src/shared/theme.ts` → `buildTheme(mode)` cho `ConfigProvider`; màu lấy từ palette game
-(phonics-game `src/platform/styles/tailwind.css`: gold `#ffd23f`, honey `#ffc83d`, ink `#2e1608`, paper `#fffaf0`…).
+`src/shared/theme/theme.ts` → `buildTheme(mode)` cho `ConfigProvider`. Kiểu dáng là antd mặc định (radius 8, viền
+1px, bóng mềm); chỉ đổi màu: điểm nhấn vàng `#ffdc58` (tham khảo neobrutalism.com), nền / viền / chữ theo thang xám
+zinc (kiểu shadcn/ui, Vercel, Linear) để dễ đọc ở cả hai chế độ.
 
-| Token                                    | Light                       | Dark                  | Tương phản (WCAG)          |
-| ---------------------------------------- | --------------------------- | --------------------- | -------------------------- |
-| `colorPrimary` (nút, focus)              | `#E0A100`                   | `#ffc83d`             |                            |
-| `colorTextLightSolid` (chữ trên primary) | `#2e1608`                   | `#2e1608`             | 7.5 : 1 / 11.0 : 1         |
-| `colorLink` / `colorPrimaryText`         | `#9A6B00`                   | `#ffd86a`             | 4.7 : 1 (trắng) / 12.4 : 1 |
-| `colorBgLayout` / `colorBgContainer`     | `#fffaf0` / `#ffffff`       | `#1a1208` / `#241a0e` |                            |
-| Sider / mục chọn                         | `#2e1608` / honey `#ffc83d` | `#120c05` / honey     | 13.8 : 1 / 11.0 : 1        |
+| Token                                    | Light                   | Dark                    | Tương phản (WCAG)     |
+| ---------------------------------------- | ----------------------- | ----------------------- | --------------------- |
+| `colorPrimary` (nút primary)             | `#ffdc58`               | `#ffdc58`               |                       |
+| `colorTextLightSolid` (chữ trên primary) | `#09090b`               | `#09090b`               | ≈ 15 : 1              |
+| `colorLink` / `colorPrimaryText`         | `#854d0e`               | `#ffdc58`               | ≥ 6 : 1 / ≥ 12 : 1    |
+| `colorBgLayout` / `colorBgContainer`     | `#f4f4f5` / `#ffffff`   | `#09090b` / `#18181b`   |                       |
+| Sider / mục chọn                         | `#ffffff` / `#fef3c7`   | `#18181b` / `#3a3115`   | ≥ 7 : 1               |
 
-Vàng tươi trên nền trắng chỉ ~2.3 : 1 nên **chữ màu primary** (link, Tabs, Pagination, Button text) dùng hổ phách
-đậm `#9A6B00`, còn nền primary giữ vàng với chữ mực tối. Checkbox / Radio: dấu tick màu mực. Test
-`src/shared/theme.test.ts` đo lại bằng `utils/contrast.ts` (phải ≥ 4.5 cho cả hai mode).
+Vàng trên nền trắng chỉ ~1.4 : 1 nên **chữ màu primary** (link, Tabs, Pagination, Button text) ở light mode dùng nâu
+vàng `#854d0e`, còn nền primary giữ vàng với chữ mực. darkAlgorithm của antd tự làm xỉn primary → `buildTheme` thêm
+một thuật toán cuối ghim lại `#ffdc58`. Checkbox / Radio: dấu tick màu mực. Test `src/shared/theme/theme.test.ts` đo
+lại bằng `utils/contrast.ts`.
 
-Chế độ: `shared/theme/themeStore.ts` (`useThemePreference` / `useResolvedTheme`, `'system'` theo
-`prefers-color-scheme`), toggle `ThemeSwitch` ở header. Biểu đồ Recharts lấy màu qua `useChartTheme()` (token antd +
-palette `THEME_COLORS[mode].chart`) nên tự đổi theo dark mode — **không hard-code màu** trong chart.
+Chế độ: `shared/theme/themeStore.ts` (`useThemeMode` / `setThemeMode`; chỉ `light` | `dark`, **mặc định `dark`**),
+nút `ThemeSwitch` ở góc phải header. Biểu đồ Recharts lấy màu qua `useChartTheme()` (token antd + palette
+`THEME_COLORS[mode].chart`) nên tự đổi theo chế độ — **không hard-code màu** trong chart.
 
 ## i18n (VI / EN)
 
@@ -99,9 +105,9 @@ palette `THEME_COLORS[mode].chart`) nên tự đổi theo dark mode — **không
 
 ## Loading & chống nháy
 
-- `LottieLoader` (`public/lottie/loading.json`, player `lottie-web/build/player/lottie_light` nạp lazy; tôn trọng
-  `prefers-reduced-motion` → icon tĩnh). Dùng: chỉ báo mặc định của `Spin`, `HydrateFallback`, màn khôi phục phiên
-  (`RequireAuth`), `Suspense` trang lazy trong `AppShell`, `DataTable` / `DataTable.Static`, `ChartFrame`.
+- `shared/ui/Loading.tsx` (không Lottie): lần tải đầu hiện skeleton đúng hình nội dung — `PageSkeleton` (Suspense
+  trang lazy), hàng skeleton trong `DataTable` / `DataTable.Static` khi chưa có dữ liệu, `BlockSkeleton` trong
+  `ChartFrame`; `FullscreenLoader` (logo + `Spin`) cho `HydrateFallback` và màn khôi phục phiên (`RequireAuth`).
 - `useDelayedLoading(isFetching, { delay: 200, minDuration: 400 })`: spinner chỉ hiện khi tải > 200 ms và giữ ≥
   400 ms. Bảng / biểu đồ truyền `isFetching` (không phải `isLoading`) — dữ liệu cũ vẫn hiển thị nhờ
   `placeholderData: keepPreviousData`, chỉ phủ spinner mờ, không unmount.
@@ -130,8 +136,10 @@ palette `THEME_COLORS[mode].chart`) nên tự đổi theo dark mode — **không
 
 1. Contracts: schema / `ENDPOINTS` đã có? Chưa thì thêm ở phonics-api
    (`packages/contracts`), phát hành bản mới rồi `pnpm up @phonics/contracts` ở đây (hoặc làm trong phonics-dev).
-2. `src/features/<feature>/api.ts`: hàm gọi `request(ENDPOINTS.x, { schema })`.
-3. `src/features/<feature>/hooks.ts`: `useQuery({ queryKey: qk.<feature>.list(params) })`; thêm khoá vào
+2. `src/features/<feature>/api/<feature>Repository.ts`: khai báo endpoint `request(ENDPOINTS.x, { schema })` (trả
+   DTO); `models/<Name>Model.ts`: class nhận DTO + getter dữ liệu chỉ FE dùng; `api/<feature>Service.ts`: gọi
+   repository, đổi DTO → model.
+3. `src/features/<feature>/hooks.ts`: `useQuery({ queryKey: qk.<feature>.list(params), queryFn: () => xService.list(params) })`; thêm khoá vào
    `shared/api/queryKeys.ts`; mutation `onSuccess` invalidate theo prefix.
 4. Trang trong `pages/<Name>Page.tsx` (`export default`), đăng ký ở `app/router.tsx` (bọc `adminOnly` nếu cần),
    thêm đường dẫn vào `app/routes.ts`, mục menu vào `app/layout/menu.ts`.

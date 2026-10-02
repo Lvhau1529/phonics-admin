@@ -1,16 +1,19 @@
-import { useQuery } from '@tanstack/react-query';
 import { Card, Col, Flex, Row, Segmented, Tabs, Typography } from 'antd';
 import { GAME_IDS, type Bucket } from '@phonics/contracts';
 import { useState } from 'react';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { useClassOptions } from '@/features/classes/hooks';
-import { statsApi } from '@/features/dashboard/api';
 import { ClassGamesTable } from '@/features/dashboard/components/ClassGamesTable';
 import { OverviewCards } from '@/features/dashboard/components/OverviewCards';
 import { PointsTimelineChart } from '@/features/dashboard/components/PointsTimelineChart';
 import { TopStudentsChart } from '@/features/dashboard/components/TopStudentsChart';
+import {
+  useClassGameStats,
+  useClassTimeline,
+  useClassTopStudents,
+  useOverviewStats,
+} from '@/features/dashboard/hooks';
 import { GameTimelineChart } from '@/features/games/components/GameTimelineChart';
-import { qk } from '@/shared/api/queryKeys';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
@@ -19,7 +22,7 @@ import { rangeParams, type RangeValue } from '@/shared/utils/range';
 import { formatDateTime } from '@/shared/utils/format';
 
 export function DashboardPage() {
-  const overview = useQuery({ queryKey: qk.stats.overview, queryFn: statsApi.overview });
+  const overview = useOverviewStats();
   const classes = useClassOptions();
   const [selectedClassId, setClassId] = useState<string>();
   const [range, setRange] = useState<RangeValue>({ range: 'month' });
@@ -28,21 +31,9 @@ export function DashboardPage() {
   const classId = selectedClassId ?? classes.data?.[0]?.id;
 
   const rp = rangeParams(range);
-  const timeline = useQuery({
-    queryKey: qk.stats.classTimeline(classId ?? '', { ...rp, bucket }),
-    queryFn: () => statsApi.classTimeline(classId!, { ...rp, bucket }),
-    enabled: !!classId,
-  });
-  const top = useQuery({
-    queryKey: qk.stats.classTopStudents(classId ?? '', { ...rp, limit: 10 }),
-    queryFn: () => statsApi.classTopStudents(classId!, { ...rp, limit: 10 }),
-    enabled: !!classId,
-  });
-  const games = useQuery({
-    queryKey: qk.stats.classGames(classId ?? '', rp),
-    queryFn: () => statsApi.classGames(classId!, rp),
-    enabled: !!classId,
-  });
+  const timeline = useClassTimeline(classId, { ...rp, bucket });
+  const top = useClassTopStudents(classId, { ...rp, limit: 10 });
+  const games = useClassGameStats(classId, rp);
 
   return (
     <>

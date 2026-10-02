@@ -1,18 +1,19 @@
 import { UnlockOutlined } from '@ant-design/icons';
 import { Button, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { ClassSummary, GameCatalogItem, GameId } from '@phonics/contracts';
+import type { GameId } from '@phonics/contracts';
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks';
 import { UnlockGameClassModal } from '@/features/classes/components/UnlockGameClassModal';
+import type { ClassModel } from '@/features/classes/models/ClassModel';
 import { useGameCatalog } from '@/features/games/hooks';
+import type { GameModel } from '@/features/games/models/GameModel';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
-import { formatNumber } from '@/shared/utils/format';
 
 interface ClassGamesTabProps {
-  cls: ClassSummary;
+  cls: ClassModel;
 }
 
 /** Tab Game của lớp: catalog + nút mở khoá cho cả lớp (quyền games.unlock) */
@@ -22,7 +23,7 @@ export function ClassGamesTab({ cls }: ClassGamesTabProps) {
   const catalog = useGameCatalog();
   const [unlockGame, setUnlockGame] = useState<GameId>();
 
-  const columns: ColumnsType<GameCatalogItem> = [
+  const columns: ColumnsType<GameModel> = [
     { title: t.common.game, dataIndex: 'title' },
     {
       title: t.common.status,
@@ -40,7 +41,7 @@ export function ClassGamesTab({ cls }: ClassGamesTabProps) {
       title: t.games.price,
       dataIndex: 'price',
       align: 'right',
-      render: (p: number | null) => (p === null ? t.games.priceFree : formatNumber(p)),
+      render: (_, g) => g.priceText,
     },
     {
       title: t.common.actions,
@@ -58,7 +59,7 @@ export function ClassGamesTab({ cls }: ClassGamesTabProps) {
   return (
     <>
       <ErrorAlert error={catalog.error} onRetry={() => void catalog.refetch()} />
-      <DataTable.Static<GameCatalogItem>
+      <DataTable.Static<GameModel>
         rowKey="id"
         size="middle"
         columns={columns}

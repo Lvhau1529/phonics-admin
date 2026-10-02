@@ -1,10 +1,13 @@
-import type { Permission, Role, User } from '@phonics/contracts';
+import { useMutation } from '@tanstack/react-query';
+import type { ChangePasswordBody, Permission, Role, UpdateProfileBody } from '@phonics/contracts';
 import { useMemo } from 'react';
-import { useAuthState, type AuthStatus } from '@/features/auth/authStore';
+import { authService } from '@/features/auth/api/authService';
+import { setCurrentUser, useAuthState, type AuthStatus } from '@/features/auth/authStore';
+import type { UserModel } from '@/features/auth/models/UserModel';
 
 export interface Auth {
   status: AuthStatus;
-  user: User | null;
+  user: UserModel | null;
   permissions: readonly Permission[];
   role: Role | null;
   isAdmin: boolean;
@@ -18,7 +21,7 @@ export function useAuth(): Auth {
   const state = useAuthState();
   return useMemo(() => {
     const role = state.user?.role ?? null;
-    const isAdmin = role === 'ADMIN';
+    const isAdmin = state.user?.isAdmin ?? false;
     return {
       status: state.status,
       user: state.user,
@@ -32,3 +35,13 @@ export function useAuth(): Auth {
 }
 
 export const useCan = (permission: Permission): boolean => useAuth().can(permission);
+
+/** Sửa hồ sơ của chính mình; xong thì cập nhật user trong authStore */
+export const useUpdateProfile = () =>
+  useMutation({
+    mutationFn: (body: UpdateProfileBody) => authService.updateProfile(body),
+    onSuccess: setCurrentUser,
+  });
+
+export const useChangePassword = () =>
+  useMutation({ mutationFn: (body: ChangePasswordBody) => authService.changePassword(body) });
