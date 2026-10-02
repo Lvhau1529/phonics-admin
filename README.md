@@ -151,14 +151,21 @@ nút `ThemeSwitch` ở góc phải header. Biểu đồ Recharts lấy màu qua 
 
 Schema / type / hằng số dùng chung với API là gói `@lvhau1529/phonics-contracts` (phát hành từ repo phonics-api), cài qua alias
 `"@phonics/contracts": "npm:@lvhau1529/phonics-contracts@^1"` nên code vẫn `import … from '@phonics/contracts'`.
-GitHub Packages cần token kể cả khi chỉ đọc; pnpm **không** đọc token trong `.npmrc` của repo, nên đặt ở cấp global (user):
+GitHub Packages cần token kể cả khi chỉ đọc. Token **chỉ nằm trong biến môi trường `NODE_AUTH_TOKEN`** (GitHub PAT
+classic, quyền `read:packages`). File `.npmrc.auth` (commit, không chứa secret) ghi
+`//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}`; pnpm 12 bỏ qua `${...}` trong credential của `.npmrc` repo,
+nên phải bật file này bằng biến `PNPM_CONFIG_NPMRC_AUTH_FILE=.npmrc.auth` (pnpm chỉ tin file auth do môi trường chỉ
+định):
 
-- Máy dev: tạo GitHub PAT (classic) quyền `read:packages`, rồi
-  `pnpm config set //npm.pkg.github.com/:_authToken <token> --location=global`.
-- CI (GitHub Actions): đã cấu hình sẵn bằng `GITHUB_TOKEN`; ở trang package `phonics-contracts` > Package settings >
-  Manage Actions access, thêm repo này với quyền Read.
-- Vercel: biến môi trường `NPM_RC` gồm 2 dòng `@lvhau1529:registry=https://npm.pkg.github.com` và
-  `//npm.pkg.github.com/:_authToken=<token>`.
+- Vercel: chỉ cần đặt `NODE_AUTH_TOKEN` (Production + Preview); `vercel.json > installCommand` đã kèm
+  `PNPM_CONFIG_NPMRC_AUTH_FILE=.npmrc.auth`. Biến `NPM_RC` cũ không cần nữa (xoá đi).
+- CI (GitHub Actions): đã đặt sẵn cả hai biến (`NODE_AUTH_TOKEN` = `GITHUB_TOKEN`); ở trang package
+  `phonics-contracts` > Package settings > Manage Actions access, thêm repo này với quyền Read.
+- Máy dev: đặt `NODE_AUTH_TOKEN` trong biến môi trường user. Cài qua phonics-dev (`pnpm repos install`) thì launcher
+  tự bật `.npmrc.auth`; cài thẳng trong repo thì chạy `PNPM_CONFIG_NPMRC_AUTH_FILE=.npmrc.auth pnpm install`
+  (PowerShell: `$env:PNPM_CONFIG_NPMRC_AUTH_FILE='.npmrc.auth'; pnpm install`), hoặc một lần thêm dòng
+  `//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}` vào `~/.npmrc` (file user được mở rộng env) rồi
+  `pnpm install` như thường.
 
 Nâng version: `pnpm up @phonics/contracts` rồi commit lockfile. Sửa contracts và thấy ngay ở app (không cần phát hành):
 chạy qua launcher phonics-dev (`pnpm dev`).
@@ -166,4 +173,5 @@ chạy qua launcher phonics-dev (`pnpm dev`).
 ## Deploy
 
 Vercel, _Root Directory_ = gốc repo (`vercel.json`: build bằng `pnpm run build`, rewrite SPA về `index.html`).
-Đặt `NPM_RC` (token đọc GitHub Packages, xem trên), `VITE_API_URL`, `VITE_GAME_URL` trong project settings.
+Đặt `NODE_AUTH_TOKEN` (token đọc GitHub Packages, xem trên — `installCommand` đã bật `.npmrc.auth`), `VITE_API_URL`,
+`VITE_GAME_URL` trong project settings.

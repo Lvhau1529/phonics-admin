@@ -1,0 +1,5 @@
+# Token đọc GitHub Packages (@lvhau1529/phonics-contracts) — file này KHÔNG chứa secret, chỉ tham chiếu biến môi
+# trường NODE_AUTH_TOKEN (GitHub PAT classic, quyền read:packages).
+# pnpm 12 bỏ qua ${...} trong credential của .npmrc repo (chống repo lạ đọc trộm env), nên file này chỉ được đọc khi
+# môi trường trỏ tới nó: PNPM_CONFIG_NPMRC_AUTH_FILE=.npmrc.auth (vercel.json, CI, phonics-dev đã đặt sẵn).
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
