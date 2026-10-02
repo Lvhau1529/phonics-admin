@@ -143,10 +143,10 @@ palette `THEME_COLORS[mode].chart`) nên tự đổi theo dark mode — **không
 
 Schema / type / hằng số dùng chung với API là gói `@lvhau1529/phonics-contracts` (phát hành từ repo phonics-api), cài qua alias
 `"@phonics/contracts": "npm:@lvhau1529/phonics-contracts@^1"` nên code vẫn `import … from '@phonics/contracts'`.
-GitHub Packages cần token kể cả khi chỉ đọc; pnpm **không** đọc token trong `.npmrc` của repo, nên đặt ở cấp user:
+GitHub Packages cần token kể cả khi chỉ đọc; pnpm **không** đọc token trong `.npmrc` của repo, nên đặt ở cấp global (user):
 
 - Máy dev: tạo GitHub PAT (classic) quyền `read:packages`, rồi
-  `pnpm config set //npm.pkg.github.com/:_authToken <token> --location=user`.
+  `pnpm config set //npm.pkg.github.com/:_authToken <token> --location=global`.
 - CI (GitHub Actions): đã cấu hình sẵn bằng `GITHUB_TOKEN`; ở trang package `phonics-contracts` > Package settings >
   Manage Actions access, thêm repo này với quyền Read.
 - Vercel: biến môi trường `NPM_RC` gồm 2 dòng `@lvhau1529:registry=https://npm.pkg.github.com` và
