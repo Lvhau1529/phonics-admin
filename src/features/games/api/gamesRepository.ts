@@ -12,7 +12,7 @@ import {
   type UpdateGameBody,
 } from '@phonics/contracts';
 import { z } from 'zod';
-import { request, type QueryParams } from '@/shared/api/client';
+import { HttpMethod, request, type QueryParams } from '@/shared/api/client';
 
 const AdminGamesResponse = z.object({ items: z.array(GameAdminItem) });
 
@@ -22,7 +22,7 @@ export const gamesRepository = {
   /** ADMIN: catalog + số liệu tổng */
   adminList: () => request(ENDPOINTS.admin.games, { schema: AdminGamesResponse }),
   update: (id: string, body: UpdateGameBody) =>
-    request(ENDPOINTS.admin.game(id), { method: 'PATCH', body, schema: GameCatalogItem }),
+    request(ENDPOINTS.admin.game(id), { method: HttpMethod.PATCH, body, schema: GameCatalogItem }),
   timeline: (id: string, query: QueryParams) =>
     request(ENDPOINTS.stats.gameTimeline(id), { query, schema: z.array(GameTimelineBucket) }),
   byClass: (id: string, query: QueryParams) =>

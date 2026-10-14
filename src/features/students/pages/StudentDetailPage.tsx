@@ -4,6 +4,7 @@ import { PointKind, type GameId } from '@phonics/contracts';
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
+import { StudentWorksheetsTab } from '@/features/worksheet-stats/components/StudentWorksheetsTab';
 import { useAuth } from '@/features/auth/hooks';
 import { GameSelect } from '@/features/games/components/GameSelect';
 import { PointsTable } from '@/features/points/components/PointsTable';
@@ -25,7 +26,7 @@ import { DEFAULT_RANGE, rangeParams, type RangeValue } from '@/shared/utils/rang
 import { StatusTag } from '@/shared/ui/RoleTag';
 import { formatDateTime, formatNumber } from '@/shared/utils/format';
 
-type TabKey = 'by-game' | 'points' | 'results' | 'games';
+type TabKey = 'by-game' | 'points' | 'results' | 'games' | 'worksheets';
 
 /** Tab Sổ điểm của học sinh: lọc loại / game / khoảng thời gian */
 function StudentPointsTab({ studentId }: { studentId: string }) {
@@ -159,6 +160,11 @@ export function StudentDetailPage() {
           { key: 'points', label: t.students.tabPoints, children: <StudentPointsTab studentId={id} /> },
           { key: 'results', label: t.students.tabResults, children: <StudentResultsTable studentId={id} /> },
           { key: 'games', label: t.students.tabGames, children: <StudentGamesTab studentId={id} /> },
+          {
+            key: 'worksheets',
+            label: t.worksheetStats.tabWorksheets,
+            children: <StudentWorksheetsTab studentId={id} />,
+          },
         ]}
       />
 

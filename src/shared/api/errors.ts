@@ -1,8 +1,13 @@
-import { ApiErrorBody, type ErrorCode } from '@phonics/contracts';
+import { ApiErrorBody, ErrorCode } from '@phonics/contracts';
 import { t } from '@/shared/i18n';
+import { type ValueOf } from '@/shared/types';
 
-/** Mã lỗi của API + hai mã riêng của client (không tới được server / response sai định dạng) */
-export type ApiErrorCode = ErrorCode | 'NETWORK' | 'BAD_RESPONSE';
+/** Mã lỗi riêng của client: không tới được server / response sai định dạng / upload thẳng lên storage lỗi */
+export const ClientErrorCode = { NETWORK: 'NETWORK', BAD_RESPONSE: 'BAD_RESPONSE', UPLOAD: 'UPLOAD' } as const;
+export type ClientErrorCode = ValueOf<typeof ClientErrorCode>;
+
+/** Mã lỗi của API + mã lỗi riêng của client */
+export type ApiErrorCode = ErrorCode | ClientErrorCode;
 
 /** Lỗi thống nhất cho mọi lời gọi API (envelope `ApiErrorBody` của server hoặc lỗi client) */
 export class ApiError extends Error {
@@ -42,12 +47,12 @@ export class ApiError extends Error {
     }
     const code: ApiErrorCode =
       response.status === 401
-        ? 'UNAUTHORIZED'
+        ? ErrorCode.enum.UNAUTHORIZED
         : response.status === 403
-          ? 'FORBIDDEN'
+          ? ErrorCode.enum.FORBIDDEN
           : response.status === 404
-            ? 'NOT_FOUND'
-            : 'INTERNAL';
+            ? ErrorCode.enum.NOT_FOUND
+            : ErrorCode.enum.INTERNAL;
     return new ApiError(response.status, code, response.statusText || code);
   }
 

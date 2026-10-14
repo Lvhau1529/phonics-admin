@@ -1,6 +1,6 @@
 import type { GameId } from '@phonics/contracts';
-import dayjs, { type ConfigType } from 'dayjs';
 import { t } from '@/shared/i18n';
+import { dayjs, type ConfigType } from '@/shared/utils/dayjs';
 
 // Intl.NumberFormat theo ngôn ngữ hiện tại (cache theo locale vì tạo formatter khá tốn)
 const numberFormats = new Map<string, Intl.NumberFormat>();
@@ -34,13 +34,11 @@ export const formatDate = (value: ConfigType | null | undefined): string =>
 export const formatDateTime = (value: ConfigType | null | undefined): string =>
   value ? dayjs(value).format(t.format.dateTime) : t.common.none;
 
-/** ms → "1 phút 05 giây" dạng ngắn m:ss */
+/** ms → dạng ngắn m:ss, làm tròn tới giây (65_000 → "1:05"); phút không quay vòng sau 59 (75:00) */
 export function formatDuration(ms: number | null | undefined): string {
   if (ms === null || ms === undefined) return t.common.none;
-  const total = Math.round(ms / 1000);
-  const minutes = Math.floor(total / 60);
-  const seconds = total % 60;
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const duration = dayjs.duration(Math.round(ms / 1000), 'seconds');
+  return `${Math.floor(duration.asMinutes())}:${duration.format('ss')}`;
 }
 
 /** Ngày cho query API (APP_TIMEZONE phía server): YYYY-MM-DD */

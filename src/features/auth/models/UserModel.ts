@@ -1,4 +1,4 @@
-import type { AuthProvider, AvatarKey, Role, StudentClassRef, User, UserStatus } from '@phonics/contracts';
+import { Role, type AuthProvider, type AvatarKey, type StudentClassRef, type User, type UserStatus } from '@phonics/contracts';
 import { t } from '@/shared/i18n';
 
 /** Người dùng đang đăng nhập (từ `User` của BE) + dữ liệu chỉ phía FE dùng */
@@ -26,11 +26,11 @@ export class UserModel {
   }
 
   get isAdmin(): boolean {
-    return this.role === 'ADMIN';
+    return this.role === Role.enum.ADMIN;
   }
 
   get isStudent(): boolean {
-    return this.role === 'STUDENT';
+    return this.role === Role.enum.STUDENT;
   }
 
   /** "Google" / "Email" theo ngôn ngữ hiện tại */

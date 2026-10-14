@@ -8,7 +8,19 @@ export interface MenuEntry {
   /** Khoá trong `t.nav` — dịch lúc render để đổi ngôn ngữ không cần nạp lại module */
   labelKey: keyof Dict['nav'];
   /** Tên icon (map sang component trong AppShell để file này không phụ thuộc React) */
-  icon: 'dashboard' | 'teacher' | 'class' | 'student' | 'game' | 'points' | 'permission' | 'audit' | 'report';
+  icon:
+    | 'dashboard'
+    | 'teacher'
+    | 'class'
+    | 'student'
+    | 'game'
+    | 'points'
+    | 'permission'
+    | 'audit'
+    | 'report'
+    | 'question'
+    | 'worksheet'
+    | 'assignment';
   /** Không khai báo = mọi role đã đăng nhập (ADMIN / TEACHER) */
   roles?: readonly Role[];
 }
@@ -20,6 +32,9 @@ export const MENU: readonly MenuEntry[] = [
   { key: 'classes', path: ROUTES.classes, labelKey: 'classes', icon: 'class' },
   { key: 'students', path: ROUTES.students, labelKey: 'students', icon: 'student' },
   { key: 'points', path: ROUTES.points, labelKey: 'points', icon: 'points' },
+  { key: 'questions', path: ROUTES.questions, labelKey: 'questions', icon: 'question' },
+  { key: 'worksheets', path: ROUTES.worksheets, labelKey: 'worksheets', icon: 'worksheet' },
+  { key: 'assignments', path: ROUTES.assignments, labelKey: 'assignments', icon: 'assignment' },
   { key: 'games', path: ROUTES.games, labelKey: 'games', icon: 'game', roles: ['ADMIN'] },
   { key: 'reports', path: ROUTES.reports, labelKey: 'reports', icon: 'report' },
   {

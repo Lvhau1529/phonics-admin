@@ -4,7 +4,7 @@ import { Email, LoginBody } from '@phonics/contracts';
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { login } from '@/features/auth/authStore';
+import { AuthStatus, login } from '@/features/auth/authStore';
 import { useAuth } from '@/features/auth/hooks';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -34,7 +34,7 @@ export function LoginPage() {
     document.title = t.app.title(t.auth.loginTitle);
   }, []);
 
-  if (auth.status === 'authenticated') {
+  if (auth.status === AuthStatus.AUTHENTICATED) {
     const from = (location.state as { from?: string } | null)?.from ?? ROUTES.dashboard;
     return <Navigate to={from} replace />;
   }

@@ -5,16 +5,18 @@
  */
 import { useSyncExternalStore } from 'react';
 import { LANG_STORAGE_KEY } from '@/shared/config';
+import { type ValueOf } from '@/shared/types';
 
-export type Lang = 'vi' | 'en';
+export const Lang = { VI: 'vi', EN: 'en' } as const;
+export type Lang = ValueOf<typeof Lang>;
 
-export const LANGS: readonly Lang[] = ['vi', 'en'];
+export const LANGS: readonly Lang[] = Object.values(Lang);
 
 const isLang = (value: unknown): value is Lang => LANGS.includes(value as Lang);
 
 /** Ngôn ngữ trình duyệt → Lang (vi-VN → vi; mọi thứ khác → en) */
 export function detectLang(navigatorLanguage: string | undefined): Lang {
-  return navigatorLanguage?.toLowerCase().startsWith('vi') ? 'vi' : 'en';
+  return navigatorLanguage?.toLowerCase().startsWith(Lang.VI) ? Lang.VI : Lang.EN;
 }
 
 function readStorage(): Lang | null {

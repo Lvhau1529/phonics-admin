@@ -1,8 +1,11 @@
 import {
   AuditOutlined,
   BarChartOutlined,
+  CalendarOutlined,
   DashboardOutlined,
   FileExcelOutlined,
+  FileTextOutlined,
+  QuestionCircleOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -39,6 +42,9 @@ const ICONS: Record<MenuEntry['icon'], ReactNode> = {
   permission: <SafetyCertificateOutlined />,
   audit: <AuditOutlined />,
   report: <FileExcelOutlined />,
+  question: <QuestionCircleOutlined />,
+  worksheet: <FileTextOutlined />,
+  assignment: <CalendarOutlined />,
 };
 
 /**

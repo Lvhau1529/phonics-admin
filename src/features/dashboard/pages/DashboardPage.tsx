@@ -1,6 +1,7 @@
 import { Card, Col, Flex, Row, Segmented, Tabs, Typography } from 'antd';
 import { GAME_IDS, type Bucket } from '@phonics/contracts';
 import { useState } from 'react';
+import { useAuth } from '@/features/auth/hooks';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { useClassOptions } from '@/features/classes/hooks';
 import { ClassGamesTable } from '@/features/dashboard/components/ClassGamesTable';
@@ -14,6 +15,7 @@ import {
   useOverviewStats,
 } from '@/features/dashboard/hooks';
 import { GameTimelineChart } from '@/features/games/components/GameTimelineChart';
+import { DashboardWorksheetCards } from '@/features/worksheet-stats/components/DashboardWorksheetCards';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
@@ -22,6 +24,7 @@ import { rangeParams, type RangeValue } from '@/shared/utils/range';
 import { formatDateTime } from '@/shared/utils/format';
 
 export function DashboardPage() {
+  const auth = useAuth();
   const overview = useOverviewStats();
   const classes = useClassOptions();
   const [selectedClassId, setClassId] = useState<string>();
@@ -45,6 +48,7 @@ export function DashboardPage() {
       />
       <ErrorAlert error={overview.error} onRetry={() => void overview.refetch()} />
       <OverviewCards data={overview.data} loading={overview.isLoading} />
+      {auth.can('worksheets.viewStats') && <DashboardWorksheetCards />}
 
       <Card
         style={{ marginTop: 16 }}

@@ -10,6 +10,7 @@ import { App, Button, Card, Descriptions, Flex, Popconfirm, Skeleton, Tabs, Tag,
 import { useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
+import { ClassWorksheetsTab } from '@/features/assignments/components/ClassWorksheetsTab';
 import { useAuth } from '@/features/auth/hooks';
 import { AssignTeachersModal } from '@/features/classes/components/AssignTeachersModal';
 import { BonusPointsModal } from '@/features/classes/components/BonusPointsModal';
@@ -27,7 +28,7 @@ import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { formatDateTime, formatNumber } from '@/shared/utils/format';
 
-type TabKey = 'students' | 'ranking' | 'points' | 'bonus' | 'games' | 'reports';
+type TabKey = 'students' | 'ranking' | 'points' | 'bonus' | 'games' | 'worksheets' | 'reports';
 
 export function ClassDetailPage() {
   const { id = '' } = useParams<{ id: string }>();
@@ -178,6 +179,11 @@ export function ClassDetailPage() {
           { key: 'points', label: t.classes.tabPoints, children: <ClassPointsTab classId={id} /> },
           { key: 'bonus', label: t.classes.tabBonus, children: bonusTab },
           { key: 'games', label: t.classes.tabGames, children: <ClassGamesTab cls={data} /> },
+          {
+            key: 'worksheets',
+            label: t.assignments.tabWorksheets,
+            children: <ClassWorksheetsTab classId={id} />,
+          },
           { key: 'reports', label: t.classes.tabReports, children: <ClassReportsTab classId={id} /> },
         ]}
       />

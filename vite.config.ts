@@ -37,6 +37,7 @@ export default defineConfig({
           if (!id.includes('node_modules')) return undefined;
           if (id.includes('/antd/') || id.includes('@ant-design') || id.includes('rc-')) return 'antd';
           if (id.includes('recharts') || id.includes('d3-')) return 'charts';
+          if (id.includes('@dnd-kit')) return 'dnd';
           return 'vendor';
         },
       },

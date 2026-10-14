@@ -88,6 +88,25 @@ export function stripEmpty<T extends Record<string, unknown>>(values: T): T {
   return out as T;
 }
 
+/**
+ * Như stripEmpty nhưng đệ quy mọi cấp và cả phần tử mảng (form câu hỏi có config / options lồng nhiều cấp).
+ * Chuỗi rỗng → undefined; mảng giữ nguyên độ dài (phần tử rỗng → undefined).
+ */
+export function deepStripEmpty<T>(value: T): T {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return (trimmed === '' ? undefined : trimmed) as T;
+  }
+  if (Array.isArray(value)) return value.map((item) => deepStripEmpty(item)) as T;
+  if (value && typeof value === 'object' && !(value instanceof Date)) {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value as Record<string, unknown>))
+      out[key] = deepStripEmpty(item);
+    return out as T;
+  }
+  return value;
+}
+
 /** Chỉ giữ các field có giá trị khác bản gốc (PATCH body partial; refine "cần ít nhất một trường") */
 export function diffValues<T extends Record<string, unknown>>(original: Partial<T>, next: T): Partial<T> {
   const out: Partial<T> = {};
