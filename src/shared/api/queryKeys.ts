@@ -60,4 +60,41 @@ export const qk = {
     all: ['audit'] as const,
     list: (params: QueryParams) => ['audit', 'list', params] as const,
   },
+  // Phiếu bài tập
+  questions: {
+    all: ['questions'] as const,
+    list: (params: QueryParams) => ['questions', 'list', params] as const,
+    detail: (id: string) => ['questions', 'detail', id] as const,
+    tags: ['questions', 'tags'] as const,
+  },
+  worksheets: {
+    all: ['worksheets'] as const,
+    list: (params: QueryParams) => ['worksheets', 'list', params] as const,
+    detail: (id: string) => ['worksheets', 'detail', id] as const,
+  },
+  assignments: {
+    all: ['assignments'] as const,
+    list: (params: QueryParams) => ['assignments', 'list', params] as const,
+    calendar: (from: string, to: string, classId?: string) =>
+      ['assignments', 'calendar', from, to, classId ?? ''] as const,
+    detail: (id: string) => ['assignments', 'detail', id] as const,
+    roster: (id: string) => ['assignments', 'detail', id, 'roster'] as const,
+    ranking: (id: string) => ['assignments', 'detail', id, 'ranking'] as const,
+    dashboard: ['assignments', 'dashboard'] as const,
+  },
+  submissions: {
+    all: ['submissions'] as const,
+    detail: (id: string) => ['submissions', 'detail', id] as const,
+  },
+  comments: {
+    all: ['comments'] as const,
+    bySubmission: (submissionId: string) => ['comments', submissionId] as const,
+  },
+  worksheetStats: {
+    all: ['worksheet-stats'] as const,
+    assignment: (id: string) => ['worksheet-stats', 'assignment', id] as const,
+    classOverview: (classId: string, params: QueryParams) =>
+      ['worksheet-stats', 'class', classId, params] as const,
+    student: (id: string) => ['worksheet-stats', 'student', id] as const,
+  },
 } as const;

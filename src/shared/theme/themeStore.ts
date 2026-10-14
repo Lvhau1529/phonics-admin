@@ -5,11 +5,11 @@
  */
 import { useSyncExternalStore } from 'react';
 import { THEME_STORAGE_KEY } from '@/shared/config';
-import type { ThemeMode } from '@/shared/theme/theme';
+import { ThemeMode } from '@/shared/theme/theme';
 
-export const DEFAULT_THEME: ThemeMode = 'dark';
+export const DEFAULT_THEME: ThemeMode = ThemeMode.DARK;
 
-const MODES: readonly ThemeMode[] = ['light', 'dark'];
+const MODES: readonly ThemeMode[] = Object.values(ThemeMode);
 
 const listeners = new Set<() => void>();
 

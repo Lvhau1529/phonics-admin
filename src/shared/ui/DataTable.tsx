@@ -1,9 +1,16 @@
 import { Skeleton, Table, type TableProps } from 'antd';
-import type { ColumnsType, SorterResult } from 'antd/es/table/interface';
+import type { ColumnsType, SortOrder, SorterResult, TableAction } from 'antd/es/table/interface';
 import type { Paginated } from '@phonics/contracts';
 import { useMemo } from 'react';
 import { useDelayedLoading } from '@/shared/hooks/useDelayedLoading';
 import { t } from '@/shared/i18n';
+
+/** Chiều sort trong query `field:asc|desc` của API */
+const SortDir = { ASC: 'asc', DESC: 'desc' } as const;
+/** Giá trị `sortOrder` của antd Table */
+const AntSortOrder = { ASCEND: 'ascend', DESCEND: 'descend' } as const satisfies Record<string, SortOrder>;
+/** `extra.action` của antd Table onChange */
+const AntTableAction = { SORT: 'sort', PAGINATE: 'paginate' } as const satisfies Record<string, TableAction>;
 
 export interface DataTableProps<T extends { id: string }> extends Omit<
   TableProps<T>,
@@ -23,10 +30,10 @@ export interface DataTableProps<T extends { id: string }> extends Omit<
 }
 
 /** Tách `field:dir` → antd sortOrder */
-function parseSort(sort: string | undefined): { field: string; order: 'ascend' | 'descend' } | undefined {
+function parseSort(sort: string | undefined): { field: string; order: SortOrder } | undefined {
   if (!sort) return undefined;
   const [field, dir] = sort.split(':');
-  return { field, order: dir === 'asc' ? 'ascend' : 'descend' };
+  return { field, order: dir === SortDir.ASC ? AntSortOrder.ASCEND : AntSortOrder.DESCEND };
 }
 
 /** Prop `loading` của antd Table (spinner mặc định), đã qua useDelayedLoading */
@@ -87,15 +94,15 @@ export function DataTable<T extends { id: string }>({
   );
 
   const handleChange: TableProps<T>['onChange'] = (pagination, _filters, sorter, extra) => {
-    if (extra.action === 'sort' && onSortChange) {
+    if (extra.action === AntTableAction.SORT && onSortChange) {
       const single = (Array.isArray(sorter) ? sorter[0] : sorter) as SorterResult<T> | undefined;
       const field = single?.columnKey ?? single?.field;
       if (single?.order && field)
-        onSortChange(`${String(field)}:${single.order === 'ascend' ? 'asc' : 'desc'}`);
+        onSortChange(`${String(field)}:${single.order === AntSortOrder.ASCEND ? SortDir.ASC : SortDir.DESC}`);
       else onSortChange(undefined);
       return;
     }
-    if (extra.action === 'paginate') onPageChange(pagination.current ?? 1, pagination.pageSize ?? pageSize);
+    if (extra.action === AntTableAction.PAGINATE) onPageChange(pagination.current ?? 1, pagination.pageSize ?? pageSize);
   };
 
   return (

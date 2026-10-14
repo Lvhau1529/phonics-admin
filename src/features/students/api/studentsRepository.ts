@@ -18,7 +18,7 @@ import {
   type UpdateStudentBody,
 } from '@phonics/contracts';
 import { z } from 'zod';
-import { request, type QueryParams } from '@/shared/api/client';
+import { HttpMethod, request, type QueryParams } from '@/shared/api/client';
 
 const StudentPage = paginated(StudentSummary);
 const PointsPage = paginated(PointEntryView);
@@ -29,11 +29,11 @@ export const studentsRepository = {
   list: (query: QueryParams) => request(ENDPOINTS.students.list, { query, schema: StudentPage }),
   detail: (id: string) => request(ENDPOINTS.students.detail(id), { schema: StudentDetail }),
   update: (id: string, body: UpdateStudentBody) =>
-    request(ENDPOINTS.students.detail(id), { method: 'PATCH', body, schema: StudentDetail }),
+    request(ENDPOINTS.students.detail(id), { method: HttpMethod.PATCH, body, schema: StudentDetail }),
   moveClass: (id: string, body: MoveClassBody) =>
-    request(ENDPOINTS.students.moveClass(id), { method: 'POST', body, schema: StudentDetail }),
+    request(ENDPOINTS.students.moveClass(id), { method: HttpMethod.POST, body, schema: StudentDetail }),
   resetPassword: (id: string, body: ResetPasswordBody) =>
-    request<void>(ENDPOINTS.students.resetPassword(id), { method: 'POST', body }),
+    request<void>(ENDPOINTS.students.resetPassword(id), { method: HttpMethod.POST, body }),
   points: (id: string, query: QueryParams) =>
     request(ENDPOINTS.students.points(id), { query, schema: PointsPage }),
   pointsByGame: (id: string, query: QueryParams) =>
@@ -42,5 +42,5 @@ export const studentsRepository = {
     request(ENDPOINTS.students.gameResults(id), { query, schema: ResultsPage }),
   games: (id: string) => request(ENDPOINTS.students.games(id), { schema: StudentGamesResponse }),
   setGameUnlock: (id: string, gameId: string, body: SetStudentGameUnlockBody) =>
-    request(ENDPOINTS.students.game(id, gameId), { method: 'PUT', body, schema: StudentGameStatus }),
+    request(ENDPOINTS.students.game(id, gameId), { method: HttpMethod.PUT, body, schema: StudentGameStatus }),
 };

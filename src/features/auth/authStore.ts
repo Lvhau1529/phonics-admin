@@ -10,12 +10,21 @@ import { useSyncExternalStore } from 'react';
 import { z } from 'zod';
 import { authService } from '@/features/auth/api/authService';
 import { UserModel } from '@/features/auth/models/UserModel';
-import { clearSession, getSession, refreshSession, setSession, subscribeSession } from '@/shared/api/client';
+import {
+  clearSession,
+  getSession,
+  refreshSession,
+  SessionEventType,
+  setSession,
+  subscribeSession,
+} from '@/shared/api/client';
 import { isApiError } from '@/shared/api/errors';
 import { AUTH_STORAGE_KEY } from '@/shared/config';
 import { t } from '@/shared/i18n';
+import { type ValueOf } from '@/shared/types';
 
-export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
+export const AuthStatus = { LOADING: 'loading', ANONYMOUS: 'anonymous', AUTHENTICATED: 'authenticated' } as const;
+export type AuthStatus = ValueOf<typeof AuthStatus>;
 
 export interface AuthState {
   status: AuthStatus;
@@ -26,9 +35,9 @@ export interface AuthState {
 const StoredAuth = z.object({ user: User, refreshToken: z.string().min(1) });
 type StoredAuth = z.infer<typeof StoredAuth>;
 
-const ANONYMOUS: AuthState = { status: 'anonymous', user: null, permissions: [] };
+const ANONYMOUS: AuthState = { status: AuthStatus.ANONYMOUS, user: null, permissions: [] };
 
-let state: AuthState = { status: 'loading', user: null, permissions: [] };
+let state: AuthState = { status: AuthStatus.LOADING, user: null, permissions: [] };
 const listeners = new Set<() => void>();
 
 function setState(next: AuthState): void {
@@ -71,9 +80,9 @@ function signedOut(): void {
 
 // Client refresh xong → lưu refresh token mới; client mất phiên → về anonymous
 subscribeSession((event) => {
-  if (event.type === 'refreshed') {
+  if (event.type === SessionEventType.REFRESHED) {
     persist(state.user ?? new UserModel(event.auth.user));
-  } else if (state.status !== 'anonymous') {
+  } else if (state.status !== AuthStatus.ANONYMOUS) {
     signedOut();
   }
 });
@@ -81,7 +90,7 @@ subscribeSession((event) => {
 /** Nạp user + quyền từ /auth/me vào store */
 async function loadMe(): Promise<void> {
   const me = await authService.me();
-  setState({ status: 'authenticated', user: me.user, permissions: me.permissions });
+  setState({ status: AuthStatus.AUTHENTICATED, user: me.user, permissions: me.permissions });
   persist(me.user);
 }
 
@@ -146,7 +155,7 @@ export async function signOut(all = false): Promise<void> {
 
 /** Sau khi sửa hồ sơ: cập nhật user trong store + localStorage */
 export function setCurrentUser(user: UserModel): void {
-  if (state.status !== 'authenticated') return;
+  if (state.status !== AuthStatus.AUTHENTICATED) return;
   setState({ ...state, user });
   persist(user);
 }
@@ -172,5 +181,5 @@ export const useAuthState = (): AuthState =>
 export function resetAuthStoreForTests(): void {
   bootstrapPromise = null;
   clearSession();
-  state = { status: 'loading', user: null, permissions: [] };
+  state = { status: AuthStatus.LOADING, user: null, permissions: [] };
 }

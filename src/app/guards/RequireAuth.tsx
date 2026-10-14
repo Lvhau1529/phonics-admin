@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { ROUTES } from '@/app/routes';
+import { AuthStatus } from '@/features/auth/authStore';
 import { useAuth } from '@/features/auth/hooks';
 import { t } from '@/shared/i18n';
 import { FullscreenLoader } from '@/shared/ui/Loading';
@@ -9,10 +10,10 @@ export function RequireAuth() {
   const auth = useAuth();
   const location = useLocation();
 
-  if (auth.status === 'loading') {
+  if (auth.status === AuthStatus.LOADING) {
     return <FullscreenLoader label={t.auth.checking} />;
   }
-  if (auth.status !== 'authenticated') {
+  if (auth.status !== AuthStatus.AUTHENTICATED) {
     return <Navigate to={ROUTES.login} replace state={{ from: location.pathname + location.search }} />;
   }
   return <Outlet />;

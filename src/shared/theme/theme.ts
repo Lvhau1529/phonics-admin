@@ -11,8 +11,11 @@
  *  - Checkbox / Radio: dấu tick màu mực thay vì trắng trên nền vàng.
  */
 import { theme as antdTheme, type ThemeConfig } from 'antd';
+import { type ValueOf } from '@/shared/types';
 
-export type ThemeMode = 'light' | 'dark';
+/** Chế độ giao diện sáng / tối */
+export const ThemeMode = { LIGHT: 'light', DARK: 'dark' } as const;
+export type ThemeMode = ValueOf<typeof ThemeMode>;
 
 /** Màu game dùng lại trong admin (palette của apps/game) */
 export const GAME_COLORS = {
@@ -111,7 +114,7 @@ const pinPrimary =
 export function buildTheme(mode: ThemeMode): ThemeConfig {
   const c = THEME_COLORS[mode];
   return {
-    algorithm: [mode === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm, pinPrimary(c)],
+    algorithm: [mode === ThemeMode.DARK ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm, pinPrimary(c)],
     token: {
       colorPrimary: c.primary,
       colorPrimaryHover: c.primaryHover,

@@ -19,7 +19,7 @@ import {
   type UnlockClassBody,
   type UpdateClassBody,
 } from '@phonics/contracts';
-import { request, type QueryParams } from '@/shared/api/client';
+import { HttpMethod, request, type QueryParams } from '@/shared/api/client';
 
 const ClassPage = paginated(ClassSummary);
 const StudentPage = paginated(StudentSummary);
@@ -29,11 +29,11 @@ export const classesRepository = {
   list: (query: QueryParams) => request(ENDPOINTS.classes.list, { query, schema: ClassPage }),
   detail: (id: string) => request(ENDPOINTS.classes.detail(id), { schema: ClassSummary }),
   create: (body: CreateClassBody) =>
-    request(ENDPOINTS.classes.list, { method: 'POST', body, schema: ClassSummary }),
+    request(ENDPOINTS.classes.list, { method: HttpMethod.POST, body, schema: ClassSummary }),
   update: (id: string, body: UpdateClassBody) =>
-    request(ENDPOINTS.classes.detail(id), { method: 'PATCH', body, schema: ClassSummary }),
+    request(ENDPOINTS.classes.detail(id), { method: HttpMethod.PATCH, body, schema: ClassSummary }),
   setTeachers: (id: string, body: SetClassTeachersBody) =>
-    request(ENDPOINTS.classes.teachers(id), { method: 'PUT', body, schema: ClassSummary }),
+    request(ENDPOINTS.classes.teachers(id), { method: HttpMethod.PUT, body, schema: ClassSummary }),
   students: (id: string, query: QueryParams) =>
     request(ENDPOINTS.classes.students(id), { query, schema: StudentPage }),
   ranking: (id: string, query: QueryParams) =>
@@ -41,9 +41,9 @@ export const classesRepository = {
   points: (id: string, query: QueryParams) =>
     request(ENDPOINTS.classes.points(id), { query, schema: PointsPage }),
   bonus: (id: string, body: AwardBonusBody) =>
-    request(ENDPOINTS.classes.bonus(id), { method: 'POST', body, schema: AwardBonusResponse }),
+    request(ENDPOINTS.classes.bonus(id), { method: HttpMethod.POST, body, schema: AwardBonusResponse }),
   bonusBatch: (id: string, body: AwardBonusBatchBody) =>
-    request(ENDPOINTS.classes.bonusBatch(id), { method: 'POST', body, schema: AwardBonusBatchResponse }),
+    request(ENDPOINTS.classes.bonusBatch(id), { method: HttpMethod.POST, body, schema: AwardBonusBatchResponse }),
   unlockGame: (id: string, gameId: string, body: UnlockClassBody) =>
-    request(ENDPOINTS.classes.unlockGame(id, gameId), { method: 'POST', body, schema: UnlockClassResponse }),
+    request(ENDPOINTS.classes.unlockGame(id, gameId), { method: HttpMethod.POST, body, schema: UnlockClassResponse }),
 };

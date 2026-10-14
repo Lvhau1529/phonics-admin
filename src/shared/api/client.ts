@@ -9,16 +9,25 @@
  *  - 401 ở bất kỳ lời gọi nào → refresh (single-flight: nhiều lời gọi 401 cùng lúc chỉ refresh một lần) → gọi
  *    lại đúng một lần; vẫn 401 hoặc refresh bị từ chối → xoá phiên, phát sự kiện `signedOut` (authStore nghe).
  */
-import { API_PREFIX, AuthResponse, ENDPOINTS, REFRESH_TRANSPORT_HEADER } from '@phonics/contracts';
+import {
+  API_PREFIX,
+  AuthResponse,
+  ENDPOINTS,
+  ErrorCode,
+  REFRESH_TRANSPORT_HEADER,
+  RefreshTransport,
+} from '@phonics/contracts';
 import type { ZodType } from 'zod';
-import { ApiError } from '@/shared/api/errors';
+import { ApiError, ClientErrorCode } from '@/shared/api/errors';
 import { API_URL } from '@/shared/config';
+import { type ValueOf } from '@/shared/types';
 import { filenameFromDisposition } from '@/shared/utils/download';
 
 export type QueryValue = string | number | boolean | null | undefined;
 export type QueryParams = Record<string, QueryValue>;
 
-export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+export const HttpMethod = { GET: 'GET', POST: 'POST', PATCH: 'PATCH', PUT: 'PUT', DELETE: 'DELETE' } as const;
+export type HttpMethod = ValueOf<typeof HttpMethod>;
 
 export interface RequestOptions<T> {
   method?: HttpMethod;
@@ -37,7 +46,13 @@ export interface Session {
   refreshToken: string | null;
 }
 
-export type SessionEvent = { type: 'refreshed'; auth: AuthResponse } | { type: 'signedOut' };
+/** Sự kiện phiên phát cho authStore */
+export const SessionEventType = { REFRESHED: 'refreshed', SIGNED_OUT: 'signedOut' } as const;
+export type SessionEventType = ValueOf<typeof SessionEventType>;
+
+export type SessionEvent =
+  | { type: typeof SessionEventType.REFRESHED; auth: AuthResponse }
+  | { type: typeof SessionEventType.SIGNED_OUT };
 type SessionListener = (event: SessionEvent) => void;
 
 let session: Session = { accessToken: null, refreshToken: null };
@@ -81,7 +96,7 @@ export function buildUrl(path: string, query?: QueryParams): string {
 /** Mất phiên: xoá token và báo cho store (không gọi server) */
 function dropSession(): void {
   clearSession();
-  emit({ type: 'signedOut' });
+  emit({ type: SessionEventType.SIGNED_OUT });
 }
 
 /**
@@ -94,18 +109,18 @@ export function refreshSession(): Promise<AuthResponse> {
     const refreshToken = session.refreshToken;
     if (!refreshToken) {
       dropSession();
-      throw new ApiError(401, 'UNAUTHORIZED', 'No refresh token');
+      throw new ApiError(401, ErrorCode.enum.UNAUTHORIZED, 'No refresh token');
     }
     let response: Response;
     try {
       response = await fetch(buildUrl(ENDPOINTS.auth.refresh), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', [REFRESH_TRANSPORT_HEADER]: 'body' },
+        method: HttpMethod.POST,
+        headers: { 'Content-Type': 'application/json', [REFRESH_TRANSPORT_HEADER]: RefreshTransport.enum.body },
         body: JSON.stringify({ refreshToken }),
       });
     } catch (error) {
       // Mất mạng: giữ nguyên phiên để thử lại sau, không đăng xuất
-      throw new ApiError(0, 'NETWORK', error instanceof Error ? error.message : 'Network error');
+      throw new ApiError(0, ClientErrorCode.NETWORK, error instanceof Error ? error.message : 'Network error');
     }
     if (!response.ok) {
       const apiError = await ApiError.fromResponse(response);
@@ -115,12 +130,12 @@ export function refreshSession(): Promise<AuthResponse> {
     const parsed = AuthResponse.safeParse(await response.json());
     if (!parsed.success) {
       dropSession();
-      throw new ApiError(response.status, 'BAD_RESPONSE', 'Invalid refresh response');
+      throw new ApiError(response.status, ClientErrorCode.BAD_RESPONSE, 'Invalid refresh response');
     }
     const auth = parsed.data;
     // LUÔN lưu refresh token xoay vòng (token cũ bị thu hồi ngay sau khi dùng)
     session = { accessToken: auth.accessToken, refreshToken: auth.refreshToken ?? refreshToken };
-    emit({ type: 'refreshed', auth });
+    emit({ type: SessionEventType.REFRESHED, auth });
     return auth;
   })().finally(() => {
     refreshing = null;
@@ -133,7 +148,7 @@ async function send<T>(path: string, options: RequestOptions<T>, retried = false
   const auth = options.auth !== false;
   const headers = new Headers();
   if (options.body !== undefined) headers.set('Content-Type', 'application/json');
-  if (path.startsWith('/auth/')) headers.set(REFRESH_TRANSPORT_HEADER, 'body');
+  if (path.startsWith('/auth/')) headers.set(REFRESH_TRANSPORT_HEADER, RefreshTransport.enum.body);
   if (auth) {
     // Khởi động: có refresh token (localStorage) nhưng chưa có access token → refresh trước
     if (!session.accessToken && session.refreshToken) await refreshSession();
@@ -143,14 +158,14 @@ async function send<T>(path: string, options: RequestOptions<T>, retried = false
   let response: Response;
   try {
     response = await fetch(buildUrl(path, options.query), {
-      method: options.method ?? 'GET',
+      method: options.method ?? HttpMethod.GET,
       headers,
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
       signal: options.signal,
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw error;
-    throw new ApiError(0, 'NETWORK', error instanceof Error ? error.message : 'Network error');
+    throw new ApiError(0, ClientErrorCode.NETWORK, error instanceof Error ? error.message : 'Network error');
   }
 
   if (response.status === 401 && auth) {
@@ -176,13 +191,13 @@ export async function request<T = unknown>(path: string, options: RequestOptions
   try {
     data = JSON.parse(text);
   } catch {
-    throw new ApiError(response.status, 'BAD_RESPONSE', 'Response is not JSON');
+    throw new ApiError(response.status, ClientErrorCode.BAD_RESPONSE, 'Response is not JSON');
   }
   if (!options.schema) return data as T;
   const parsed = options.schema.safeParse(data);
   if (!parsed.success) {
     console.error('[api] response lệch contract', path, parsed.error.issues);
-    throw new ApiError(response.status, 'BAD_RESPONSE', 'Response does not match contract');
+    throw new ApiError(response.status, ClientErrorCode.BAD_RESPONSE, 'Response does not match contract');
   }
   return parsed.data;
 }

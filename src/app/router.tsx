@@ -1,6 +1,8 @@
 import type { ComponentType } from 'react';
+import type { Permission } from '@phonics/contracts';
 import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RequireAuth } from '@/app/guards/RequireAuth';
+import { RequirePermission } from '@/app/guards/RequirePermission';
 import { RequireRole } from '@/app/guards/RequireRole';
 import { AppShell } from '@/app/layout/AppShell';
 import { ROUTES } from '@/app/routes';
@@ -14,6 +16,12 @@ const adminOnly = (children: RouteObject[]): RouteObject => ({
   children,
 });
 
+/** Route gate theo quyền (giáo viên bị thu hồi quyền vẫn bị chặn khi gõ URL) */
+const withPermission = (permission: Permission, children: RouteObject[]): RouteObject => ({
+  element: <RequirePermission permission={permission} />,
+  children,
+});
+
 /** Trang tải lười (code-split theo feature) */
 const page = (load: () => Promise<{ default: ComponentType }>): RouteObject['lazy'] => ({
   Component: async () => (await load()).default,
@@ -24,6 +32,11 @@ export const routes: RouteObject[] = [
   {
     element: <RequireAuth />,
     children: [
+      // Trang in phiếu: ngoài AppShell (không sider / header), theme sáng cố định
+      {
+        path: 'print/worksheets/:id',
+        lazy: page(() => import('@/features/worksheets/pages/WorksheetPrintPage')),
+      },
       {
         path: '/',
         element: <AppShell />,
@@ -36,6 +49,40 @@ export const routes: RouteObject[] = [
           { path: 'points', lazy: page(() => import('@/features/points/pages/PointsPage')) },
           { path: 'reports', lazy: page(() => import('@/features/reports/pages/ReportsPage')) },
           { path: 'profile', lazy: page(() => import('@/features/profile/pages/ProfilePage')) },
+          // Phiếu bài tập (giáo viên có quyền mặc định; admin luôn qua)
+          withPermission('worksheets.manage', [
+            { path: 'questions', lazy: page(() => import('@/features/questions/pages/QuestionsPage')) },
+            {
+              path: 'questions/new',
+              lazy: page(() => import('@/features/questions/pages/QuestionEditorPage')),
+            },
+            {
+              path: 'questions/:id',
+              lazy: page(() => import('@/features/questions/pages/QuestionEditorPage')),
+            },
+            { path: 'worksheets', lazy: page(() => import('@/features/worksheets/pages/WorksheetsPage')) },
+            {
+              path: 'worksheets/new',
+              lazy: page(() => import('@/features/worksheets/pages/WorksheetComposerPage')),
+            },
+            {
+              path: 'worksheets/:id',
+              lazy: page(() => import('@/features/worksheets/pages/WorksheetComposerPage')),
+            },
+            {
+              path: 'worksheets/:id/preview',
+              lazy: page(() => import('@/features/worksheets/pages/WorksheetPreviewPage')),
+            },
+          ]),
+          { path: 'assignments', lazy: page(() => import('@/features/assignments/pages/AssignmentsPage')) },
+          {
+            path: 'assignments/:id',
+            lazy: page(() => import('@/features/assignments/pages/AssignmentDetailPage')),
+          },
+          {
+            path: 'assignments/:id/submissions/:submissionId',
+            lazy: page(() => import('@/features/submissions/pages/GradingPage')),
+          },
           adminOnly([
             { path: 'teachers', lazy: page(() => import('@/features/teachers/pages/TeachersPage')) },
             { path: 'games', lazy: page(() => import('@/features/games/pages/GamesPage')) },

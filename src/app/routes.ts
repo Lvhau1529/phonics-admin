@@ -14,4 +14,17 @@ export const ROUTES = {
   audit: '/audit',
   reports: '/reports',
   profile: '/profile',
+  // Phiếu bài tập
+  questions: '/questions',
+  questionNew: '/questions/new',
+  questionDetail: (id: string) => `/questions/${id}`,
+  worksheets: '/worksheets',
+  worksheetNew: '/worksheets/new',
+  worksheetDetail: (id: string) => `/worksheets/${id}`,
+  worksheetPreview: (id: string) => `/worksheets/${id}/preview`,
+  worksheetPrint: (id: string) => `/print/worksheets/${id}`,
+  assignments: '/assignments',
+  assignmentDetail: (id: string) => `/assignments/${id}`,
+  grading: (assignmentId: string, submissionId: string) =>
+    `/assignments/${assignmentId}/submissions/${submissionId}`,
 } as const;

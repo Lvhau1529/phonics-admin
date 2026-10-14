@@ -8,8 +8,7 @@ import { en } from '@/shared/i18n/en';
 import { getLang, type Lang } from '@/shared/i18n/langStore';
 import { vi } from '@/shared/i18n/vi';
 
-export type { Lang } from '@/shared/i18n/langStore';
-export { LANGS, detectLang, getLang, setLang, subscribeLang, useLang } from '@/shared/i18n/langStore';
+export { Lang, LANGS, detectLang, getLang, setLang, subscribeLang, useLang } from '@/shared/i18n/langStore';
 
 export type Dict = typeof vi;
 

@@ -2,15 +2,13 @@ import { App as AntApp, ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
 import viVN from 'antd/locale/vi_VN';
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
-import dayjs from 'dayjs';
-import 'dayjs/locale/en';
-import 'dayjs/locale/vi';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { bootstrapAuth } from '@/features/auth/authStore';
 import { createQueryClient } from '@/app/queryClient';
 import { useLang, type Lang } from '@/shared/i18n';
 import { buildTheme } from '@/shared/theme/theme';
 import { useThemeMode } from '@/shared/theme/themeStore';
+import { dayjs } from '@/shared/utils/dayjs';
 
 const ANTD_LOCALES = { vi: viVN, en: enUS } as const satisfies Record<Lang, unknown>;
 
