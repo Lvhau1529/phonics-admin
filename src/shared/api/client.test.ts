@@ -10,7 +10,8 @@ import {
   subscribeSession,
   type SessionEvent,
 } from '@/shared/api/client';
-import { ApiError } from '@/shared/api/errors';
+import { ApiError, errorMessage } from '@/shared/api/errors';
+import { setLang, t } from '@/shared/i18n';
 
 const USER = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -144,6 +145,21 @@ describe('client.request', () => {
       code: 'BAD_RESPONSE',
     });
     spy.mockRestore();
+  });
+
+  it('gửi Accept-Language theo ngôn ngữ giao diện; errorMessage hiện thẳng message API, ghi đè theo mã', async () => {
+    setLang('en');
+    fetchMock.mockResolvedValueOnce(
+      json(409, { statusCode: 409, code: 'CONFLICT', message: 'A class with this name already exists' }),
+    );
+    const error = await request('/classes', { method: 'POST', body: {} }).catch((e: unknown) => e);
+    expect(new Headers(fetchMock.mock.calls[0]?.[1]?.headers).get('Accept-Language')).toBe('en');
+    expect(errorMessage(error)).toBe('A class with this name already exists');
+    expect(errorMessage(error, { CONFLICT: 'Tên lớp đã có' })).toBe('Tên lớp đã có');
+    // Lỗi client tự tạo → câu trong t.errors theo ngôn ngữ hiện tại
+    fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    expect(errorMessage(await request('/x').catch((e: unknown) => e))).toBe(t.errors.NETWORK);
+    setLang('vi');
   });
 
   it('downloadFile lấy tên file từ Content-Disposition (filename*=UTF-8)', async () => {

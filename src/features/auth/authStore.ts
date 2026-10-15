@@ -5,10 +5,10 @@
  * Khởi động: có snapshot → refresh để lấy access token → /auth/me → authenticated; thất bại → anonymous.
  * Học sinh không được vào admin: đăng nhập xong thấy role STUDENT thì thu hồi phiên ngay.
  */
-import { User, type LoginBody, type Permission } from '@phonics/contracts';
-import { useSyncExternalStore } from 'react';
+import { User, type LoginBody, type Permission, type Role } from '@phonics/contracts';
+import { useMemo, useSyncExternalStore } from 'react';
 import { z } from 'zod';
-import { authService } from '@/features/auth/api/authService';
+import { AuthService } from '@/features/auth/api/authService';
 import { UserModel } from '@/features/auth/models/UserModel';
 import {
   clearSession,
@@ -89,7 +89,7 @@ subscribeSession((event) => {
 
 /** Nạp user + quyền từ /auth/me vào store */
 async function loadMe(): Promise<void> {
-  const me = await authService.me();
+  const me = await AuthService.me();
   setState({ status: AuthStatus.AUTHENTICATED, user: me.user, permissions: me.permissions });
   persist(me.user);
 }
@@ -125,10 +125,10 @@ export class StudentNotAllowedError extends Error {
 
 /** Đăng nhập; học sinh bị từ chối (thu hồi phiên vừa cấp) */
 export async function login(body: LoginBody): Promise<void> {
-  const auth = await authService.login(body);
+  const auth = await AuthService.login(body);
   if (auth.user.isStudent) {
     if (auth.refreshToken)
-      await authService.logout({ refreshToken: auth.refreshToken }).catch(() => undefined);
+      await AuthService.logout({ refreshToken: auth.refreshToken }).catch(() => undefined);
     throw new StudentNotAllowedError();
   }
   setSession({ accessToken: auth.accessToken, refreshToken: auth.refreshToken });
@@ -145,7 +145,7 @@ export async function signOut(all = false): Promise<void> {
   const { refreshToken } = getSession();
   try {
     if (refreshToken || all)
-      await authService.logout({ refreshToken: refreshToken ?? undefined, all: all || undefined });
+      await AuthService.logout({ refreshToken: refreshToken ?? undefined, all: all || undefined });
   } catch (error) {
     if (!isApiError(error)) throw error;
   } finally {
@@ -183,3 +183,34 @@ export function resetAuthStoreForTests(): void {
   clearSession();
   state = { status: AuthStatus.LOADING, user: null, permissions: [] };
 }
+
+export interface Auth {
+  status: AuthStatus;
+  user: UserModel | null;
+  permissions: readonly Permission[];
+  role: Role | null;
+  isAdmin: boolean;
+  /** ADMIN luôn có mọi quyền; giáo viên theo `permissions` hiệu lực từ /auth/me */
+  can: (permission: Permission) => boolean;
+  hasRole: (...roles: Role[]) => boolean;
+}
+
+/** Phiên đăng nhập hiện tại + helper kiểm tra quyền để ẩn / disable nút */
+export function useAuth(): Auth {
+  const current = useAuthState();
+  return useMemo(() => {
+    const role = current.user?.role ?? null;
+    const isAdmin = current.user?.isAdmin ?? false;
+    return {
+      status: current.status,
+      user: current.user,
+      permissions: current.permissions,
+      role,
+      isAdmin,
+      can: (permission) => isAdmin || current.permissions.includes(permission),
+      hasRole: (...roles) => role !== null && roles.includes(role),
+    };
+  }, [current]);
+}
+
+export const useCan = (permission: Permission): boolean => useAuth().can(permission);

@@ -3,9 +3,9 @@ import { App, Button, Flex, Input, Popconfirm, Segmented, Select, Space, Tooltip
 import { QUESTION_TYPES, type ContentStatus, type QuestionType } from '@phonics/contracts';
 import { Link, useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { QuestionBankTable } from '@/features/questions/components/QuestionBankTable';
-import { useArchiveQuestion, useDuplicateQuestion, useQuestionsList } from '@/features/questions/hooks';
+import { QuestionsService } from '@/features/questions/api/questionsService';
 import type { QuestionSummaryModel } from '@/features/questions/models/QuestionModel';
 import { errorMessage } from '@/shared/api/errors';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
@@ -21,9 +21,12 @@ export function QuestionsPage() {
     filterKeys: ['type', 'status', 'mine', 'tag'] as const,
     defaultSort: 'updatedAt:desc',
   });
-  const list = useQuestionsList({ ...table.params, mine: table.filters.mine === '1' ? true : undefined });
-  const archive = useArchiveQuestion();
-  const duplicate = useDuplicateQuestion();
+  const list = QuestionsService.useList({
+    ...table.params,
+    mine: table.filters.mine === '1' ? true : undefined,
+  });
+  const archive = QuestionsService.useArchive();
+  const duplicate = QuestionsService.useDuplicate();
 
   const handleDuplicate = async (q: QuestionSummaryModel) => {
     try {

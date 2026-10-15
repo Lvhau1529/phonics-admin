@@ -2,7 +2,7 @@ import { Empty, Flex, Segmented } from 'antd';
 import type { Bucket, GameId } from '@phonics/contracts';
 import { useState } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { useGameTimeline } from '@/features/games/hooks';
+import { GamesService } from '@/features/games/api/gamesService';
 import { useChartTheme } from '@/shared/hooks/useChartTheme';
 import { t } from '@/shared/i18n';
 import { ChartFrame } from '@/shared/ui/ChartFrame';
@@ -21,7 +21,7 @@ interface GameTimelineChartProps {
 export function GameTimelineChart({ gameId, height = 280, initialRange }: GameTimelineChartProps) {
   const [range, setRange] = useState<RangeValue>(initialRange ?? { ...DEFAULT_RANGE, range: 'month' });
   const [bucket, setBucket] = useState<Bucket>('day');
-  const { data, isFetching } = useGameTimeline(gameId, { ...rangeParams(range), bucket });
+  const { data, isFetching } = GamesService.useTimeline(gameId, { ...rangeParams(range), bucket });
   const chart = useChartTheme();
   const rows = (data ?? []).map((b) => ({ ...b, label: formatBucket(b.bucketStart) }));
 

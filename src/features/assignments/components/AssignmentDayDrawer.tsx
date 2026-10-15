@@ -7,7 +7,7 @@ import { AssignWorksheetModal } from '@/features/assignments/components/AssignWo
 import { AssignmentActions } from '@/features/assignments/components/AssignmentActions';
 import { AssignmentStatusTag } from '@/features/assignments/components/AssignmentStatusTag';
 import type { AssignmentModel } from '@/features/assignments/models/AssignmentModel';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { t } from '@/shared/i18n';
 import { formatDate } from '@/shared/utils/format';
 

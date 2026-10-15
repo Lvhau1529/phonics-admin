@@ -28,7 +28,7 @@ import { QuestionPreviewPane } from '@/features/questions/components/QuestionPre
 import { QuestionTypeTag } from '@/features/questions/components/QuestionTypeTag';
 import { TypeEditor } from '@/features/questions/components/editor/TypeEditor';
 import { emptyDraft, type QuestionDraft } from '@/features/questions/components/editor/types';
-import { useCreateQuestion, useQuestionTags, useUpdateQuestion } from '@/features/questions/hooks';
+import { QuestionsService } from '@/features/questions/api/questionsService';
 import type { QuestionModel } from '@/features/questions/models/QuestionModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -75,9 +75,9 @@ export function QuestionEditorForm({
   readOnly,
 }: QuestionEditorFormProps) {
   const [form] = Form.useForm<CommonValues>();
-  const create = useCreateQuestion();
-  const update = useUpdateQuestion();
-  const tags = useQuestionTags();
+  const create = QuestionsService.useCreate();
+  const update = QuestionsService.useUpdate();
+  const tags = QuestionsService.useTags();
   const mediaMap = useMediaMap();
   const [draft, setDraft] = useState<QuestionDraft | null>(() =>
     question

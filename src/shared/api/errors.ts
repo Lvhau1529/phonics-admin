@@ -9,6 +9,13 @@ export type ClientErrorCode = ValueOf<typeof ClientErrorCode>;
 /** Mã lỗi của API + mã lỗi riêng của client */
 export type ApiErrorCode = ErrorCode | ClientErrorCode;
 
+/** Mã lỗi client tự tạo `ApiError` (cần câu trong `t.errors`); lỗi từ API dùng `message` server trả về */
+export type LocalErrorCode =
+  | ClientErrorCode
+  | typeof ErrorCode.enum.UNAUTHORIZED
+  | typeof ErrorCode.enum.MEDIA_TYPE_UNSUPPORTED
+  | typeof ErrorCode.enum.MEDIA_TOO_LARGE;
+
 /** Lỗi thống nhất cho mọi lời gọi API (envelope `ApiErrorBody` của server hoặc lỗi client) */
 export class ApiError extends Error {
   readonly status: number;
@@ -53,7 +60,8 @@ export class ApiError extends Error {
           : response.status === 404
             ? ErrorCode.enum.NOT_FOUND
             : ErrorCode.enum.INTERNAL;
-    return new ApiError(response.status, code, response.statusText || code);
+    // Không phải envelope của API (proxy / gateway trả HTML...) → câu chung, không hiện statusText tiếng Anh
+    return new ApiError(response.status, code, t.common.errorTitle);
   }
 
   get isUnauthorized(): boolean {
@@ -63,12 +71,15 @@ export class ApiError extends Error {
 
 export const isApiError = (error: unknown): error is ApiError => error instanceof ApiError;
 
-/** Thông báo tiếng Việt cho người dùng: ưu tiên mã lỗi; lỗi lạ hiện chuỗi chung */
-export function errorMessage(error: unknown): string {
-  if (isApiError(error)) {
-    // Lỗi validate: nếu server chỉ ra field thì message chung, chi tiết đã vào form
-    return t.errors[error.code] ?? error.message;
-  }
+/** Câu ghi đè theo mã lỗi cho một thao tác cụ thể: `{ CONFLICT: t.classes.nameTaken }` */
+export type ErrorOverrides = Partial<Record<ApiErrorCode, string>>;
+
+/**
+ * Thông báo cho người dùng (ADR 0025): API đã trả `message` đúng ngôn ngữ giao diện (header `Accept-Language`) →
+ * hiện thẳng; lỗi do client tự tạo (mạng, upload, file sai...) đã mang câu từ `t.errors`. Chỉ ghi đè khi cần.
+ */
+export function errorMessage(error: unknown, overrides?: ErrorOverrides): string {
+  if (isApiError(error)) return overrides?.[error.code] ?? (error.message || t.common.errorTitle);
   if (error instanceof Error && error.message) return error.message;
   return t.common.errorTitle;
 }

@@ -4,7 +4,7 @@ import type { MediaKind } from '@phonics/contracts';
 import { useState } from 'react';
 import { useMediaMap } from '@/features/media/mediaMap';
 import { AudioPlayer } from '@/features/media/components/AudioPlayer';
-import { useUploadMedia } from '@/features/media/hooks';
+import { MediaService } from '@/features/media/api/mediaService';
 import { acceptFor, maxMb, validateFile } from '@/features/media/utils/mediaLimits';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -29,7 +29,7 @@ export function MediaUpload({ kind, value, onChange, disabled, size = 96, label 
   const { message } = App.useApp();
   const { token } = theme.useToken();
   const mediaMap = useMediaMap();
-  const upload = useUploadMedia();
+  const upload = MediaService.useUpload();
   const [percent, setPercent] = useState<number | null>(null);
   const ref = mediaMap.get(value);
 

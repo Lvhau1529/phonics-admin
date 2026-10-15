@@ -5,7 +5,7 @@ import type { ContentStatus, Subject } from '@phonics/contracts';
 import { Link, useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { WorksheetStatusTag } from '@/features/worksheets/components/WorksheetStatusTag';
-import { useDuplicateWorksheet, useWorksheetsList } from '@/features/worksheets/hooks';
+import { WorksheetsService } from '@/features/worksheets/api/worksheetsService';
 import type { WorksheetSummaryModel } from '@/features/worksheets/models/WorksheetModel';
 import { errorMessage } from '@/shared/api/errors';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
@@ -22,8 +22,11 @@ export function WorksheetsPage() {
     filterKeys: ['status', 'subject', 'mine'] as const,
     defaultSort: 'updatedAt:desc',
   });
-  const list = useWorksheetsList({ ...table.params, mine: table.filters.mine === '1' ? true : undefined });
-  const duplicate = useDuplicateWorksheet();
+  const list = WorksheetsService.useList({
+    ...table.params,
+    mine: table.filters.mine === '1' ? true : undefined,
+  });
+  const duplicate = WorksheetsService.useDuplicate();
 
   const columns: ColumnsType<WorksheetSummaryModel> = [
     {

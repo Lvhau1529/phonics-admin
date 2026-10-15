@@ -7,11 +7,7 @@ import {
 } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { PermissionChecklist } from '@/features/permissions/components/PermissionChecklist';
-import {
-  useCreatePermissionGroup,
-  usePermissionCatalog,
-  useUpdatePermissionGroup,
-} from '@/features/permissions/hooks';
+import { PermissionsService } from '@/features/permissions/api/permissionsService';
 import type { PermissionGroupModel } from '@/features/permissions/models/PermissionGroupModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -41,9 +37,9 @@ interface PermissionGroupDrawerProps {
 export function PermissionGroupDrawer({ open, group, onClose }: PermissionGroupDrawerProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<GroupFormValues>();
-  const catalog = usePermissionCatalog();
-  const create = useCreatePermissionGroup();
-  const update = useUpdatePermissionGroup();
+  const catalog = PermissionsService.useCatalog();
+  const create = PermissionsService.useCreateGroup();
+  const update = PermissionsService.useUpdateGroup();
   const saving = create.isPending || update.isPending;
 
   useEffect(() => {

@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { ClassWorksheetsTab } from '@/features/assignments/components/ClassWorksheetsTab';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { AssignTeachersModal } from '@/features/classes/components/AssignTeachersModal';
 import { BonusPointsModal } from '@/features/classes/components/BonusPointsModal';
 import { ClassFormDrawer } from '@/features/classes/components/ClassFormDrawer';
@@ -21,7 +21,7 @@ import { ClassRankingTab } from '@/features/classes/components/ClassRankingTab';
 import { ClassReportsTab } from '@/features/classes/components/ClassReportsTab';
 import { ClassStudentsTab } from '@/features/classes/components/ClassStudentsTab';
 import { UnlockGameClassModal } from '@/features/classes/components/UnlockGameClassModal';
-import { useClass, useUpdateClass } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -35,8 +35,8 @@ export function ClassDetailPage() {
   const { message } = App.useApp();
   const auth = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const cls = useClass(id);
-  const update = useUpdateClass();
+  const cls = ClassesService.useDetail(id);
+  const update = ClassesService.useUpdate();
   const [editOpen, setEditOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
   const [bonus, setBonus] = useState<{ open: boolean; mode: 'single' | 'batch' }>({

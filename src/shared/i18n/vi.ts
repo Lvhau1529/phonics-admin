@@ -21,7 +21,7 @@ import type {
   Visibility,
   WorksheetKind,
 } from '@phonics/contracts';
-import type { ApiErrorCode } from '@/shared/api/errors';
+import type { LocalErrorCode } from '@/shared/api/errors';
 import type { RangeOption } from '@/shared/utils/range';
 
 export const vi = {
@@ -205,49 +205,15 @@ export const vi = {
     checking: 'Đang kiểm tra phiên đăng nhập…',
   },
 
+  /** Lỗi do client tự tạo (mạng, upload, file sai...). Lỗi của API hiện thẳng `message` server trả về (ADR 0025) */
   errors: {
-    VALIDATION_ERROR: 'Dữ liệu không hợp lệ',
     UNAUTHORIZED: 'Bạn cần đăng nhập',
-    TOKEN_EXPIRED: 'Phiên đăng nhập đã hết hạn',
-    INVALID_REFRESH: 'Phiên đăng nhập không hợp lệ',
-    REFRESH_REUSED: 'Phiên đăng nhập đã bị thu hồi',
-    FORBIDDEN: 'Bạn không có quyền thực hiện thao tác này',
-    FORBIDDEN_PERMISSION: 'Bạn chưa được cấp quyền cho thao tác này',
-    FORBIDDEN_SCOPE: 'Bạn không phụ trách lớp này',
-    ACCOUNT_DISABLED: 'Tài khoản đã bị khoá',
-    INVALID_CREDENTIALS: 'Email hoặc mật khẩu không đúng',
-    EMAIL_TAKEN: 'Email đã được sử dụng',
-    PROFILE_REQUIRED: 'Thiếu thông tin hồ sơ',
-    GOOGLE_EMAIL_UNVERIFIED: 'Email Google chưa được xác minh',
-    GOOGLE_TOKEN_INVALID: 'Token Google không hợp lệ',
-    CLASS_NOT_JOINABLE: 'Lớp không nhận học sinh',
-    NOT_FOUND: 'Không tìm thấy dữ liệu',
-    CONFLICT: 'Dữ liệu bị trùng hoặc đã thay đổi',
-    UNKNOWN_GAME: 'Game không tồn tại',
-    RESULT_IMPLAUSIBLE: 'Kết quả không hợp lệ',
-    PLAYED_AT_OUT_OF_RANGE: 'Thời gian chơi không hợp lệ',
-    DETAILS_TOO_LARGE: 'Dữ liệu quá lớn',
-    RATE_LIMITED: 'Thao tác quá nhanh, thử lại sau',
-    INTERNAL: 'Lỗi máy chủ, thử lại sau',
     NETWORK: 'Không kết nối được máy chủ',
     BAD_RESPONSE: 'Dữ liệu máy chủ trả về không đúng định dạng',
     UPLOAD: 'Tải file lên thất bại',
     MEDIA_TYPE_UNSUPPORTED: 'Định dạng file không hỗ trợ',
     MEDIA_TOO_LARGE: 'File quá lớn',
-    MEDIA_NOT_READY: 'File chưa tải lên xong hoặc không thuộc về bạn',
-    MEDIA_UPLOAD_INCOMPLETE: 'File chưa được tải lên đúng (sai kích thước hoặc định dạng)',
-    MEDIA_STORAGE_DISABLED: 'Máy chủ chưa bật kho lưu trữ file',
-    QUESTION_NOT_PUBLISHED: 'Có câu hỏi chưa được phát hành',
-    WORKSHEET_NOT_PUBLISHED: 'Phiếu bài tập chưa được phát hành',
-    WORKSHEET_EMPTY: 'Phiếu bài tập chưa có câu hỏi',
-    WORKSHEET_IN_USE: 'Câu hỏi đang được dùng trong phiếu bài tập',
-    ASSIGNMENT_NOT_OPEN: 'Bài tập chưa mở hoặc đã đóng',
-    ATTEMPTS_EXHAUSTED: 'Đã hết số lần làm bài',
-    SUBMISSION_NOT_EDITABLE: 'Bài làm đã nộp, không sửa được',
-    SUBMISSION_NOT_SUBMITTED: 'Bài làm chưa được nộp',
-    GRADING_INCOMPLETE: 'Còn câu chấm tay chưa có điểm',
-    ANSWER_TYPE_MISMATCH: 'Câu trả lời không đúng dạng câu hỏi',
-  } satisfies Record<ApiErrorCode, string>,
+  } satisfies Record<LocalErrorCode, string>,
 
   dashboard: {
     title: 'Tổng quan',

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import { MediaMapProvider } from '@/features/media/MediaMapContext';
 import { WorksheetStudentView } from '@/features/worksheets/components/WorksheetStudentView';
-import { useWorksheet } from '@/features/worksheets/hooks';
+import { WorksheetsService } from '@/features/worksheets/api/worksheetsService';
 import { t } from '@/shared/i18n';
 import { buildTheme } from '@/shared/theme/theme';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -16,7 +16,7 @@ import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 export function WorksheetPrintPage() {
   const { id = '' } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const worksheet = useWorksheet(id);
+  const worksheet = WorksheetsService.useDetail(id);
   const [printing, setPrinting] = useState(false);
   const showAnswers = searchParams.get('answers') === '1';
 

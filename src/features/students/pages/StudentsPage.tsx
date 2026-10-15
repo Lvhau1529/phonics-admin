@@ -5,11 +5,11 @@ import type { StudentModel } from '@/features/students/models/StudentModel';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { MoveClassModal } from '@/features/students/components/MoveClassModal';
 import { StudentsTable } from '@/features/students/components/StudentsTable';
-import { useStudentsList } from '@/features/students/hooks';
+import { StudentsService } from '@/features/students/api/studentsService';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -19,7 +19,7 @@ export function StudentsPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const table = useTableQuery({ filterKeys: ['classId', 'status'] as const, defaultSort: 'createdAt:desc' });
-  const list = useStudentsList(table.params);
+  const list = StudentsService.useList(table.params);
   const [moving, setMoving] = useState<StudentModel>();
   const canMove = auth.can('class.changeStudentClass');
 

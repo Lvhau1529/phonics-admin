@@ -1,5 +1,9 @@
 // Cài matcher của jest-dom (toBeInTheDocument...) cho mọi test Vitest
 import '@testing-library/jest-dom/vitest';
+import { configureZodLocale } from '@/shared/i18n/zodLocale';
+
+// Message mặc định của zod theo ngôn ngữ giao diện, như main.tsx
+configureZodLocale();
 
 // antd dùng matchMedia (responsive) — jsdom không có
 if (typeof window !== 'undefined' && !window.matchMedia) {

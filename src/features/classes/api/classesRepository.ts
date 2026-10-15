@@ -1,6 +1,6 @@
 /**
  * Repository lớp học: chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, method, body, schema contracts) và trả DTO
- * đúng như BE. Không map / format ở đây — việc đó của `classesService`.
+ * đúng như BE. Không map / format ở đây — việc đó của `ClassesService`.
  */
 import {
   AwardBonusBatchResponse,

@@ -3,7 +3,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { EndedBy, GameId } from '@phonics/contracts';
 import { GameSelect } from '@/features/games/components/GameSelect';
 import type { GameResultModel } from '@/features/students/models/GameResultModel';
-import { useStudentGameResults } from '@/features/students/hooks';
+import { StudentsService } from '@/features/students/api/studentsService';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
@@ -49,7 +49,7 @@ const buildColumns = (): ColumnsType<GameResultModel> => [
 /** Kết quả từng ván chơi của học sinh (phân trang server, lọc game) */
 export function StudentResultsTable({ studentId }: StudentResultsTableProps) {
   const table = useTableQuery({ filterKeys: ['gameId'] as const, defaultSort: 'playedAt:desc' });
-  const list = useStudentGameResults(studentId, table.params);
+  const list = StudentsService.useGameResults(studentId, table.params);
   return (
     <>
       <Flex gap={8} wrap style={{ marginBottom: 12 }}>

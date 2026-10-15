@@ -4,7 +4,7 @@ import { AuditAction } from '@phonics/contracts';
 import dayjs from 'dayjs';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { useAuditList } from '@/features/audit/hooks';
+import { AuditService } from '@/features/audit/api/auditService';
 import type { AuditLogModel, AuditTargetKind } from '@/features/audit/models/AuditLogModel';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
@@ -75,7 +75,7 @@ export function AuditPage() {
     filterKeys: ['action', 'from', 'to'] as const,
     defaultSort: 'createdAt:desc',
   });
-  const list = useAuditList(table.params);
+  const list = AuditService.useList(table.params);
   const { from, to } = table.filters;
 
   return (

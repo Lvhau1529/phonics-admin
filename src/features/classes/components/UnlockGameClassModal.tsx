@@ -1,7 +1,7 @@
 import { App, Form, Input, Modal, Typography } from 'antd';
 import { UnlockClassBody, type GameId } from '@phonics/contracts';
 import { useEffect } from 'react';
-import { useUnlockClassGame } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import type { ClassModel } from '@/features/classes/models/ClassModel';
 import { GameSelect } from '@/features/games/components/GameSelect';
 import { errorMessage } from '@/shared/api/errors';
@@ -25,7 +25,7 @@ interface UnlockGameClassModalProps {
 export function UnlockGameClassModal({ cls, open, onClose, gameId }: UnlockGameClassModalProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<UnlockFormValues>();
-  const unlock = useUnlockClassGame(cls.id);
+  const unlock = ClassesService.useUnlockGame(cls.id);
 
   useEffect(() => {
     if (open) {

@@ -1,7 +1,7 @@
 import { App, Button, Drawer, Flex, Form, Input, Switch } from 'antd';
 import { ClassName, CreateClassBody, Grade, SchoolYear, UpdateClassBody } from '@phonics/contracts';
 import { useEffect } from 'react';
-import { useCreateClass, useUpdateClass } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import type { ClassModel } from '@/features/classes/models/ClassModel';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
@@ -40,8 +40,8 @@ function currentSchoolYear(): string {
 export function ClassFormDrawer({ open, cls, onClose }: ClassFormDrawerProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<ClassFormValues>();
-  const create = useCreateClass();
-  const update = useUpdateClass();
+  const create = ClassesService.useCreate();
+  const update = ClassesService.useUpdate();
 
   useEffect(() => {
     if (!open) return;

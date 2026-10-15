@@ -15,10 +15,10 @@ import {
 import { useEffect, useMemo, useReducer } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { useAssignmentRoster } from '@/features/assignments/hooks';
-import { useAuth } from '@/features/auth/hooks';
+import { AssignmentsService } from '@/features/assignments/api/assignmentsService';
+import { useAuth } from '@/features/auth/authStore';
 import { CommentThread } from '@/features/comments/components/CommentThread';
-import { useComments } from '@/features/comments/hooks';
+import { CommentsService } from '@/features/comments/api/commentsService';
 import type { CommentModel } from '@/features/comments/models/CommentModel';
 import { MediaMapProvider } from '@/features/media/MediaMapContext';
 import { GradingItemCard } from '@/features/submissions/components/GradingItemCard';
@@ -30,7 +30,7 @@ import {
   pendingManualCount,
   toGradeBody,
 } from '@/features/submissions/gradingReducer';
-import { useGradeSubmission, useReopenSubmission, useSubmission } from '@/features/submissions/hooks';
+import { SubmissionsService } from '@/features/submissions/api/submissionsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -43,11 +43,11 @@ export function GradingPage() {
   const { message } = App.useApp();
   const auth = useAuth();
   const navigate = useNavigate();
-  const submission = useSubmission(submissionId);
-  const roster = useAssignmentRoster(id);
-  const comments = useComments(submissionId);
-  const grade = useGradeSubmission();
-  const reopen = useReopenSubmission();
+  const submission = SubmissionsService.useDetail(submissionId);
+  const roster = AssignmentsService.useRoster(id);
+  const comments = CommentsService.useList(submissionId);
+  const grade = SubmissionsService.useGrade();
+  const reopen = SubmissionsService.useReopen();
   const [state, dispatch] = useReducer(gradingReducer, undefined, () => initialGrading());
   const s = submission.data;
   const canGrade = auth.can('worksheets.grade') && !!s && !s.isInProgress;

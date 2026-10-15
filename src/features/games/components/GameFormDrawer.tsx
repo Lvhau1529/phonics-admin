@@ -1,7 +1,7 @@
 import { App, Button, Drawer, Flex, Form, Input, InputNumber, Switch } from 'antd';
 import { UpdateGameBody } from '@phonics/contracts';
 import { useEffect } from 'react';
-import { useUpdateGame } from '@/features/games/hooks';
+import { GamesService } from '@/features/games/api/gamesService';
 import type { GameAdminModel } from '@/features/games/models/GameAdminModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -24,7 +24,7 @@ interface GameFormDrawerProps {
 export function GameFormDrawer({ game, onClose }: GameFormDrawerProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<GameFormValues>();
-  const update = useUpdateGame();
+  const update = GamesService.useUpdate();
 
   useEffect(() => {
     if (!game) return;

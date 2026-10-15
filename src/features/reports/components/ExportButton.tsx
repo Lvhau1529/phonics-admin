@@ -1,8 +1,8 @@
 import { FileExcelOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { App, Button, Tooltip, type ButtonProps } from 'antd';
 import { useState } from 'react';
-import { useAuth } from '@/features/auth/hooks';
-import { reportsService } from '@/features/reports/api/reportsService';
+import { useAuth } from '@/features/auth/authStore';
+import { ReportsService } from '@/features/reports/api/reportsService';
 import type { QueryParams } from '@/shared/api/client';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -36,8 +36,8 @@ export function ExportButton({ kind, classId, query, ...rest }: ExportButtonProp
     try {
       const file =
         kind === 'points-xlsx'
-          ? await reportsService.classPoints(classId, query)
-          : await reportsService.classRanking(classId, kind === 'ranking-pdf' ? 'pdf' : 'xlsx', query);
+          ? await ReportsService.classPoints(classId, query)
+          : await ReportsService.classRanking(classId, kind === 'ranking-pdf' ? 'pdf' : 'xlsx', query);
       saveBlob(file.blob, file.filename);
       message.success(t.reports.downloaded);
     } catch (error) {

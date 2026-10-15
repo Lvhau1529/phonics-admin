@@ -4,10 +4,10 @@ import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { AssignTeachersModal } from '@/features/classes/components/AssignTeachersModal';
 import { ClassFormDrawer } from '@/features/classes/components/ClassFormDrawer';
-import { useClassesList, useUpdateClass } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import type { ClassModel } from '@/features/classes/models/ClassModel';
 import { errorMessage } from '@/shared/api/errors';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
@@ -24,8 +24,8 @@ export function ClassesPage() {
     filterKeys: ['grade', 'schoolYear', 'archived'] as const,
     defaultSort: 'name:asc',
   });
-  const list = useClassesList(table.params);
-  const update = useUpdateClass();
+  const list = ClassesService.useList(table.params);
+  const update = ClassesService.useUpdate();
   const [drawer, setDrawer] = useState<{ open: boolean; cls?: ClassModel }>({ open: false });
   const [assignFor, setAssignFor] = useState<ClassModel>();
   const showArchived = table.filters.archived === 'true';

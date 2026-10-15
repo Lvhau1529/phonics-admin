@@ -3,7 +3,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { PointsByGame } from '@phonics/contracts';
 import { useState } from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { useStudentPointsByGame } from '@/features/students/hooks';
+import { StudentsService } from '@/features/students/api/studentsService';
 import { useChartTheme } from '@/shared/hooks/useChartTheme';
 import { t } from '@/shared/i18n';
 import { ChartFrame } from '@/shared/ui/ChartFrame';
@@ -26,7 +26,7 @@ const buildColumns = (): ColumnsType<PointsByGame> => [
 /** Điểm của học sinh theo từng game: cột + bảng, lọc khoảng thời gian */
 export function StudentPointsByGame({ studentId }: StudentPointsByGameProps) {
   const [range, setRange] = useState<RangeValue>(DEFAULT_RANGE);
-  const query = useStudentPointsByGame(studentId, rangeParams(range));
+  const query = StudentsService.usePointsByGame(studentId, rangeParams(range));
   const rows = (query.data ?? []).map((r) => ({ ...r, label: gameLabel(r.gameId) }));
   const chart = useChartTheme();
 

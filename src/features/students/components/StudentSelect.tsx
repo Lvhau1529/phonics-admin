@@ -1,5 +1,5 @@
 import { Select, type SelectProps } from 'antd';
-import { useStudentOptions } from '@/features/students/hooks';
+import { StudentsService } from '@/features/students/api/studentsService';
 import { t } from '@/shared/i18n';
 
 type StudentSelectProps = Omit<SelectProps<string>, 'options' | 'loading'> & {
@@ -9,7 +9,7 @@ type StudentSelectProps = Omit<SelectProps<string>, 'options' | 'loading'> & {
 
 /** Ô chọn học sinh trong một lớp (tìm theo tên / email) */
 export function StudentSelect({ classId, ...props }: StudentSelectProps) {
-  const { data, isLoading } = useStudentOptions(classId);
+  const { data, isLoading } = StudentsService.useOptions(classId);
   const options = (data ?? []).map((s) => ({ value: s.id, label: `${s.displayName} · ${s.email}` }));
   return (
     <Select<string>

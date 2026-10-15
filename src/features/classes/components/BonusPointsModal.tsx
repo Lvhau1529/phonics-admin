@@ -2,8 +2,8 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { App, Button, Flex, Form, Input, InputNumber, Modal, Segmented, Typography } from 'antd';
 import { AwardBonusBatchBody, AwardBonusBody, BonusPoints, type GameId } from '@phonics/contracts';
 import { useState } from 'react';
-import { useAuth } from '@/features/auth/hooks';
-import { useAwardBonus, useAwardBonusBatch } from '@/features/classes/hooks';
+import { useAuth } from '@/features/auth/authStore';
+import { ClassesService } from '@/features/classes/api/classesService';
 import { GameSelect } from '@/features/games/components/GameSelect';
 import { StudentSelect } from '@/features/students/components/StudentSelect';
 import { errorMessage } from '@/shared/api/errors';
@@ -58,8 +58,8 @@ function BonusPointsForm({ classId, onClose, studentId, initialMode = 'single' }
   const auth = useAuth();
   const [form] = Form.useForm<BonusFormValues>();
   const [mode, setMode] = useState<Mode>(studentId ? 'single' : initialMode);
-  const single = useAwardBonus(classId);
-  const batch = useAwardBonusBatch(classId);
+  const single = ClassesService.useBonus(classId);
+  const batch = ClassesService.useBonusBatch(classId);
   const canRevoke = auth.can('points.revoke');
   const saving = single.isPending || batch.isPending;
 

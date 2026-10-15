@@ -2,7 +2,7 @@ import { Button, Drawer, Flex, Input, Segmented, Select, Tag, Typography } from 
 import { QUESTION_TYPES, type QuestionType } from '@phonics/contracts';
 import { useState } from 'react';
 import { QuestionBankTable } from '@/features/questions/components/QuestionBankTable';
-import { useQuestionsList } from '@/features/questions/hooks';
+import { QuestionsService } from '@/features/questions/api/questionsService';
 import type { QuestionSummaryModel } from '@/features/questions/models/QuestionModel';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { t } from '@/shared/i18n';
@@ -26,7 +26,7 @@ export function QuestionPickerDrawer({ open, onClose, excludeIds, onAdd }: Quest
   const [sort, setSort] = useState<string | undefined>('updatedAt:desc');
   const [selected, setSelected] = useState<Map<string, QuestionSummaryModel>>(new Map());
   const debounced = useDebouncedValue(q.trim());
-  const list = useQuestionsList({
+  const list = QuestionsService.useList({
     page,
     pageSize,
     sort,

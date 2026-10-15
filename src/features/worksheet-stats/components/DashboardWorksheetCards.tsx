@@ -3,14 +3,14 @@ import { Card, Col, List, Row, Statistic, Tag, Typography, theme } from 'antd';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { AssignmentStatusTag } from '@/features/assignments/components/AssignmentStatusTag';
-import { useAssignmentsDashboard } from '@/features/assignments/hooks';
+import { AssignmentsService } from '@/features/assignments/api/assignmentsService';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 
 /** Thẻ phiếu bài tập trên Dashboard: bài đến hạn hôm nay, bài đang mở, bài chờ chấm */
 export function DashboardWorksheetCards() {
   const { token } = theme.useToken();
-  const dash = useAssignmentsDashboard();
+  const dash = AssignmentsService.useDashboard();
   const d = dash.data;
   return (
     <Card

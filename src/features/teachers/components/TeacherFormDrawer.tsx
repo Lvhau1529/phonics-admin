@@ -12,8 +12,8 @@ import {
 import { useEffect, useMemo } from 'react';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { PermissionGroupSelect } from '@/features/permissions/components/PermissionGroupSelect';
-import { useSetUserPermissionGroups, useUserPermissions } from '@/features/permissions/hooks';
-import { useCreateTeacher, useUpdateTeacher } from '@/features/teachers/hooks';
+import { PermissionsService } from '@/features/permissions/api/permissionsService';
+import { TeachersService } from '@/features/teachers/api/teachersService';
 import type { TeacherModel } from '@/features/teachers/models/TeacherModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -55,10 +55,10 @@ const sameIds = (a: readonly string[], b: readonly string[]): boolean =>
 export function TeacherFormDrawer({ open, teacher, onClose }: TeacherFormDrawerProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<TeacherFormValues>();
-  const create = useCreateTeacher();
-  const update = useUpdateTeacher();
-  const setGroups = useSetUserPermissionGroups();
-  const userPerms = useUserPermissions(open ? teacher?.id : undefined);
+  const create = TeachersService.useCreate();
+  const update = TeachersService.useUpdate();
+  const setGroups = PermissionsService.useSetUserGroups();
+  const userPerms = PermissionsService.useUser(open ? teacher?.id : undefined);
   const saving = create.isPending || update.isPending || setGroups.isPending;
   const currentGroupIds = useMemo(() => userPerms.data?.groupIds, [userPerms.data]);
 

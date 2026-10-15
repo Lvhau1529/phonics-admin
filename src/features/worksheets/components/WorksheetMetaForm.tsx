@@ -7,7 +7,7 @@ import {
   type Subject,
   type WorksheetKind,
 } from '@phonics/contracts';
-import { useCreateWorksheet, useUpdateWorksheet } from '@/features/worksheets/hooks';
+import { WorksheetsService } from '@/features/worksheets/api/worksheetsService';
 import type { WorksheetModel } from '@/features/worksheets/models/WorksheetModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -42,8 +42,8 @@ interface WorksheetMetaFormProps {
 export function WorksheetMetaForm({ worksheet, onSaved, readOnly }: WorksheetMetaFormProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<MetaValues>();
-  const create = useCreateWorksheet();
-  const update = useUpdateWorksheet();
+  const create = WorksheetsService.useCreate();
+  const update = WorksheetsService.useUpdate();
 
   const handleFinish = async (raw: MetaValues) => {
     const values = stripEmpty(raw as unknown as Record<string, unknown>) as unknown as MetaValues;

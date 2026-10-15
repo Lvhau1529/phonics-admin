@@ -3,10 +3,10 @@ import { Button, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { GameId } from '@phonics/contracts';
 import { useState } from 'react';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { UnlockGameClassModal } from '@/features/classes/components/UnlockGameClassModal';
 import type { ClassModel } from '@/features/classes/models/ClassModel';
-import { useGameCatalog } from '@/features/games/hooks';
+import { GamesService } from '@/features/games/api/gamesService';
 import type { GameModel } from '@/features/games/models/GameModel';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
@@ -20,7 +20,7 @@ interface ClassGamesTabProps {
 export function ClassGamesTab({ cls }: ClassGamesTabProps) {
   const auth = useAuth();
   const canUnlock = auth.can('games.unlock');
-  const catalog = useGameCatalog();
+  const catalog = GamesService.useCatalog();
   const [unlockGame, setUnlockGame] = useState<GameId>();
 
   const columns: ColumnsType<GameModel> = [

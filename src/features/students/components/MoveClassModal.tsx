@@ -3,7 +3,7 @@ import { MoveClassBody } from '@phonics/contracts';
 import type { StudentModel } from '@/features/students/models/StudentModel';
 import { useEffect } from 'react';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
-import { useMoveClass } from '@/features/students/hooks';
+import { StudentsService } from '@/features/students/api/studentsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty } from '@/shared/utils/zodForm';
@@ -22,7 +22,7 @@ interface MoveClassModalProps {
 export function MoveClassModal({ student, onClose }: MoveClassModalProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<MoveClassValues>();
-  const move = useMoveClass();
+  const move = StudentsService.useMoveClass();
 
   useEffect(() => {
     if (student) form.resetFields();

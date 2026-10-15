@@ -2,7 +2,7 @@ import { Flex, Typography } from 'antd';
 import type { GameId } from '@phonics/contracts';
 import { useState } from 'react';
 import { RankingTable } from '@/features/classes/components/RankingTable';
-import { useClassRanking } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import { GameSelect } from '@/features/games/components/GameSelect';
 import { ExportButton } from '@/features/reports/components/ExportButton';
 import { t } from '@/shared/i18n';
@@ -21,7 +21,7 @@ export function ClassReportsTab({ classId, withPreview = true }: ClassReportsTab
   const [range, setRange] = useState<RangeValue>(DEFAULT_RANGE);
   const [gameId, setGameId] = useState<GameId>();
   const query = { ...rangeParams(range), gameId };
-  const ranking = useClassRanking(withPreview ? classId : undefined, query);
+  const ranking = ClassesService.useRanking(withPreview ? classId : undefined, query);
 
   return (
     <Flex vertical gap={12}>

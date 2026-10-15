@@ -1,4 +1,5 @@
 import { ApiError, ClientErrorCode } from '@/shared/api/errors';
+import { t } from '@/shared/i18n';
 
 export interface UploadProgress {
   loaded: number;
@@ -34,9 +35,9 @@ export function putFile(url: string, file: Blob, options: PutFileOptions = {}): 
     };
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) resolve();
-      else reject(new ApiError(xhr.status, ClientErrorCode.UPLOAD, `Upload failed (${xhr.status})`));
+      else reject(new ApiError(xhr.status, ClientErrorCode.UPLOAD, t.errors.UPLOAD));
     };
-    xhr.onerror = () => reject(new ApiError(0, ClientErrorCode.NETWORK, 'Upload network error'));
+    xhr.onerror = () => reject(new ApiError(0, ClientErrorCode.NETWORK, t.errors.NETWORK));
     xhr.onabort = () => reject(new DOMException('Upload aborted', 'AbortError'));
     if (options.signal) {
       if (options.signal.aborted) {

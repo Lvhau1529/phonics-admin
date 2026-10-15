@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { AssignWorksheetModal } from '@/features/assignments/components/AssignWorksheetModal';
 import { AssignmentsCalendar } from '@/features/assignments/components/AssignmentsCalendar';
 import { AssignmentsTable } from '@/features/assignments/components/AssignmentsTable';
-import { useAssignmentsList } from '@/features/assignments/hooks';
-import { useAuth } from '@/features/auth/hooks';
+import { AssignmentsService } from '@/features/assignments/api/assignmentsService';
+import { useAuth } from '@/features/auth/authStore';
 import { AccuracyByTypeChart } from '@/features/worksheet-stats/components/AccuracyByTypeChart';
 import { WeeklyTrendChart } from '@/features/worksheet-stats/components/WeeklyTrendChart';
-import { useClassWorksheetOverview } from '@/features/worksheet-stats/hooks';
+import { WorksheetStatsService } from '@/features/worksheet-stats/api/worksheetStatsService';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -26,8 +26,8 @@ export function ClassWorksheetsTab({ classId }: { classId: string }) {
   const [range, setRange] = useState<RangeValue>(DEFAULT_RANGE);
   const [assignOpen, setAssignOpen] = useState(false);
   const table = useTableQuery({ filterKeys: ['status'] as const, defaultSort: 'scheduledFor:desc' });
-  const list = useAssignmentsList({ ...table.params, classId, ...rangeParams(range) });
-  const overview = useClassWorksheetOverview(canStats ? classId : undefined, rangeParams(range));
+  const list = AssignmentsService.useList({ ...table.params, classId, ...rangeParams(range) });
+  const overview = WorksheetStatsService.useClassOverview(canStats ? classId : undefined, rangeParams(range));
   const o = overview.data;
   const pct = (v: number | null | undefined) =>
     v === null || v === undefined ? t.common.none : formatPercent(v);

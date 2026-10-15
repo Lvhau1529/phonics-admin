@@ -1,12 +1,12 @@
 import { Select, type SelectProps } from 'antd';
-import { useWorksheetOptions } from '@/features/worksheets/hooks';
+import { WorksheetsService } from '@/features/worksheets/api/worksheetsService';
 import { t } from '@/shared/i18n';
 
 type WorksheetSelectProps = Omit<SelectProps<string>, 'options' | 'loading'>;
 
 /** Ô chọn phiếu đã phát hành (giao bài) */
 export function WorksheetSelect(props: WorksheetSelectProps) {
-  const { data, isLoading } = useWorksheetOptions();
+  const { data, isLoading } = WorksheetsService.useOptions();
   const options = (data ?? []).map((w) => ({ value: w.id, label: `${w.title} · ${w.subtitle}` }));
   return (
     <Select<string>

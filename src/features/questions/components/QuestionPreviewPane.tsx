@@ -10,6 +10,7 @@ import type { QuestionDraft } from '@/features/questions/components/editor/types
 import { QuestionRenderer } from '@/features/questions/renderers/QuestionRenderer';
 import { checkAnswer, type CheckResult } from '@/features/questions/utils/checkAnswer';
 import { t } from '@/shared/i18n';
+import { issueMessage } from '@/shared/i18n/zodLocale';
 import { formatPercent } from '@/shared/utils/format';
 
 interface QuestionPreviewPaneProps {
@@ -43,7 +44,7 @@ export function QuestionPreviewPane({ draft, instruction, example }: QuestionPre
           type="warning"
           showIcon
           message={t.questions.contentErrors}
-          description={first ? `${first.path.join('.')}: ${first.message}` : undefined}
+          description={first ? `${first.path.join('.')}: ${issueMessage(first)}` : undefined}
         />
       </Card>
     );

@@ -1,7 +1,7 @@
 import { App, Button, DatePicker, Flex, Form, InputNumber, Modal, Switch } from 'antd';
 import { CreateAssignmentBody } from '@phonics/contracts';
 import dayjs, { type Dayjs } from 'dayjs';
-import { useCreateAssignment } from '@/features/assignments/hooks';
+import { AssignmentsService } from '@/features/assignments/api/assignmentsService';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { WorksheetSelect } from '@/features/worksheets/components/WorksheetSelect';
 import { errorMessage } from '@/shared/api/errors';
@@ -72,7 +72,7 @@ function AssignForm({
 }: Omit<AssignWorksheetModalProps, 'open' | 'worksheetTitle'>) {
   const { message } = App.useApp();
   const [form] = Form.useForm<AssignValues>();
-  const create = useCreateAssignment();
+  const create = AssignmentsService.useCreate();
 
   const handleFinish = async (values: AssignValues) => {
     const bodies = values.classIds.map((cid) =>

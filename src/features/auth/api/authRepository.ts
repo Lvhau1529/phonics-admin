@@ -1,6 +1,6 @@
 /**
  * Repository xác thực / hồ sơ: chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, method, body, schema contracts) và
- * trả DTO đúng như BE. Không map / format ở đây — việc đó của `authService`.
+ * trả DTO đúng như BE. Không map / format ở đây — việc đó của `AuthService`.
  */
 import {
   AuthResponse,

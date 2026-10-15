@@ -3,15 +3,10 @@ import { App, Button, Popconfirm, Skeleton, Tag } from 'antd';
 import { QuestionType } from '@phonics/contracts';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { MediaMapProvider } from '@/features/media/MediaMapContext';
 import { QuestionEditorForm } from '@/features/questions/components/QuestionEditorForm';
-import {
-  useArchiveQuestion,
-  useDuplicateQuestion,
-  usePublishQuestion,
-  useQuestion,
-} from '@/features/questions/hooks';
+import { QuestionsService } from '@/features/questions/api/questionsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -24,10 +19,10 @@ export function QuestionEditorPage() {
   const { message } = App.useApp();
   const auth = useAuth();
   const navigate = useNavigate();
-  const question = useQuestion(id);
-  const publish = usePublishQuestion();
-  const archive = useArchiveQuestion();
-  const duplicate = useDuplicateQuestion();
+  const question = QuestionsService.useDetail(id);
+  const publish = QuestionsService.usePublish();
+  const archive = QuestionsService.useArchive();
+  const duplicate = QuestionsService.useDuplicate();
   const initialType = QuestionType.safeParse(searchParams.get('type')).data;
 
   if (id && question.isLoading) return <Skeleton active />;

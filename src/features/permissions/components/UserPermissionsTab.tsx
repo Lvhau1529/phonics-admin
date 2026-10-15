@@ -10,15 +10,11 @@ import {
 import { useMemo, useState } from 'react';
 import { permissionDescription, type PermissionSource } from '@/features/permissions/utils';
 import { PermissionGroupSelect } from '@/features/permissions/components/PermissionGroupSelect';
-import {
-  usePermissionCatalog,
-  useSetUserPermissionGroups,
-  useUpdateUserPermissions,
-  useUserPermissions,
-} from '@/features/permissions/hooks';
+import { PermissionsService } from '@/features/permissions/api/permissionsService';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
+import { issueMessage } from '@/shared/i18n/zodLocale';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { formatDateTime } from '@/shared/utils/format';
@@ -57,10 +53,10 @@ interface UserPermissionsTabProps {
 /** Tab Theo giáo viên: chọn GV → gán nhóm quyền + ma trận mặc định / cấp / thu hồi, cột nguồn & hiệu lực */
 export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabProps) {
   const { message } = App.useApp();
-  const catalog = usePermissionCatalog();
-  const userPerms = useUserPermissions(userId);
-  const update = useUpdateUserPermissions();
-  const setGroups = useSetUserPermissionGroups();
+  const catalog = PermissionsService.useCatalog();
+  const userPerms = PermissionsService.useUser(userId);
+  const update = PermissionsService.useUpdate();
+  const setGroups = PermissionsService.useSetUserGroups();
   const [draft, setDraft] = useState<Partial<Record<Permission, State>>>({});
   const [note, setNote] = useState('');
   const [groupDraft, setGroupDraft] = useState<string[] | null>(null);
@@ -100,7 +96,9 @@ export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabP
     if (!userId || groupDraft === null) return;
     const parsed = SetUserPermissionGroupsBody.safeParse({ groupIds: groupDraft });
     if (!parsed.success)
-      return void message.error(parsed.error.issues[0]?.message ?? t.errors.VALIDATION_ERROR);
+      return void message.error(
+        parsed.error.issues[0] ? issueMessage(parsed.error.issues[0]) : t.common.invalidValue,
+      );
     try {
       await setGroups.mutateAsync({ userId, body: parsed.data });
       setGroupDraft(null);
@@ -120,7 +118,9 @@ export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabP
     };
     const parsed = UpdateUserPermissionsBody.safeParse(body);
     if (!parsed.success)
-      return void message.error(parsed.error.issues[0]?.message ?? t.errors.VALIDATION_ERROR);
+      return void message.error(
+        parsed.error.issues[0] ? issueMessage(parsed.error.issues[0]) : t.common.invalidValue,
+      );
     try {
       await update.mutateAsync({ userId, body: parsed.data });
       setDraft({});
