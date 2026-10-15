@@ -1,8 +1,8 @@
 import { DeleteOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { App, Button, Popconfirm, Space, Tooltip } from 'antd';
-import { useCloseAssignment, useDeleteAssignment, useReopenAssignment } from '@/features/assignments/hooks';
+import { AssignmentsService } from '@/features/assignments/api/assignmentsService';
 import type { AssignmentModel } from '@/features/assignments/models/AssignmentModel';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 
@@ -17,9 +17,9 @@ interface AssignmentActionsProps {
 export function AssignmentActions({ assignment, onDeleted, size = 'small' }: AssignmentActionsProps) {
   const { message } = App.useApp();
   const auth = useAuth();
-  const close = useCloseAssignment();
-  const reopen = useReopenAssignment();
-  const remove = useDeleteAssignment();
+  const close = AssignmentsService.useClose();
+  const reopen = AssignmentsService.useReopen();
+  const remove = AssignmentsService.useRemove();
   if (!auth.can('worksheets.assign')) return null;
 
   const run = async (fn: () => Promise<unknown>, success: string, after?: () => void) => {

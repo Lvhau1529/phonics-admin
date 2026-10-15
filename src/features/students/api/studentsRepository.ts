@@ -1,6 +1,6 @@
 /**
  * Repository học sinh: chỉ khai báo endpoint (đường dẫn `ENDPOINTS`, method, body, schema contracts) và trả DTO
- * đúng như BE. Không map / format ở đây — việc đó của `studentsService`.
+ * đúng như BE. Không map / format ở đây — việc đó của `StudentsService`.
  */
 import {
   ENDPOINTS,

@@ -24,20 +24,15 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { AssignmentActions } from '@/features/assignments/components/AssignmentActions';
 import { AssignmentStatusTag } from '@/features/assignments/components/AssignmentStatusTag';
-import {
-  useAssignment,
-  useAssignmentRanking,
-  useAssignmentRoster,
-  useUpdateAssignment,
-} from '@/features/assignments/hooks';
+import { AssignmentsService } from '@/features/assignments/api/assignmentsService';
 import type { AssignmentDetailModel } from '@/features/assignments/models/AssignmentModel';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { SubmissionsTable } from '@/features/submissions/components/SubmissionsTable';
 import { AssignmentRankingTable } from '@/features/worksheet-stats/components/AssignmentRankingTable';
 import { QuestionAccuracyChart } from '@/features/worksheet-stats/components/QuestionAccuracyChart';
 import { ScoreDistributionChart } from '@/features/worksheet-stats/components/ScoreDistributionChart';
 import { WorksheetExportButton } from '@/features/worksheet-stats/components/WorksheetExportButton';
-import { useAssignmentStats } from '@/features/worksheet-stats/hooks';
+import { WorksheetStatsService } from '@/features/worksheet-stats/api/worksheetStatsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -53,8 +48,8 @@ export function AssignmentDetailPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = (searchParams.get('tab') as TabKey | null) ?? 'submissions';
-  const assignment = useAssignment(id);
-  const roster = useAssignmentRoster(id);
+  const assignment = AssignmentsService.useDetail(id);
+  const roster = AssignmentsService.useRoster(id);
   const [editOpen, setEditOpen] = useState(false);
   const setTab = (key: string) => setSearchParams(new URLSearchParams({ tab: key }), { replace: true });
 
@@ -159,8 +154,8 @@ export function AssignmentDetailPage() {
 }
 
 function AssignmentStatsTab({ assignmentId }: { assignmentId: string }) {
-  const stats = useAssignmentStats(assignmentId);
-  const ranking = useAssignmentRanking(assignmentId);
+  const stats = WorksheetStatsService.useAssignment(assignmentId);
+  const ranking = AssignmentsService.useRanking(assignmentId);
   const d = stats.data;
   return (
     <Row gutter={[16, 16]}>
@@ -221,7 +216,7 @@ function EditAssignmentModal({
 }) {
   const { message } = App.useApp();
   const [form] = Form.useForm<EditValues>();
-  const update = useUpdateAssignment();
+  const update = AssignmentsService.useUpdate();
   const original = {
     scheduledFor: assignment.scheduledFor,
     availableFrom: assignment.availableFrom,

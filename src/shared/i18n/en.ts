@@ -20,7 +20,7 @@ import type {
   Visibility,
   WorksheetKind,
 } from '@phonics/contracts';
-import type { ApiErrorCode } from '@/shared/api/errors';
+import type { LocalErrorCode } from '@/shared/api/errors';
 import type { RangeOption } from '@/shared/utils/range';
 import type { vi } from '@/shared/i18n/vi';
 
@@ -204,48 +204,13 @@ export const en = {
   },
 
   errors: {
-    VALIDATION_ERROR: 'Invalid data',
     UNAUTHORIZED: 'You need to sign in',
-    TOKEN_EXPIRED: 'Your session has expired',
-    INVALID_REFRESH: 'Invalid session',
-    REFRESH_REUSED: 'This session has been revoked',
-    FORBIDDEN: 'You are not allowed to perform this action',
-    FORBIDDEN_PERMISSION: 'You have not been granted permission for this action',
-    FORBIDDEN_SCOPE: 'You are not in charge of this class',
-    ACCOUNT_DISABLED: 'This account has been disabled',
-    INVALID_CREDENTIALS: 'Incorrect email or password',
-    EMAIL_TAKEN: 'This email is already in use',
-    PROFILE_REQUIRED: 'Profile information is missing',
-    GOOGLE_EMAIL_UNVERIFIED: 'Google email is not verified',
-    GOOGLE_TOKEN_INVALID: 'Invalid Google token',
-    CLASS_NOT_JOINABLE: 'This class is not accepting students',
-    NOT_FOUND: 'Data not found',
-    CONFLICT: 'Duplicate data or it has changed in the meantime',
-    UNKNOWN_GAME: 'Game does not exist',
-    RESULT_IMPLAUSIBLE: 'Invalid result',
-    PLAYED_AT_OUT_OF_RANGE: 'Invalid play time',
-    DETAILS_TOO_LARGE: 'Payload too large',
-    RATE_LIMITED: 'Too many requests, try again later',
-    INTERNAL: 'Server error, try again later',
     NETWORK: 'Could not reach the server',
     BAD_RESPONSE: 'The server returned data in an unexpected format',
     UPLOAD: 'File upload failed',
     MEDIA_TYPE_UNSUPPORTED: 'Unsupported file type',
     MEDIA_TOO_LARGE: 'File is too large',
-    MEDIA_NOT_READY: 'File is not uploaded yet or does not belong to you',
-    MEDIA_UPLOAD_INCOMPLETE: 'File was not uploaded correctly (size or type mismatch)',
-    MEDIA_STORAGE_DISABLED: 'File storage is not enabled on the server',
-    QUESTION_NOT_PUBLISHED: 'Some questions are not published yet',
-    WORKSHEET_NOT_PUBLISHED: 'The worksheet is not published yet',
-    WORKSHEET_EMPTY: 'The worksheet has no questions',
-    WORKSHEET_IN_USE: 'The question is used by a worksheet',
-    ASSIGNMENT_NOT_OPEN: 'The assignment is not open or already closed',
-    ATTEMPTS_EXHAUSTED: 'No attempts left',
-    SUBMISSION_NOT_EDITABLE: 'The submission was already sent and cannot be edited',
-    SUBMISSION_NOT_SUBMITTED: 'The submission has not been sent yet',
-    GRADING_INCOMPLETE: 'Some manual items still have no score',
-    ANSWER_TYPE_MISMATCH: 'The answer does not match the question type',
-  } satisfies Record<ApiErrorCode, string>,
+  } satisfies Record<LocalErrorCode, string>,
 
   dashboard: {
     title: 'Dashboard',

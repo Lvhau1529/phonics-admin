@@ -4,7 +4,7 @@ import { useParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { MediaMapProvider } from '@/features/media/MediaMapContext';
 import { WorksheetStudentView } from '@/features/worksheets/components/WorksheetStudentView';
-import { useWorksheet } from '@/features/worksheets/hooks';
+import { WorksheetsService } from '@/features/worksheets/api/worksheetsService';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
@@ -12,7 +12,7 @@ import { PageHeader } from '@/shared/ui/PageHeader';
 /** Xem phiếu như học sinh + thử làm (chấm tại chỗ) */
 export function WorksheetPreviewPage() {
   const { id = '' } = useParams<{ id: string }>();
-  const worksheet = useWorksheet(id);
+  const worksheet = WorksheetsService.useDetail(id);
   if (worksheet.isLoading) return <Skeleton active />;
   if (worksheet.error || !worksheet.data)
     return <ErrorAlert error={worksheet.error} onRetry={() => void worksheet.refetch()} />;

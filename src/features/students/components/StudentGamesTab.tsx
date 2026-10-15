@@ -1,8 +1,8 @@
 import { App, Switch, Tag, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { StudentGameModel } from '@/features/students/models/StudentGameModel';
-import { useAuth } from '@/features/auth/hooks';
-import { useSetStudentGameUnlock, useStudentGames } from '@/features/students/hooks';
+import { useAuth } from '@/features/auth/authStore';
+import { StudentsService } from '@/features/students/api/studentsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
@@ -18,8 +18,8 @@ export function StudentGamesTab({ studentId }: StudentGamesTabProps) {
   const { message } = App.useApp();
   const auth = useAuth();
   const canUnlock = auth.can('games.unlock');
-  const games = useStudentGames(studentId);
-  const setUnlock = useSetStudentGameUnlock(studentId);
+  const games = StudentsService.useGames(studentId);
+  const setUnlock = StudentsService.useSetGameUnlock(studentId);
 
   const toggle = async (game: StudentGameModel, unlocked: boolean) => {
     try {

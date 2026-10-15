@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { StudentWorksheetsTab } from '@/features/worksheet-stats/components/StudentWorksheetsTab';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { GameSelect } from '@/features/games/components/GameSelect';
 import { PointsTable } from '@/features/points/components/PointsTable';
 import { MoveClassModal } from '@/features/students/components/MoveClassModal';
@@ -14,7 +14,7 @@ import { StudentFormDrawer } from '@/features/students/components/StudentFormDra
 import { StudentGamesTab } from '@/features/students/components/StudentGamesTab';
 import { StudentPointsByGame } from '@/features/students/components/StudentPointsByGame';
 import { StudentResultsTable } from '@/features/students/components/StudentResultsTable';
-import { useStudent, useStudentPoints } from '@/features/students/hooks';
+import { StudentsService } from '@/features/students/api/studentsService';
 import type { StudentDetailModel } from '@/features/students/models/StudentDetailModel';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
@@ -32,7 +32,7 @@ type TabKey = 'by-game' | 'points' | 'results' | 'games' | 'worksheets';
 function StudentPointsTab({ studentId }: { studentId: string }) {
   const table = useTableQuery({ filterKeys: ['kind', 'gameId'] as const, defaultSort: 'createdAt:desc' });
   const [range, setRange] = useState<RangeValue>(DEFAULT_RANGE);
-  const list = useStudentPoints(studentId, { ...table.params, ...rangeParams(range) });
+  const list = StudentsService.usePoints(studentId, { ...table.params, ...rangeParams(range) });
   return (
     <>
       <Flex gap={8} wrap style={{ marginBottom: 12 }}>
@@ -69,7 +69,7 @@ export function StudentDetailPage() {
   const { id = '' } = useParams<{ id: string }>();
   const auth = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const student = useStudent(id);
+  const student = StudentsService.useDetail(id);
   const [editOpen, setEditOpen] = useState(false);
   const [moving, setMoving] = useState<StudentDetailModel>();
   const [resetting, setResetting] = useState<StudentDetailModel>();

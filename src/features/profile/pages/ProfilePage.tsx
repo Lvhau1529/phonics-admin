@@ -8,8 +8,8 @@ import {
   type AvatarKey,
 } from '@phonics/contracts';
 import { useEffect } from 'react';
-import { signOut } from '@/features/auth/authStore';
-import { useAuth, useChangePassword, useUpdateProfile } from '@/features/auth/hooks';
+import { signOut, useAuth } from '@/features/auth/authStore';
+import { AuthService } from '@/features/auth/api/authService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
@@ -48,8 +48,8 @@ export function ProfilePage() {
     profileForm.setFieldsValue({ displayName: user.displayName, avatarKey: user.avatarKey });
   }, [user, profileForm]);
 
-  const updateProfile = useUpdateProfile();
-  const changePassword = useChangePassword();
+  const updateProfile = AuthService.useUpdateProfile();
+  const changePassword = AuthService.useChangePassword();
 
   const handleProfile = async (raw: ProfileValues) => {
     const diff = diffValues(

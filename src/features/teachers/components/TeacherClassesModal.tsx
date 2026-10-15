@@ -2,7 +2,7 @@ import { App, Modal } from 'antd';
 import { SetTeacherClassesBody } from '@phonics/contracts';
 import { useState } from 'react';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
-import { useSetTeacherClasses } from '@/features/teachers/hooks';
+import { TeachersService } from '@/features/teachers/api/teachersService';
 import type { TeacherModel } from '@/features/teachers/models/TeacherModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -17,13 +17,13 @@ interface TeacherClassesModalProps {
 export function TeacherClassesModal({ teacher, onClose }: TeacherClassesModalProps) {
   const { message } = App.useApp();
   const [classIds, setClassIds] = useState<string[]>(() => teacher?.classIds ?? []);
-  const setClasses = useSetTeacherClasses();
+  const setClasses = TeachersService.useSetClasses();
 
   const handleOk = async () => {
     if (!teacher) return;
     const parsed = parseForm(SetTeacherClassesBody, { classIds });
     if (!parsed.success) {
-      message.error(parsed.fieldErrors.classIds?.[0] ?? t.errors.VALIDATION_ERROR);
+      message.error(parsed.fieldErrors.classIds?.[0] ?? t.common.invalidValue);
       return;
     }
     try {

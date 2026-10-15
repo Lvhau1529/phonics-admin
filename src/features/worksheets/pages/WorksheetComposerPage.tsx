@@ -12,7 +12,7 @@ import { useEffect, useReducer, useState } from 'react';
 import { useBlocker, useNavigate, useParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { AssignWorksheetModal } from '@/features/assignments/components/AssignWorksheetModal';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { MediaMapProvider } from '@/features/media/MediaMapContext';
 import { QuestionEditorForm } from '@/features/questions/components/QuestionEditorForm';
 import { QuestionPickerDrawer } from '@/features/questions/components/QuestionPickerDrawer';
@@ -26,13 +26,7 @@ import {
   toStructureBody,
   totalPoints,
 } from '@/features/worksheets/composerReducer';
-import {
-  useArchiveWorksheet,
-  useDuplicateWorksheet,
-  usePublishWorksheet,
-  useSetWorksheetStructure,
-  useWorksheet,
-} from '@/features/worksheets/hooks';
+import { WorksheetsService } from '@/features/worksheets/api/worksheetsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -44,11 +38,11 @@ export function WorksheetComposerPage() {
   const { message } = App.useApp();
   const auth = useAuth();
   const navigate = useNavigate();
-  const worksheet = useWorksheet(id);
-  const setStructure = useSetWorksheetStructure();
-  const publish = usePublishWorksheet();
-  const archive = useArchiveWorksheet();
-  const duplicate = useDuplicateWorksheet();
+  const worksheet = WorksheetsService.useDetail(id);
+  const setStructure = WorksheetsService.useSetStructure();
+  const publish = WorksheetsService.usePublish();
+  const archive = WorksheetsService.useArchive();
+  const duplicate = WorksheetsService.useDuplicate();
   const [state, dispatch] = useReducer(composerReducer, { sections: [], dirty: false });
   const [picker, setPicker] = useState<string | null>(null);
   const [inline, setInline] = useState<string | null>(null);

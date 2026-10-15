@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { AccuracyByTypeChart } from '@/features/worksheet-stats/components/AccuracyByTypeChart';
 import { WeeklyTrendChart } from '@/features/worksheet-stats/components/WeeklyTrendChart';
-import { useStudentWorksheetStats } from '@/features/worksheet-stats/hooks';
+import { WorksheetStatsService } from '@/features/worksheet-stats/api/worksheetStatsService';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -60,7 +60,7 @@ const buildColumns = (): ColumnsType<StudentWorksheetRecent> => [
 
 /** Tab "Phiếu bài tập" trên trang học sinh */
 export function StudentWorksheetsTab({ studentId }: { studentId: string }) {
-  const stats = useStudentWorksheetStats(studentId);
+  const stats = WorksheetStatsService.useStudent(studentId);
   const s = stats.data;
   const pct = (v: number | null | undefined) =>
     v === null || v === undefined ? t.common.none : formatPercent(v);

@@ -8,7 +8,7 @@ import { ROUTES } from '@/app/routes';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { TeacherClassesModal } from '@/features/teachers/components/TeacherClassesModal';
 import { TeacherFormDrawer } from '@/features/teachers/components/TeacherFormDrawer';
-import { useTeachersList, useUpdateTeacher } from '@/features/teachers/hooks';
+import { TeachersService } from '@/features/teachers/api/teachersService';
 import type { TeacherModel } from '@/features/teachers/models/TeacherModel';
 import { errorMessage } from '@/shared/api/errors';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
@@ -23,8 +23,8 @@ import { formatDateTime } from '@/shared/utils/format';
 export function TeachersPage() {
   const { message } = App.useApp();
   const table = useTableQuery({ filterKeys: ['status', 'classId'] as const, defaultSort: 'createdAt:desc' });
-  const list = useTeachersList(table.params);
-  const update = useUpdateTeacher();
+  const list = TeachersService.useList(table.params);
+  const update = TeachersService.useUpdate();
   const [drawer, setDrawer] = useState<{ open: boolean; teacher?: TeacherModel }>({ open: false });
   const [classesFor, setClassesFor] = useState<TeacherModel>();
 

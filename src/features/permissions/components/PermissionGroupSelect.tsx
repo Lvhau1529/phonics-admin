@@ -1,12 +1,12 @@
 import { Select, Tag, type SelectProps } from 'antd';
-import { usePermissionGroups } from '@/features/permissions/hooks';
+import { PermissionsService } from '@/features/permissions/api/permissionsService';
 import { t } from '@/shared/i18n';
 
 type PermissionGroupSelectProps = Omit<SelectProps<string[]>, 'options' | 'loading' | 'mode'>;
 
 /** Ô chọn nhiều nhóm quyền (ADMIN) — dùng ở trang Phân quyền và form giáo viên */
 export function PermissionGroupSelect(props: PermissionGroupSelectProps) {
-  const { data, isLoading } = usePermissionGroups();
+  const { data, isLoading } = PermissionsService.useGroups();
   const options = (data ?? []).map((g) => ({
     value: g.id,
     label: g.name,

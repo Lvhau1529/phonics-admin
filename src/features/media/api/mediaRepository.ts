@@ -1,4 +1,4 @@
-/** Repository media: presign / complete / detail — PUT file thực hiện ở `mediaService` qua `putFile` */
+/** Repository media: presign / complete / detail — PUT file thực hiện ở `MediaService` qua `putFile` */
 import {
   ENDPOINTS,
   MediaView,

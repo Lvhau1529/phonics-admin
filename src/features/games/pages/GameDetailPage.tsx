@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { GameTimelineChart } from '@/features/games/components/GameTimelineChart';
-import { useGameByClass } from '@/features/games/hooks';
+import { GamesService } from '@/features/games/api/gamesService';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -28,7 +28,7 @@ const buildColumns = (): ColumnsType<GameByClassStats> => [
 /** Bảng thống kê game theo lớp, có chọn khoảng thời gian */
 function GameByClassTable({ gameId }: { gameId: GameId }) {
   const [range, setRange] = useState<RangeValue>(DEFAULT_RANGE);
-  const byClass = useGameByClass(gameId, rangeParams(range));
+  const byClass = GamesService.useByClass(gameId, rangeParams(range));
   return (
     <Flex vertical gap={12}>
       <RangePicker value={range} onChange={setRange} size="small" />

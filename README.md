@@ -48,14 +48,14 @@ src/
 ├── features/<feature>/
 │   ├── api/
 │   │   ├── <x>Repository.ts Khai báo endpoint: request(ENDPOINTS..., { schema }) → DTO đúng như BE
-│   │   └── <x>Service.ts    Gọi repository, đổi DTO → model (mapPage cho trang phân trang)
+│   │   └── <x>Service.ts    `XService`: gọi repository, đổi DTO → model (mapPage cho trang phân trang)
+│   │                        + hook useQuery / useMutation + invalidate (`XService.useList(params)`)
 │   ├── models/              <Name>Model.ts — class nhận DTO, field cùng tên + getter dữ liệu chỉ FE dùng
-│   ├── hooks.ts             useQuery / useMutation (gọi service) + invalidate
 │   ├── pages/               Trang (export default cho lazy route)
 │   └── components/          Drawer / Modal / Tab / bảng riêng của feature
 └── shared/
     ├── api/client.ts        fetch + bearer + refresh single-flight + parse zod; downloadFile
-    ├── api/errors.ts        ApiError, errorMessage (mã lỗi → tiếng Việt)
+    ├── api/errors.ts        ApiError, errorMessage (message API theo Accept-Language, ghi đè theo mã nếu cần)
     ├── api/queryKeys.ts     qk.* — khoá cache TanStack Query
     ├── api/pagination.ts    mapPage(page, fn) — đổi item của trang DTO → model
     ├── hooks/               useTableQuery (bảng ↔ URL), useDebouncedValue, useDelayedLoading (chống nháy),
@@ -139,8 +139,10 @@ nút `ThemeSwitch` ở góc phải header. Biểu đồ Recharts lấy màu qua 
 2. `src/features/<feature>/api/<feature>Repository.ts`: khai báo endpoint `request(ENDPOINTS.x, { schema })` (trả
    DTO); `models/<Name>Model.ts`: class nhận DTO + getter dữ liệu chỉ FE dùng; `api/<feature>Service.ts`: gọi
    repository, đổi DTO → model.
-3. `src/features/<feature>/hooks.ts`: `useQuery({ queryKey: qk.<feature>.list(params), queryFn: () => xService.list(params) })`; thêm khoá vào
-   `shared/api/queryKeys.ts`; mutation `onSuccess` invalidate theo prefix.
+3. Hook trong cùng object service: `XService = { ...api, useList: (params) => useQuery({ queryKey:
+   qk.<feature>.list(params), queryFn: () => api.list(params) }) }` (tên object PascalCase để ESLint kiểm tra luật
+   hook); thêm khoá vào `shared/api/queryKeys.ts`; mutation `onSuccess` invalidate theo prefix. Component gọi thẳng
+   `XService.useList(params)`.
 4. Trang trong `pages/<Name>Page.tsx` (`export default`), đăng ký ở `app/router.tsx` (bọc `adminOnly` nếu cần),
    thêm đường dẫn vào `app/routes.ts`, mục menu vào `app/layout/menu.ts`.
 5. Chuỗi hiển thị thêm vào **cả** `shared/i18n/vi.ts` và `en.ts`.

@@ -1,19 +1,14 @@
 import { Card, Col, Flex, Row, Segmented, Tabs, Typography } from 'antd';
 import { GAME_IDS, type Bucket } from '@phonics/contracts';
 import { useState } from 'react';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
-import { useClassOptions } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import { ClassGamesTable } from '@/features/dashboard/components/ClassGamesTable';
 import { OverviewCards } from '@/features/dashboard/components/OverviewCards';
 import { PointsTimelineChart } from '@/features/dashboard/components/PointsTimelineChart';
 import { TopStudentsChart } from '@/features/dashboard/components/TopStudentsChart';
-import {
-  useClassGameStats,
-  useClassTimeline,
-  useClassTopStudents,
-  useOverviewStats,
-} from '@/features/dashboard/hooks';
+import { StatsService } from '@/features/dashboard/api/statsService';
 import { GameTimelineChart } from '@/features/games/components/GameTimelineChart';
 import { DashboardWorksheetCards } from '@/features/worksheet-stats/components/DashboardWorksheetCards';
 import { t } from '@/shared/i18n';
@@ -25,8 +20,8 @@ import { formatDateTime } from '@/shared/utils/format';
 
 export function DashboardPage() {
   const auth = useAuth();
-  const overview = useOverviewStats();
-  const classes = useClassOptions();
+  const overview = StatsService.useOverview();
+  const classes = ClassesService.useOptions();
   const [selectedClassId, setClassId] = useState<string>();
   const [range, setRange] = useState<RangeValue>({ range: 'month' });
   const [bucket, setBucket] = useState<Bucket>('day');
@@ -34,9 +29,9 @@ export function DashboardPage() {
   const classId = selectedClassId ?? classes.data?.[0]?.id;
 
   const rp = rangeParams(range);
-  const timeline = useClassTimeline(classId, { ...rp, bucket });
-  const top = useClassTopStudents(classId, { ...rp, limit: 10 });
-  const games = useClassGameStats(classId, rp);
+  const timeline = StatsService.useClassTimeline(classId, { ...rp, bucket });
+  const top = StatsService.useClassTopStudents(classId, { ...rp, limit: 10 });
+  const games = StatsService.useClassGames(classId, rp);
 
   return (
     <>

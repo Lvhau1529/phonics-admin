@@ -1,9 +1,9 @@
 import { App, Button, Flex, Typography, theme } from 'antd';
 import { useState } from 'react';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { CommentComposer } from '@/features/comments/components/CommentComposer';
 import { CommentItem } from '@/features/comments/components/CommentItem';
-import { useCreateComment, useDeleteComment, useUpdateComment } from '@/features/comments/hooks';
+import { CommentsService } from '@/features/comments/api/commentsService';
 import type { CommentModel } from '@/features/comments/models/CommentModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -30,9 +30,9 @@ export function CommentThread({
   const { token } = theme.useToken();
   const { message } = App.useApp();
   const auth = useAuth();
-  const create = useCreateComment(submissionId);
-  const update = useUpdateComment(submissionId);
-  const remove = useDeleteComment(submissionId);
+  const create = CommentsService.useCreate(submissionId);
+  const update = CommentsService.useUpdate(submissionId);
+  const remove = CommentsService.useRemove(submissionId);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [composing, setComposing] = useState(!compact);
 

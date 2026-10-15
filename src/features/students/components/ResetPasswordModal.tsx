@@ -2,7 +2,7 @@ import { App, Form, Input, Modal } from 'antd';
 import { Password, ResetPasswordBody } from '@phonics/contracts';
 import type { StudentModel } from '@/features/students/models/StudentModel';
 import { useEffect } from 'react';
-import { useResetPassword } from '@/features/students/hooks';
+import { StudentsService } from '@/features/students/api/studentsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { applyFieldErrors, applyServerErrors, parseForm, zodRule } from '@/shared/utils/zodForm';
@@ -20,7 +20,7 @@ interface ResetPasswordModalProps {
 export function ResetPasswordModal({ student, onClose }: ResetPasswordModalProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<ResetPasswordValues>();
-  const reset = useResetPassword();
+  const reset = StudentsService.useResetPassword();
 
   useEffect(() => {
     if (student) form.resetFields();

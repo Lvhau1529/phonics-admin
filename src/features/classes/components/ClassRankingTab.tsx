@@ -2,7 +2,7 @@ import { Flex } from 'antd';
 import type { GameId } from '@phonics/contracts';
 import { useState } from 'react';
 import { RankingTable } from '@/features/classes/components/RankingTable';
-import { useClassRanking } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import { GameSelect } from '@/features/games/components/GameSelect';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { RangePicker } from '@/shared/ui/RangePicker';
@@ -16,7 +16,7 @@ interface ClassRankingTabProps {
 export function ClassRankingTab({ classId }: ClassRankingTabProps) {
   const [range, setRange] = useState<RangeValue>(DEFAULT_RANGE);
   const [gameId, setGameId] = useState<GameId>();
-  const ranking = useClassRanking(classId, { ...rangeParams(range), gameId });
+  const ranking = ClassesService.useRanking(classId, { ...rangeParams(range), gameId });
 
   return (
     <>

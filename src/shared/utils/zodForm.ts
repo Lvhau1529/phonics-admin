@@ -3,12 +3,14 @@
  *  - `zodRule(schema)`: rule validate một field bằng schema của field đó (vd `zodRule(Email)`);
  *  - `parseForm(schema, values)`: gate toàn bộ body trước khi gọi API, lỗi theo field;
  *  - `applyServerErrors(form, error)`: lỗi `details` của API → `form.setFields`.
+ * Message của issue qua `issueMessage` (khoá contracts → câu theo ngôn ngữ giao diện, ADR 0025).
  */
 import type { FormInstance } from 'antd';
 import type { Rule } from 'antd/es/form';
 import type { z, ZodType } from 'zod';
 import { isApiError } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
+import { issueMessage } from '@/shared/i18n/zodLocale';
 
 export type FieldErrors = Record<string, string[]>;
 
@@ -26,7 +28,9 @@ export function zodRule(schema: ZodType, options: { allowEmpty?: boolean } = {})
       if (allowEmpty && isBlank(value)) return Promise.resolve();
       const result = schema.safeParse(value);
       if (result.success) return Promise.resolve();
-      return Promise.reject(new Error(result.error.issues[0]?.message ?? t.common.invalidValue));
+      return Promise.reject(
+        new Error(result.error.issues[0] ? issueMessage(result.error.issues[0]) : t.common.invalidValue),
+      );
     },
   };
 }
@@ -38,10 +42,10 @@ export function groupIssues(error: z.ZodError): { fieldErrors: FieldErrors; form
   for (const issue of error.issues) {
     const path = issue.path.map(String).join('.');
     if (!path) {
-      formErrors.push(issue.message);
+      formErrors.push(issueMessage(issue));
       continue;
     }
-    (fieldErrors[path] ??= []).push(issue.message);
+    (fieldErrors[path] ??= []).push(issueMessage(issue));
   }
   return { fieldErrors, formErrors };
 }

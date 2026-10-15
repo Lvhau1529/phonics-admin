@@ -1,6 +1,6 @@
 import { Select, type SelectProps } from 'antd';
 import { useState } from 'react';
-import { useTeacherOptions } from '@/features/teachers/hooks';
+import { TeachersService } from '@/features/teachers/api/teachersService';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { t } from '@/shared/i18n';
 
@@ -13,7 +13,7 @@ type TeacherSelectProps = Omit<SelectProps<string | string[]>, 'options' | 'load
 export function TeacherSelect({ remoteSearch = false, ...props }: TeacherSelectProps) {
   const [search, setSearch] = useState('');
   const q = useDebouncedValue(remoteSearch ? search : '', 300);
-  const { data, isLoading } = useTeacherOptions(q);
+  const { data, isLoading } = TeachersService.useOptions(q);
   const options = (data ?? []).map((tc) => ({ value: tc.id, label: tc.optionLabel }));
   return (
     <Select

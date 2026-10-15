@@ -1,7 +1,7 @@
 import { Flex, Select } from 'antd';
 import { PointKind, type GameId } from '@phonics/contracts';
 import { useState } from 'react';
-import { useClassPoints } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import { GameSelect } from '@/features/games/components/GameSelect';
 import { PointsTable } from '@/features/points/components/PointsTable';
 import { StudentSelect } from '@/features/students/components/StudentSelect';
@@ -24,7 +24,7 @@ export function ClassPointsTab({ classId, withStudentFilter = false }: ClassPoin
     defaultSort: 'createdAt:desc',
   });
   const [range, setRange] = useState<RangeValue>(DEFAULT_RANGE);
-  const list = useClassPoints(classId, { ...table.params, ...rangeParams(range) });
+  const list = ClassesService.usePoints(classId, { ...table.params, ...rangeParams(range) });
 
   return (
     <>

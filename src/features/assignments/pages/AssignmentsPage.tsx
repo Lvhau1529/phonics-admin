@@ -6,8 +6,8 @@ import { useSearchParams } from 'react-router';
 import { AssignWorksheetModal } from '@/features/assignments/components/AssignWorksheetModal';
 import { AssignmentsCalendar } from '@/features/assignments/components/AssignmentsCalendar';
 import { AssignmentsTable } from '@/features/assignments/components/AssignmentsTable';
-import { useAssignmentsList } from '@/features/assignments/hooks';
-import { useAuth } from '@/features/auth/hooks';
+import { AssignmentsService } from '@/features/assignments/api/assignmentsService';
+import { useAuth } from '@/features/auth/authStore';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
 import { t } from '@/shared/i18n';
@@ -82,7 +82,7 @@ function AssignmentsListView() {
     defaultSort: 'scheduledFor:desc',
   });
   const [range, setRange] = useState<RangeValue>(DEFAULT_RANGE);
-  const list = useAssignmentsList({ ...table.params, ...rangeParams(range) });
+  const list = AssignmentsService.useList({ ...table.params, ...rangeParams(range) });
   return (
     <>
       <Flex gap={8} wrap style={{ marginBottom: 12 }}>

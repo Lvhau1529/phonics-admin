@@ -4,9 +4,9 @@ import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/features/auth/authStore';
 import { GameFormDrawer } from '@/features/games/components/GameFormDrawer';
-import { useAdminGames } from '@/features/games/hooks';
+import { GamesService } from '@/features/games/api/gamesService';
 import type { GameAdminModel } from '@/features/games/models/GameAdminModel';
 import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
@@ -17,7 +17,7 @@ import { formatDateTime, formatNumber } from '@/shared/utils/format';
 export function GamesPage() {
   const auth = useAuth();
   const navigate = useNavigate();
-  const games = useAdminGames();
+  const games = GamesService.useAdminList();
   const [editing, setEditing] = useState<GameAdminModel>();
   const canManage = auth.can('games.manage');
 

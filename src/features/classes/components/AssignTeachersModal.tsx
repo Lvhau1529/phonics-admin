@@ -1,7 +1,7 @@
 import { App, Modal } from 'antd';
 import { SetClassTeachersBody } from '@phonics/contracts';
 import { useState } from 'react';
-import { useSetClassTeachers } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import type { ClassModel } from '@/features/classes/models/ClassModel';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
@@ -17,13 +17,13 @@ interface AssignTeachersModalProps {
 export function AssignTeachersModal({ cls, onClose }: AssignTeachersModalProps) {
   const { message } = App.useApp();
   const [teacherIds, setTeacherIds] = useState<string[]>(() => cls?.teacherIds ?? []);
-  const setTeachers = useSetClassTeachers();
+  const setTeachers = ClassesService.useSetTeachers();
 
   const handleOk = async () => {
     if (!cls) return;
     const parsed = parseForm(SetClassTeachersBody, { teacherIds });
     if (!parsed.success)
-      return void message.error(parsed.fieldErrors.teacherIds?.[0] ?? t.errors.VALIDATION_ERROR);
+      return void message.error(parsed.fieldErrors.teacherIds?.[0] ?? t.common.invalidValue);
     try {
       await setTeachers.mutateAsync({ id: cls.id, body: parsed.data });
       message.success(t.common.updated);

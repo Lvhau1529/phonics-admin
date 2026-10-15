@@ -22,7 +22,8 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 
 ## Kiến trúc
 
-- **Feature folder**: `src/features/<feature>/{api/,models/,hooks.ts,pages/,components/}`. Code dùng chung ở
+- **Feature folder**: `src/features/<feature>/{api/,models/,pages/,components/}` (không còn `hooks.ts`: hook React
+  Query nằm trong service). Code dùng chung ở
   `src/shared`. `shared` không import `features`; `features` import nhau được (vd `ClassSelect` của classes,
   `PointEntryModel` của points).
 - **Alias `@/`** → `src`. Không dùng `../`. Import kiểu: `import { type X }` (inline).
@@ -30,8 +31,11 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 - **Chuỗi UI chỉ ở `src/shared/i18n/`**: thêm vào **cả `vi.ts` và `en.ts`** (en `satisfies Dict` → thiếu khoá là
   lỗi typecheck; test so tập khoá). Dùng `import { t } from '@/shared/i18n'` (Proxy theo ngôn ngữ hiện tại) —
   **không** import thẳng `i18n/vi`, **không** cache `t.xxx` ở cấp module (cột bảng → `buildColumns()` trong
-  component). Không hard-code tiếng Việt / tiếng Anh trong component (trừ tên thương hiệu). Mã lỗi API →
-  `t.errors[code]`; ngày / số → `utils/format.ts` (đọc `t.format.*`). Identifier tiếng Anh, comment tiếng Việt.
+  component). Không hard-code tiếng Việt / tiếng Anh trong component (trừ tên thương hiệu). Lỗi API:
+  `errorMessage(error)` hiện thẳng `message` API trả về — client gửi `Accept-Language` theo `getLang()` nên BE đã
+  dịch đúng ngôn ngữ (ADR 0025); chỉ ghi đè khi thao tác cần câu riêng: `errorMessage(error, { CONFLICT: t.x })`.
+  `t.errors` chỉ chứa câu cho lỗi client tự tạo (`LocalErrorCode`: mạng, upload, file sai…). Ngày / số →
+  `utils/format.ts` (đọc `t.format.*`). Identifier tiếng Anh, comment tiếng Việt.
 
 ## Theme & loading
 
@@ -56,8 +60,16 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
   (zod contracts), trả DTO đúng như BE. Không map / format / logic. Không `fetch` trực tiếp trong feature.
 - **Service** `features/<x>/api/<x>Service.ts`: gọi repository rồi đổi DTO → model (`new XModel(dto)`, trang phân
   trang dùng `mapPage(page, fn)` ở `shared/api/pagination.ts`). Số liệu thống kê / biểu đồ, catalog tĩnh, response
-  xác nhận của mutation thì trả thẳng DTO (ghi chú ngắn). Hook / store / component **chỉ gọi service** (query /
-  mutation qua `hooks.ts`), không gọi repository.
+  xác nhận của mutation thì trả thẳng DTO (ghi chú ngắn). Store / component **chỉ gọi service**, không gọi
+  repository.
+- **Service gồm cả hook**: hàm gọi API thuần nằm trong `const api = {...}` nội bộ; export
+  `export const XService = { ...api, useList: ..., useCreate() {...} }` — component gọi thẳng
+  `XService.useList(params)` / `XService.useCreate()`, code ngoài React (store, nút xuất file) gọi `XService.list(...)`.
+  Tên object **PascalCase** (`ClassesService`, không phải `classesService`) — ESLint rules-of-hooks chỉ kiểm tra
+  `Obj.useX()` khi `Obj` PascalCase. Tên hook = `use` + tên hàm service (`detail` → `useDetail`, `remove` →
+  `useRemove`); query cho ô chọn là `useOptions`. Hook bên trong gọi `api.x` (không gọi `XService.x` — tránh lỗi
+  kiểu tự tham chiếu). Helper invalidate (`useInvalidateX`) là hàm nội bộ của file service.
+- Phiên đăng nhập: `useAuth` / `useCan` ở `features/auth/authStore.ts` (store, không phải service).
 - **Model** `features/<x>/models/<Name>Model.ts`: class, `constructor(data: Dto)` gán từng field `readonly` **cùng
   tên với DTO** (bảng sort server / `dataIndex` / form vẫn dùng tên field), thêm **getter** cho dữ liệu chỉ FE dùng
   (nhãn, text đã format theo `t`, cờ boolean...) — vd `ClassModel.label`, `StudentModel.lastLoginText`,
@@ -76,6 +88,9 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 
 - antd `Form` + rule `zodRule(schemaField)` cho từng ô; trước khi gọi API luôn `parseForm(BodySchema, values)`
   (gate bằng schema contracts, lỗi → `applyFieldErrors`). API trả 400 `details` → `applyServerErrors(form, error)`.
+- Message của issue zod luôn qua `issueMessage(issue)` (`shared/i18n/zodLocale.ts`: khoá contracts → câu theo
+  `getLang()`), không đọc thẳng `issue.message`; message mặc định của zod theo ngôn ngữ nhờ `configureZodLocale()`
+  (`main.tsx`, setup test). Cần contracts ≥ 1.3.0.
 - PATCH partial: `diffValues(original, next)` rồi parse (schema có refine "cần ít nhất một trường").
 - Chuỗi rỗng từ Input → `stripEmpty(values)` để thành `undefined` (schema `.optional()` không nhận `''`).
 
@@ -86,8 +101,8 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 - Nút cần quyền: `useAuth().can('points.award')` → ẩn hoặc `disabled` + `Tooltip` giải thích. ADMIN luôn pass.
   Danh sách quyền: `PERMISSIONS` trong contracts (trang Phân quyền tự hiện quyền mới) — thêm quyền thì thêm nhãn
   `permissionLabel` + `permissionDescription` ở cả hai từ điển.
-- Nhóm quyền (`features/permissions`): `permissionsService.groups / createGroup / updateGroup / deleteGroup /
-  setUserGroups` (→ `PermissionGroupModel`, `UserPermissionsModel` có `sourceOf` / `overrideOf` / `has`), khoá
+- Nhóm quyền (`features/permissions`): `PermissionsService.groups / createGroup / updateGroup / deleteGroup /
+  setUserGroups` (hook `useGroups` / `useCreateGroup` / ...; → `PermissionGroupModel`, `UserPermissionsModel` có `sourceOf` / `overrideOf` / `has`), khoá
   `qk.permissions.groups` / `qk.permissions.users`; mutation nhóm invalidate cả ma trận user.
   Form chọn nhóm dùng `PermissionGroupSelect`; checklist quyền theo khu vực dùng `PermissionChecklist`.
 - Giáo viên chỉ thấy lớp mình: server lọc; client không lọc thêm.
@@ -97,7 +112,7 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 1. Contracts có schema + `ENDPOINTS`? Chưa có → thêm ở phonics-api (`packages/contracts`), phát hành bản mới (hoặc
    làm trong phonics-dev), `pnpm up @phonics/contracts`, rồi mới dùng.
 2. `features/<x>/api/<x>Repository.ts` (endpoint + schema) → `models/<Name>Model.ts` (getter FE) →
-   `api/<x>Service.ts` (DTO → model) → `features/<x>/hooks.ts` (+ khoá ở `queryKeys.ts`).
+   `api/<x>Service.ts` (DTO → model + hook `useX` trong cùng object `XService`; khoá ở `queryKeys.ts`).
 3. `pages/XPage.tsx` export **default** (lazy route) + named; đăng ký `app/router.tsx`, `app/routes.ts`, menu.
 4. Chuỗi → `i18n/vi.ts` **và** `i18n/en.ts`. Quyền → `can()`. Test hook / util / getter của model nếu có logic
    (Vitest + jsdom, file `*.test.ts(x)`).
@@ -105,5 +120,6 @@ xem `vite.config.ts` của game / admin) — sửa contracts thấy ngay, không
 
 ## Không làm
 
-- Không thêm thư viện i18n / state manager / CSS framework. Không dùng `any`. Không hiện message thô của server.
+- Không thêm thư viện i18n / state manager / CSS framework. Không dùng `any`. Thông báo lỗi luôn qua `errorMessage`, không
+  tự đọc `error.message`.
 - Không start / stop dev server của phiên chat khác; không `git push` khi người dùng chưa yêu cầu.

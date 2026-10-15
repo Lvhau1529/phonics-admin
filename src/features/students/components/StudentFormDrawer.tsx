@@ -8,8 +8,8 @@ import {
   type AvatarKey,
 } from '@phonics/contracts';
 import { useEffect } from 'react';
-import { useAuth } from '@/features/auth/hooks';
-import { useUpdateStudent } from '@/features/students/hooks';
+import { useAuth } from '@/features/auth/authStore';
+import { StudentsService } from '@/features/students/api/studentsService';
 import type { StudentDetailModel } from '@/features/students/models/StudentDetailModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -56,7 +56,7 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
   const { message } = App.useApp();
   const auth = useAuth();
   const [form] = Form.useForm<StudentFormValues>();
-  const update = useUpdateStudent();
+  const update = StudentsService.useUpdate();
   const full = auth.isAdmin;
 
   useEffect(() => {

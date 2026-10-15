@@ -1,7 +1,8 @@
 /**
- * Service xác thực / hồ sơ: gọi `authRepository` rồi đổi `user` trong response → `UserModel`.
- * authStore, hook và trang chỉ gọi service.
+ * Service xác thực / hồ sơ: gọi `authRepository` rồi đổi `user` trong response → `UserModel`, kèm hook sửa hồ sơ /
+ * đổi mật khẩu. authStore và trang chỉ gọi service. Phiên đăng nhập (`useAuth`, `useCan`) nằm ở authStore.
  */
+import { useMutation } from '@tanstack/react-query';
 import type {
   ChangePasswordBody,
   LoginBody,
@@ -10,6 +11,8 @@ import type {
   UpdateProfileBody,
 } from '@phonics/contracts';
 import { authRepository } from '@/features/auth/api/authRepository';
+// authStore cũng import service này: vòng import an toàn vì hai bên chỉ dùng nhau bên trong hàm
+import { setCurrentUser } from '@/features/auth/authStore';
 import { UserModel } from '@/features/auth/models/UserModel';
 
 export interface LoginResult {
@@ -24,7 +27,7 @@ export interface CurrentUser {
   permissions: Permission[];
 }
 
-export const authService = {
+const api = {
   login: async (body: LoginBody): Promise<LoginResult> => {
     const auth = await authRepository.login(body);
     return {
@@ -40,4 +43,18 @@ export const authService = {
   },
   changePassword: (body: ChangePasswordBody) => authRepository.changePassword(body),
   updateProfile: async (body: UpdateProfileBody) => new UserModel(await authRepository.updateProfile(body)),
+};
+
+export const AuthService = {
+  ...api,
+
+  /** Sửa hồ sơ của chính mình; xong thì cập nhật user trong authStore */
+  useUpdateProfile: () =>
+    useMutation({
+      mutationFn: (body: UpdateProfileBody) => api.updateProfile(body),
+      onSuccess: setCurrentUser,
+    }),
+
+  useChangePassword: () =>
+    useMutation({ mutationFn: (body: ChangePasswordBody) => api.changePassword(body) }),
 };

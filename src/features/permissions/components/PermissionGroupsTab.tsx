@@ -4,7 +4,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { Permission } from '@phonics/contracts';
 import { useState } from 'react';
 import { PermissionGroupDrawer } from '@/features/permissions/components/PermissionGroupDrawer';
-import { useDeletePermissionGroup, usePermissionGroups } from '@/features/permissions/hooks';
+import { PermissionsService } from '@/features/permissions/api/permissionsService';
 import type { PermissionGroupModel } from '@/features/permissions/models/PermissionGroupModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -15,8 +15,8 @@ import { formatDateTime } from '@/shared/utils/format';
 /** Tab Nhóm quyền: bảng nhóm (tên, mô tả, quyền, thành viên, hệ thống) + tạo / sửa / xoá */
 export function PermissionGroupsTab() {
   const { message } = App.useApp();
-  const groups = usePermissionGroups();
-  const remove = useDeletePermissionGroup();
+  const groups = PermissionsService.useGroups();
+  const remove = PermissionsService.useDeleteGroup();
   const [drawer, setDrawer] = useState<{ open: boolean; group?: PermissionGroupModel }>({ open: false });
 
   const handleDelete = async (group: PermissionGroupModel) => {

@@ -1,5 +1,5 @@
 import { Select, type SelectProps } from 'antd';
-import { useClassOptions } from '@/features/classes/hooks';
+import { ClassesService } from '@/features/classes/api/classesService';
 import { t } from '@/shared/i18n';
 
 type ClassSelectProps<V extends string | string[]> = Omit<SelectProps<V>, 'options' | 'loading'> & {
@@ -15,7 +15,7 @@ export function ClassSelect<V extends string | string[] = string>({
   excludeId,
   ...props
 }: ClassSelectProps<V>) {
-  const { data, isLoading } = useClassOptions(archived);
+  const { data, isLoading } = ClassesService.useOptions(archived);
   const options = (data ?? [])
     .filter((cls) => cls.id !== excludeId)
     .map((cls) => ({ value: cls.id, label: cls.label }));

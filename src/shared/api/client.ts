@@ -20,6 +20,7 @@ import {
 import type { ZodType } from 'zod';
 import { ApiError, ClientErrorCode } from '@/shared/api/errors';
 import { API_URL } from '@/shared/config';
+import { getLang, t } from '@/shared/i18n';
 import { type ValueOf } from '@/shared/types';
 import { filenameFromDisposition } from '@/shared/utils/download';
 
@@ -109,18 +110,22 @@ export function refreshSession(): Promise<AuthResponse> {
     const refreshToken = session.refreshToken;
     if (!refreshToken) {
       dropSession();
-      throw new ApiError(401, ErrorCode.enum.UNAUTHORIZED, 'No refresh token');
+      throw new ApiError(401, ErrorCode.enum.UNAUTHORIZED, t.errors.UNAUTHORIZED);
     }
     let response: Response;
     try {
       response = await fetch(buildUrl(ENDPOINTS.auth.refresh), {
         method: HttpMethod.POST,
-        headers: { 'Content-Type': 'application/json', [REFRESH_TRANSPORT_HEADER]: RefreshTransport.enum.body },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept-Language': getLang(),
+          [REFRESH_TRANSPORT_HEADER]: RefreshTransport.enum.body,
+        },
         body: JSON.stringify({ refreshToken }),
       });
-    } catch (error) {
+    } catch {
       // Mất mạng: giữ nguyên phiên để thử lại sau, không đăng xuất
-      throw new ApiError(0, ClientErrorCode.NETWORK, error instanceof Error ? error.message : 'Network error');
+      throw new ApiError(0, ClientErrorCode.NETWORK, t.errors.NETWORK);
     }
     if (!response.ok) {
       const apiError = await ApiError.fromResponse(response);
@@ -130,7 +135,7 @@ export function refreshSession(): Promise<AuthResponse> {
     const parsed = AuthResponse.safeParse(await response.json());
     if (!parsed.success) {
       dropSession();
-      throw new ApiError(response.status, ClientErrorCode.BAD_RESPONSE, 'Invalid refresh response');
+      throw new ApiError(response.status, ClientErrorCode.BAD_RESPONSE, t.errors.BAD_RESPONSE);
     }
     const auth = parsed.data;
     // LUÔN lưu refresh token xoay vòng (token cũ bị thu hồi ngay sau khi dùng)
@@ -146,7 +151,8 @@ export function refreshSession(): Promise<AuthResponse> {
 /** Gửi request có gắn bearer; 401 thì refresh rồi gửi lại một lần */
 async function send<T>(path: string, options: RequestOptions<T>, retried = false): Promise<Response> {
   const auth = options.auth !== false;
-  const headers = new Headers();
+  // Message lỗi của API theo ngôn ngữ giao diện (ADR 0025) — hiện thẳng, không dịch lại theo mã
+  const headers = new Headers({ 'Accept-Language': getLang() });
   if (options.body !== undefined) headers.set('Content-Type', 'application/json');
   if (path.startsWith('/auth/')) headers.set(REFRESH_TRANSPORT_HEADER, RefreshTransport.enum.body);
   if (auth) {
@@ -165,7 +171,7 @@ async function send<T>(path: string, options: RequestOptions<T>, retried = false
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw error;
-    throw new ApiError(0, ClientErrorCode.NETWORK, error instanceof Error ? error.message : 'Network error');
+    throw new ApiError(0, ClientErrorCode.NETWORK, t.errors.NETWORK);
   }
 
   if (response.status === 401 && auth) {
@@ -191,13 +197,13 @@ export async function request<T = unknown>(path: string, options: RequestOptions
   try {
     data = JSON.parse(text);
   } catch {
-    throw new ApiError(response.status, ClientErrorCode.BAD_RESPONSE, 'Response is not JSON');
+    throw new ApiError(response.status, ClientErrorCode.BAD_RESPONSE, t.errors.BAD_RESPONSE);
   }
   if (!options.schema) return data as T;
   const parsed = options.schema.safeParse(data);
   if (!parsed.success) {
     console.error('[api] response lệch contract', path, parsed.error.issues);
-    throw new ApiError(response.status, ClientErrorCode.BAD_RESPONSE, 'Response does not match contract');
+    throw new ApiError(response.status, ClientErrorCode.BAD_RESPONSE, t.errors.BAD_RESPONSE);
   }
   return parsed.data;
 }

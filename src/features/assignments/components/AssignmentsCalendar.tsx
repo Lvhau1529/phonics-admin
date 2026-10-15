@@ -2,7 +2,7 @@ import { Badge, Calendar, Flex, Typography, theme } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
 import { AssignmentDayDrawer } from '@/features/assignments/components/AssignmentDayDrawer';
-import { useAssignmentsCalendar } from '@/features/assignments/hooks';
+import { AssignmentsService } from '@/features/assignments/api/assignmentsService';
 import type { AssignmentModel } from '@/features/assignments/models/AssignmentModel';
 import { t } from '@/shared/i18n';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
@@ -19,7 +19,7 @@ export function AssignmentsCalendar({ classId }: { classId?: string }) {
   // Lấy rộng ±7 ngày để các ô tháng trước / sau trên lưới cũng có dữ liệu
   const from = toIsoDate(month.startOf('month').subtract(7, 'day'));
   const to = toIsoDate(month.endOf('month').add(7, 'day'));
-  const query = useAssignmentsCalendar(from, to, classId);
+  const query = AssignmentsService.useCalendar(from, to, classId);
 
   const byDate = useMemo(() => {
     const map = new Map<string, AssignmentModel[]>();

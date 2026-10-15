@@ -1,7 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { AuthStatus } from '@/features/auth/authStore';
-import { useAuth } from '@/features/auth/hooks';
+import { AuthStatus, useAuth } from '@/features/auth/authStore';
 import { t } from '@/shared/i18n';
 import { FullscreenLoader } from '@/shared/ui/Loading';
 
