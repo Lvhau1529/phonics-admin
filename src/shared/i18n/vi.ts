@@ -180,6 +180,8 @@ export const vi = {
     'bread-catcher': 'Bread Catcher',
     'food-stream': 'Food Stream',
     'phonics-ocean': 'Phonics Ocean',
+    'odd-one-out': 'Odd One Out',
+    'english-explorers': 'Little English Explorers',
   } satisfies Record<GameId, string>,
 
   unlockSource: {
