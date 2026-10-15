@@ -1,4 +1,11 @@
-import { Role, type AuthProvider, type AvatarKey, type StudentClassRef, type User, type UserStatus } from '@phonics/contracts';
+import {
+  Role,
+  type AuthProvider,
+  type AvatarKey,
+  type StudentClassRef,
+  type User,
+  type UserStatus,
+} from '@phonics/contracts';
 import { t } from '@/shared/i18n';
 
 /** Người dùng đang đăng nhập (từ `User` của BE) + dữ liệu chỉ phía FE dùng */

@@ -25,6 +25,7 @@ jobs:
           PNPM_CONFIG_NPMRC_AUTH_FILE: .npmrc.auth
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm lint
+      - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build

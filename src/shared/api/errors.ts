@@ -3,7 +3,11 @@ import { t } from '@/shared/i18n';
 import { type ValueOf } from '@/shared/types';
 
 /** Mã lỗi riêng của client: không tới được server / response sai định dạng / upload thẳng lên storage lỗi */
-export const ClientErrorCode = { NETWORK: 'NETWORK', BAD_RESPONSE: 'BAD_RESPONSE', UPLOAD: 'UPLOAD' } as const;
+export const ClientErrorCode = {
+  NETWORK: 'NETWORK',
+  BAD_RESPONSE: 'BAD_RESPONSE',
+  UPLOAD: 'UPLOAD',
+} as const;
 export type ClientErrorCode = ValueOf<typeof ClientErrorCode>;
 
 /** Mã lỗi của API + mã lỗi riêng của client */

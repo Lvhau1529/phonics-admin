@@ -102,7 +102,8 @@ export function DataTable<T extends { id: string }>({
       else onSortChange(undefined);
       return;
     }
-    if (extra.action === AntTableAction.PAGINATE) onPageChange(pagination.current ?? 1, pagination.pageSize ?? pageSize);
+    if (extra.action === AntTableAction.PAGINATE)
+      onPageChange(pagination.current ?? 1, pagination.pageSize ?? pageSize);
   };
 
   return (

@@ -43,7 +43,15 @@ export const classesRepository = {
   bonus: (id: string, body: AwardBonusBody) =>
     request(ENDPOINTS.classes.bonus(id), { method: HttpMethod.POST, body, schema: AwardBonusResponse }),
   bonusBatch: (id: string, body: AwardBonusBatchBody) =>
-    request(ENDPOINTS.classes.bonusBatch(id), { method: HttpMethod.POST, body, schema: AwardBonusBatchResponse }),
+    request(ENDPOINTS.classes.bonusBatch(id), {
+      method: HttpMethod.POST,
+      body,
+      schema: AwardBonusBatchResponse,
+    }),
   unlockGame: (id: string, gameId: string, body: UnlockClassBody) =>
-    request(ENDPOINTS.classes.unlockGame(id, gameId), { method: HttpMethod.POST, body, schema: UnlockClassResponse }),
+    request(ENDPOINTS.classes.unlockGame(id, gameId), {
+      method: HttpMethod.POST,
+      body,
+      schema: UnlockClassResponse,
+    }),
 };

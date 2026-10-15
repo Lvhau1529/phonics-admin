@@ -20,7 +20,8 @@ export const authRepository = {
     request(ENDPOINTS.auth.login, { method: HttpMethod.POST, body, schema: AuthResponse, auth: false }),
 
   /** Thu hồi refresh token hiện tại (all = mọi thiết bị) */
-  logout: (body: LogoutBody) => request<void>(ENDPOINTS.auth.logout, { method: HttpMethod.POST, body, auth: false }),
+  logout: (body: LogoutBody) =>
+    request<void>(ENDPOINTS.auth.logout, { method: HttpMethod.POST, body, auth: false }),
 
   /** Người đang đăng nhập + quyền hiệu lực */
   me: () => request(ENDPOINTS.auth.me, { schema: MeResponse }),

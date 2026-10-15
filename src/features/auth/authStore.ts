@@ -23,7 +23,11 @@ import { AUTH_STORAGE_KEY } from '@/shared/config';
 import { t } from '@/shared/i18n';
 import { type ValueOf } from '@/shared/types';
 
-export const AuthStatus = { LOADING: 'loading', ANONYMOUS: 'anonymous', AUTHENTICATED: 'authenticated' } as const;
+export const AuthStatus = {
+  LOADING: 'loading',
+  ANONYMOUS: 'anonymous',
+  AUTHENTICATED: 'authenticated',
+} as const;
 export type AuthStatus = ValueOf<typeof AuthStatus>;
 
 export interface AuthState {

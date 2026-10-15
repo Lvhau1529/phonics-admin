@@ -42,5 +42,6 @@ export const permissionsRepository = {
   updateGroup: (id: string, body: UpdatePermissionGroupBody) =>
     request(ENDPOINTS.admin.permissionGroup(id), { method: HttpMethod.PATCH, body, schema: PermissionGroup }),
   /** 204; nhóm hệ thống → 403 */
-  deleteGroup: (id: string) => request<void>(ENDPOINTS.admin.permissionGroup(id), { method: HttpMethod.DELETE }),
+  deleteGroup: (id: string) =>
+    request<void>(ENDPOINTS.admin.permissionGroup(id), { method: HttpMethod.DELETE }),
 };

@@ -114,7 +114,10 @@ const pinPrimary =
 export function buildTheme(mode: ThemeMode): ThemeConfig {
   const c = THEME_COLORS[mode];
   return {
-    algorithm: [mode === ThemeMode.DARK ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm, pinPrimary(c)],
+    algorithm: [
+      mode === ThemeMode.DARK ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+      pinPrimary(c),
+    ],
     token: {
       colorPrimary: c.primary,
       colorPrimaryHover: c.primaryHover,
