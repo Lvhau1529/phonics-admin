@@ -7,6 +7,12 @@ export const API_URL = trimSlash(import.meta.env.VITE_API_URL ?? 'http://localho
 /** Gốc app game — ảnh avatar preset lấy từ `${GAME_URL}/assets/...` */
 export const GAME_URL = trimSlash(import.meta.env.VITE_GAME_URL ?? 'http://localhost:5173');
 
+/** Màn xem trước câu hỏi / phiếu của app học sinh (nhúng iframe, nội dung gửi qua postMessage) */
+export const GAME_PREVIEW_URL = `${GAME_URL}/#/preview`;
+
+/** Origin app học sinh: chỉ nhận message xem trước từ đây */
+export const GAME_ORIGIN = new URL(GAME_URL).origin;
+
 /** Khoá localStorage lưu phiên đăng nhập `{ user, refreshToken }` */
 export const AUTH_STORAGE_KEY = 'phonics-admin:auth';
 

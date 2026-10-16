@@ -1,5 +1,5 @@
 /** Service câu hỏi: repository → model, kèm hook React Query (`QuestionsService.useList(...)`) */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { CreateQuestionBody, QuestionView, UpdateQuestionBody } from '@phonics/contracts';
 import { questionsRepository } from '@/features/questions/api/questionsRepository';
 import { QuestionModel, QuestionSummaryModel } from '@/features/questions/models/QuestionModel';
@@ -45,6 +45,12 @@ export const QuestionsService = {
       queryKey: qk.questions.detail(id ?? ''),
       queryFn: () => api.detail(id!),
       enabled: !!id,
+    }),
+
+  /** Nhiều câu đầy đủ (vd câu vừa thêm vào phiếu chưa lưu) — chung cache với useDetail */
+  useDetails: (ids: string[]) =>
+    useQueries({
+      queries: ids.map((id) => ({ queryKey: qk.questions.detail(id), queryFn: () => api.detail(id) })),
     }),
 
   useCreate() {

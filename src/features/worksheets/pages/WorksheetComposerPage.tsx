@@ -3,6 +3,7 @@ import {
   CopyOutlined,
   EyeOutlined,
   InboxOutlined,
+  MobileOutlined,
   PrinterOutlined,
   SaveOutlined,
   SendOutlined,
@@ -20,6 +21,7 @@ import { QuestionSummaryModel } from '@/features/questions/models/QuestionModel'
 import { WorksheetMetaForm } from '@/features/worksheets/components/WorksheetMetaForm';
 import { WorksheetSectionsEditor } from '@/features/worksheets/components/WorksheetSectionsEditor';
 import { WorksheetStatusTag } from '@/features/worksheets/components/WorksheetStatusTag';
+import { WorksheetStudentAppDrawer } from '@/features/worksheets/components/WorksheetStudentAppDrawer';
 import {
   composerReducer,
   sectionsFromDetail,
@@ -47,6 +49,7 @@ export function WorksheetComposerPage() {
   const [picker, setPicker] = useState<string | null>(null);
   const [inline, setInline] = useState<string | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [studentAppOpen, setStudentAppOpen] = useState(false);
   const ws = worksheet.data;
   const editable = !ws || ws.canEditBy(auth.user?.id, auth.isAdmin);
 
@@ -134,6 +137,9 @@ export function WorksheetComposerPage() {
                 {t.worksheets.saveStructure}
               </Button>
             )}
+            <Button icon={<MobileOutlined />} onClick={() => setStudentAppOpen(true)}>
+              {t.worksheets.studentApp}
+            </Button>
             <Button icon={<EyeOutlined />} onClick={() => navigate(ROUTES.worksheetPreview(ws.id))}>
               {t.worksheets.preview}
             </Button>
@@ -220,6 +226,13 @@ export function WorksheetComposerPage() {
           }}
         />
       </Drawer>
+      <WorksheetStudentAppDrawer
+        open={studentAppOpen}
+        onClose={() => setStudentAppOpen(false)}
+        worksheet={ws}
+        sections={state.sections}
+        dirty={state.dirty}
+      />
       <AssignWorksheetModal
         open={assignOpen}
         worksheetId={ws.id}
