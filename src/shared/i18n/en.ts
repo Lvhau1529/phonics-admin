@@ -537,7 +537,7 @@ export const en = {
     noRecording: 'No recording yet',
     noTrace: 'No tracing yet',
     imageHint: 'JPG / PNG / WebP, up to 5 MB',
-    audioHint: 'MP3 / M4A / WebM / OGG / WAV, up to 10 MB',
+    audioHint: 'MP3 / M4A / WebM / OGG / WAV, up to 5 MB',
   },
 
   questionType: {

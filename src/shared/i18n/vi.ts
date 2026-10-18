@@ -538,7 +538,7 @@ export const vi = {
     noRecording: 'Học sinh chưa ghi âm',
     noTrace: 'Học sinh chưa tô chữ',
     imageHint: 'JPG / PNG / WebP, tối đa 5 MB',
-    audioHint: 'MP3 / M4A / WebM / OGG / WAV, tối đa 10 MB',
+    audioHint: 'MP3 / M4A / WebM / OGG / WAV, tối đa 5 MB',
   },
 
   questionType: {
