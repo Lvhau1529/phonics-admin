@@ -89,10 +89,10 @@ export function StudentDetailPage() {
         title={
           <Space>
             <AvatarImg avatarKey={s.avatarKey} name={s.displayName} />
-            {s.displayName}
+            {s.fullName}
           </Space>
         }
-        documentTitle={`${t.students.title}: ${s.displayName}`}
+        documentTitle={`${t.students.title}: ${s.fullName}`}
         backTo={ROUTES.students}
         subtitle={s.email}
         extra={

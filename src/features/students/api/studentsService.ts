@@ -60,7 +60,7 @@ export const StudentsService = {
 
   /** Học sinh của một lớp (≤100) cho ô chọn */
   useOptions(classId: string | undefined) {
-    const params: QueryParams = { classId, pageSize: 100, sort: 'displayName:asc' };
+    const params: QueryParams = { classId, pageSize: 100, sort: 'vietnameseName:asc' };
     return useQuery({
       queryKey: qk.students.list(params),
       queryFn: () => api.list(params),

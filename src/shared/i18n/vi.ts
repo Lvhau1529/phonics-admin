@@ -182,6 +182,7 @@ export const vi = {
     'phonics-ocean': 'Phonics Ocean',
     'odd-one-out': 'Odd One Out',
     'english-explorers': 'Little English Explorers',
+    'halloween-candy-quest': 'Halloween Candy Quest',
   } satisfies Record<GameId, string>,
 
   unlockSource: {
@@ -329,6 +330,9 @@ export const vi = {
     parentName: 'Tên phụ huynh',
     parentEmail: 'Email phụ huynh',
     parentPhone: 'SĐT phụ huynh',
+    vietnameseName: 'Họ tên',
+    englishName: 'Tên tiếng Anh',
+    englishNameHint: 'Có thì dùng làm tên hiển thị trong game và bảng xếp hạng',
     notes: 'Ghi chú nội bộ',
     pointsTotal: 'Tổng điểm',
     pointsGame: 'Điểm game',

@@ -1,10 +1,11 @@
 import { App, Button, Divider, Drawer, Flex, Form, Input, Select, Typography } from 'antd';
 import {
-  DisplayName,
+  EnglishName,
   Email,
   ParentContact,
   UpdateStudentBody,
   UserStatus,
+  VietnameseName,
   type AvatarKey,
 } from '@phonics/contracts';
 import { useEffect } from 'react';
@@ -30,7 +31,8 @@ interface ParentValues {
 }
 
 interface StudentFormValues {
-  displayName: string;
+  vietnameseName: string;
+  englishName?: string;
   avatarKey: AvatarKey;
   email?: string;
   status?: UserStatus;
@@ -63,7 +65,8 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
     if (!open) return;
     form.resetFields();
     form.setFieldsValue({
-      displayName: student.displayName,
+      vietnameseName: student.vietnameseName,
+      englishName: student.englishName ?? undefined,
       avatarKey: student.avatarKey,
       email: student.email,
       status: student.status,
@@ -74,9 +77,15 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
 
   const handleFinish = async (raw: StudentFormValues) => {
     const values = stripEmpty({ ...raw, parent: undefined }) as StudentFormValues;
-    const next: Record<string, unknown> = { displayName: values.displayName, avatarKey: values.avatarKey };
+    const next: Record<string, unknown> = {
+      vietnameseName: values.vietnameseName,
+      // Ô trống = xoá tên tiếng Anh (null), không phải "không đổi"
+      englishName: values.englishName ?? null,
+      avatarKey: values.avatarKey,
+    };
     const original: Record<string, unknown> = {
-      displayName: student.displayName,
+      vietnameseName: student.vietnameseName,
+      englishName: student.englishName,
       avatarKey: student.avatarKey,
     };
     if (full) {
@@ -125,9 +134,17 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
       {!full && <Typography.Paragraph type="secondary">{t.students.teacherEditHint}</Typography.Paragraph>}
       <Form<StudentFormValues> form={form} layout="vertical" onFinish={handleFinish}>
         <Form.Item
-          name="displayName"
-          label={t.common.name}
-          rules={[{ required: true, message: t.common.requiredField }, zodRule(DisplayName)]}
+          name="vietnameseName"
+          label={t.students.vietnameseName}
+          rules={[{ required: true, message: t.common.requiredField }, zodRule(VietnameseName)]}
+        >
+          <Input maxLength={30} />
+        </Form.Item>
+        <Form.Item
+          name="englishName"
+          label={t.students.englishName}
+          extra={t.students.englishNameHint}
+          rules={[zodRule(EnglishName)]}
         >
           <Input maxLength={30} />
         </Form.Item>

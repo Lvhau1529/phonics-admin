@@ -22,17 +22,24 @@ interface StudentsTableProps extends Omit<DataTableProps<StudentModel>, 'columns
 export function StudentsTable({ hideClass, renderActions, ...rest }: StudentsTableProps) {
   const columns: ColumnsType<StudentModel> = [
     {
-      title: t.common.name,
-      key: 'displayName',
+      title: t.students.vietnameseName,
+      // Sắp theo tên (từ cuối) rồi họ tên — server
+      key: 'vietnameseName',
       sorter: true,
       render: (_, s) => (
         <Space>
           <AvatarImg avatarKey={s.avatarKey} name={s.displayName} size="small" />
           <Link to={ROUTES.studentDetail(s.id)}>
-            <Typography.Text strong>{s.displayName}</Typography.Text>
+            <Typography.Text strong>{s.vietnameseName}</Typography.Text>
           </Link>
         </Space>
       ),
+    },
+    {
+      title: t.students.englishName,
+      dataIndex: 'englishName',
+      render: (name: string | null) =>
+        name ?? <Typography.Text type="secondary">{t.common.none}</Typography.Text>,
     },
     { title: t.common.email, dataIndex: 'email', key: 'email', sorter: true },
     ...(hideClass

@@ -8,6 +8,8 @@ const dto: StudentDetail = {
   id: 's1',
   email: 'bin@school.vn',
   displayName: 'Bin',
+  vietnameseName: 'Nguyễn Văn Bình',
+  englishName: 'Bin',
   avatarKey: 'tiger',
   status: 'ACTIVE',
   class: {
@@ -28,6 +30,11 @@ const dto: StudentDetail = {
 };
 
 describe('StudentModel', () => {
+  it('fullName: tên tiếng Việt + tên tiếng Anh trong ngoặc khi có', () => {
+    expect(new StudentModel(dto).fullName).toBe('Nguyễn Văn Bình (Bin)');
+    expect(new StudentModel({ ...dto, englishName: null }).fullName).toBe('Nguyễn Văn Bình');
+  });
+
   it('classLabel: null khi chưa vào lớp', () => {
     expect(new StudentModel(dto).classLabel).toBe('K2A · Lớp 2 · 2026-2027');
     expect(new StudentModel({ ...dto, class: null }).classLabel).toBeNull();

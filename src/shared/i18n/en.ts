@@ -180,6 +180,7 @@ export const en = {
     'phonics-ocean': 'Phonics Ocean',
     'odd-one-out': 'Odd One Out',
     'english-explorers': 'Little English Explorers',
+    'halloween-candy-quest': 'Halloween Candy Quest',
   } satisfies Record<GameId, string>,
 
   unlockSource: {
@@ -328,6 +329,9 @@ export const en = {
     parentName: 'Parent name',
     parentEmail: 'Parent email',
     parentPhone: 'Parent phone',
+    vietnameseName: 'Vietnamese name',
+    englishName: 'English name',
+    englishNameHint: 'When set, shown as the name in games and rankings',
     notes: 'Internal notes',
     pointsTotal: 'Total points',
     pointsGame: 'Game points',
