@@ -10,7 +10,10 @@ type StudentSelectProps = Omit<SelectProps<string>, 'options' | 'loading'> & {
 /** Ô chọn học sinh trong một lớp (tìm theo tên / email) */
 export function StudentSelect({ classId, ...props }: StudentSelectProps) {
   const { data, isLoading } = StudentsService.useOptions(classId);
-  const options = (data ?? []).map((s) => ({ value: s.id, label: `${s.fullName} · ${s.email}` }));
+  const options = (data ?? []).map((s) => ({
+    value: s.id,
+    label: s.email ? `${s.fullName} · ${s.email}` : s.fullName,
+  }));
   return (
     <Select<string>
       showSearch

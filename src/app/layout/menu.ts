@@ -1,4 +1,4 @@
-import type { Role } from '@phonics/contracts';
+import type { Permission, Role } from '@phonics/contracts';
 import { ROUTES } from '@/app/routes';
 import type { Dict } from '@/shared/i18n';
 
@@ -20,9 +20,15 @@ export interface MenuEntry {
     | 'report'
     | 'question'
     | 'worksheet'
-    | 'assignment';
+    | 'assignment'
+    | 'approval'
+    | 'guardian';
   /** Không khai báo = mọi role đã đăng nhập (ADMIN / TEACHER) */
   roles?: readonly Role[];
+  /** Cần quyền này (ADMIN luôn qua) — router cũng chặn bằng RequirePermission */
+  permission?: Permission;
+  /** Hiện badge số đơn chờ (AppShell lấy số) */
+  badge?: 'pendingFamilies';
 }
 
 /** Menu trái theo thứ tự hiển thị; lọc theo role ở AppShell (router cũng chặn lại bằng RequireRole) */
@@ -31,6 +37,22 @@ export const MENU: readonly MenuEntry[] = [
   { key: 'teachers', path: ROUTES.teachers, labelKey: 'teachers', icon: 'teacher', roles: ['ADMIN'] },
   { key: 'classes', path: ROUTES.classes, labelKey: 'classes', icon: 'class' },
   { key: 'students', path: ROUTES.students, labelKey: 'students', icon: 'student' },
+  {
+    key: 'families',
+    path: ROUTES.familiesPending,
+    labelKey: 'families',
+    icon: 'approval',
+    permission: 'families.approve',
+    badge: 'pendingFamilies',
+  },
+  {
+    key: 'guardians',
+    path: ROUTES.guardians,
+    labelKey: 'guardians',
+    icon: 'guardian',
+    roles: ['ADMIN'],
+    permission: 'guardians.manage',
+  },
   { key: 'points', path: ROUTES.points, labelKey: 'points', icon: 'points' },
   { key: 'questions', path: ROUTES.questions, labelKey: 'questions', icon: 'question' },
   { key: 'worksheets', path: ROUTES.worksheets, labelKey: 'worksheets', icon: 'worksheet' },
@@ -47,12 +69,16 @@ export const MENU: readonly MenuEntry[] = [
   { key: 'audit', path: ROUTES.audit, labelKey: 'audit', icon: 'audit', roles: ['ADMIN'] },
 ];
 
-export const menuForRole = (role: Role | null): MenuEntry[] =>
-  MENU.filter((entry) => !entry.roles || (role !== null && entry.roles.includes(role)));
+export const menuFor = (role: Role | null, can: (permission: Permission) => boolean): MenuEntry[] =>
+  MENU.filter(
+    (entry) =>
+      (!entry.roles || (role !== null && entry.roles.includes(role))) &&
+      (!entry.permission || can(entry.permission)),
+  );
 
 /** Key menu đang chọn theo pathname (`/classes/abc` → classes) */
 export function activeMenuKey(pathname: string): string | undefined {
   if (pathname === '/') return 'dashboard';
   const first = `/${pathname.split('/')[1]}`;
-  return MENU.find((entry) => entry.path === first)?.key;
+  return MENU.find((entry) => entry.path === first || entry.path.startsWith(`${first}/`))?.key;
 }

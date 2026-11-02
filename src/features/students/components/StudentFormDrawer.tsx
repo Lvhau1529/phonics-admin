@@ -4,8 +4,8 @@ import {
   Email,
   ParentContact,
   UpdateStudentBody,
-  UserStatus,
   VietnameseName,
+  type UserStatus,
   type AvatarKey,
 } from '@phonics/contracts';
 import { useEffect } from 'react';
@@ -15,6 +15,7 @@ import type { StudentDetailModel } from '@/features/students/models/StudentDetai
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarSelect } from '@/shared/ui/AvatarSelect';
+import { EDITABLE_STATUSES, isEditableStatus } from '@/shared/utils/status';
 import {
   applyFieldErrors,
   applyServerErrors,
@@ -68,7 +69,7 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
       vietnameseName: student.vietnameseName,
       englishName: student.englishName ?? undefined,
       avatarKey: student.avatarKey,
-      email: student.email,
+      email: student.email ?? undefined,
       status: student.status,
       parent: student.parent ?? {},
       notes: student.notes ?? undefined,
@@ -156,12 +157,21 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
             <Form.Item
               name="email"
               label={t.common.email}
-              rules={[{ required: true, message: t.common.requiredField }, zodRule(Email)]}
+              extra={student.isManaged ? t.students.emailManagedHint : undefined}
+              rules={[
+                // Bé vào qua tài khoản phụ huynh: email để trống (nhập = cho bé tự đăng nhập)
+                { required: !student.isManaged, message: t.common.requiredField },
+                zodRule(Email),
+              ]}
             >
               <Input />
             </Form.Item>
             <Form.Item name="status" label={t.common.status}>
-              <Select options={UserStatus.options.map((s) => ({ value: s, label: t.userStatus[s] }))} />
+              <Select
+                // Chờ duyệt / bị từ chối: đổi qua màn Duyệt tài khoản
+                disabled={!isEditableStatus(student.status)}
+                options={EDITABLE_STATUSES.map((s) => ({ value: s, label: t.userStatus[s] }))}
+              />
             </Form.Item>
             <Divider plain>{t.students.parent}</Divider>
             <Form.Item

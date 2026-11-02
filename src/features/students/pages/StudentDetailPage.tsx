@@ -7,6 +7,7 @@ import { ROUTES } from '@/app/routes';
 import { StudentWorksheetsTab } from '@/features/worksheet-stats/components/StudentWorksheetsTab';
 import { useAuth } from '@/features/auth/authStore';
 import { GameSelect } from '@/features/games/components/GameSelect';
+import { StudentGuardiansCard } from '@/features/guardians/components/StudentGuardiansCard';
 import { PointsTable } from '@/features/points/components/PointsTable';
 import { MoveClassModal } from '@/features/students/components/MoveClassModal';
 import { ResetPasswordModal } from '@/features/students/components/ResetPasswordModal';
@@ -94,7 +95,7 @@ export function StudentDetailPage() {
         }
         documentTitle={`${t.students.title}: ${s.fullName}`}
         backTo={ROUTES.students}
-        subtitle={s.email}
+        subtitle={s.email ?? s.loginModeLabel}
         extra={
           <>
             {canEdit && (
@@ -136,7 +137,8 @@ export function StudentDetailPage() {
           </Descriptions.Item>
           <Descriptions.Item label={t.common.lastLogin}>{s.lastLoginText}</Descriptions.Item>
           <Descriptions.Item label={t.common.createdAt}>{formatDateTime(s.createdAt)}</Descriptions.Item>
-          {s.parent && (
+          {/* Có danh sách phụ huynh thì thẻ Phụ huynh bên dưới thay cho dòng liên hệ dạng cũ */}
+          {s.parent && !s.guardians && (
             <Descriptions.Item label={t.students.parent}>
               {s.parentContactText || t.common.none}
             </Descriptions.Item>
@@ -150,6 +152,8 @@ export function StudentDetailPage() {
           )}
         </Descriptions>
       </Card>
+
+      {s.guardians && <StudentGuardiansCard studentId={s.id} guardians={s.guardians} />}
 
       <Tabs
         activeKey={tab}

@@ -1,6 +1,7 @@
 import {
   AuditOutlined,
   BarChartOutlined,
+  CheckSquareOutlined,
   CalendarOutlined,
   DashboardOutlined,
   FileExcelOutlined,
@@ -14,13 +15,15 @@ import {
   TeamOutlined,
   TrophyOutlined,
   UserOutlined,
+  UsergroupAddOutlined,
 } from '@ant-design/icons';
-import { Button, Dropdown, Flex, Grid, Layout, Menu, theme, Typography, type MenuProps } from 'antd';
+import { Badge, Button, Dropdown, Flex, Grid, Layout, Menu, theme, Typography, type MenuProps } from 'antd';
 import { Suspense, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { activeMenuKey, menuForRole, type MenuEntry } from '@/app/layout/menu';
+import { activeMenuKey, menuFor, type MenuEntry } from '@/app/layout/menu';
 import { ROUTES } from '@/app/routes';
 import { signOut, useAuth } from '@/features/auth/authStore';
+import { FamiliesService } from '@/features/families/api/familiesService';
 import { t } from '@/shared/i18n';
 import { THEME_COLORS } from '@/shared/theme/theme';
 import { useThemeMode } from '@/shared/theme/themeStore';
@@ -44,6 +47,8 @@ const ICONS: Record<MenuEntry['icon'], ReactNode> = {
   question: <QuestionCircleOutlined />,
   worksheet: <FileTextOutlined />,
   assignment: <CalendarOutlined />,
+  approval: <CheckSquareOutlined />,
+  guardian: <UsergroupAddOutlined />,
 };
 
 /**
@@ -61,10 +66,26 @@ export function AppShell() {
   const colors = THEME_COLORS[mode];
   const { token } = theme.useToken();
 
-  const items: MenuProps['items'] = menuForRole(auth.role).map((entry) => ({
+  const entries = menuFor(auth.role, auth.can);
+  // Badge số đơn chờ duyệt (chỉ gọi API khi menu có mục Duyệt tài khoản)
+  const pendingCount = FamiliesService.usePendingCount(
+    entries.some((e) => e.badge === 'pendingFamilies'),
+  ).data;
+  const items: MenuProps['items'] = entries.map((entry) => ({
     key: entry.key,
     icon: ICONS[entry.icon],
-    label: <Link to={entry.path}>{t.nav[entry.labelKey]}</Link>,
+    label: (
+      <Link to={entry.path}>
+        {entry.badge === 'pendingFamilies' && pendingCount ? (
+          <Flex align="center" justify="space-between" gap={8}>
+            {t.nav[entry.labelKey]}
+            <Badge count={pendingCount} size="small" />
+          </Flex>
+        ) : (
+          t.nav[entry.labelKey]
+        )}
+      </Link>
+    ),
   }));
   const selected = activeMenuKey(location.pathname);
 

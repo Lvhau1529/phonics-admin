@@ -70,6 +70,16 @@ export const StudentsService = {
     });
   },
 
+  /** Ô tìm học sinh mọi lớp (tìm phía server theo tên / email) */
+  useSearch(q: string) {
+    const params: QueryParams = { q: q || undefined, pageSize: 20, sort: 'vietnameseName:asc' };
+    return useQuery({
+      queryKey: qk.students.list(params),
+      queryFn: () => api.list(params),
+      select: (data) => data.items,
+    });
+  },
+
   useDetail: (id: string | undefined) =>
     useQuery({
       queryKey: qk.students.detail(id ?? ''),

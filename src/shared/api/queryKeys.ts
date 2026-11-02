@@ -43,6 +43,16 @@ export const qk = {
     gameResults: (id: string, params: QueryParams) => ['students', 'detail', id, 'results', params] as const,
     games: (id: string) => ['students', 'detail', id, 'games'] as const,
   },
+  guardians: {
+    all: ['guardians'] as const,
+    list: (params: QueryParams) => ['guardians', 'list', params] as const,
+    detail: (id: string) => ['guardians', 'detail', id] as const,
+  },
+  families: {
+    all: ['families'] as const,
+    pending: ['families', 'pending'] as const,
+    pendingCount: ['families', 'pending', 'count'] as const,
+  },
   games: {
     all: ['games'] as const,
     catalog: ['games', 'catalog'] as const,

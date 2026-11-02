@@ -95,7 +95,7 @@ export function ProfilePage() {
             <Flex align="center" gap={12} style={{ marginBottom: 16 }}>
               <AvatarImg avatarKey={user.avatarKey} name={user.displayName} size={56} />
               <Descriptions size="small" column={1}>
-                <Descriptions.Item label={t.common.email}>{user.email}</Descriptions.Item>
+                <Descriptions.Item label={t.common.email}>{user.email ?? t.common.none}</Descriptions.Item>
                 <Descriptions.Item label={t.common.status}>
                   <RoleTag role={user.role} /> {user.providerLabel}
                 </Descriptions.Item>

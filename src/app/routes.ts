@@ -12,6 +12,8 @@ export const ROUTES = {
   points: '/points',
   permissions: '/permissions',
   audit: '/audit',
+  guardians: '/guardians',
+  familiesPending: '/families/pending',
   reports: '/reports',
   profile: '/profile',
   // Phiếu bài tập

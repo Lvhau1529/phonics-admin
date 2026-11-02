@@ -1,4 +1,4 @@
-import { Space, Typography } from 'antd';
+import { Space, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { UserStatus } from '@phonics/contracts';
 import type { StudentModel } from '@/features/students/models/StudentModel';
@@ -41,7 +41,21 @@ export function StudentsTable({ hideClass, renderActions, ...rest }: StudentsTab
       render: (name: string | null) =>
         name ?? <Typography.Text type="secondary">{t.common.none}</Typography.Text>,
     },
-    { title: t.common.email, dataIndex: 'email', key: 'email', sorter: true },
+    {
+      title: t.common.email,
+      dataIndex: 'email',
+      key: 'email',
+      sorter: true,
+      render: (_: unknown, s: StudentModel) =>
+        s.email ?? <Typography.Text type="secondary">{t.common.none}</Typography.Text>,
+    },
+    {
+      title: t.students.loginMode,
+      dataIndex: 'loginMode',
+      render: (_: unknown, s: StudentModel) => (
+        <Tag color={s.isManaged ? 'gold' : undefined}>{s.loginModeLabel}</Tag>
+      ),
+    },
     ...(hideClass
       ? []
       : [

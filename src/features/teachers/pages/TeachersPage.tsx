@@ -1,7 +1,7 @@
 import { EditOutlined, LockOutlined, PlusOutlined, ReadOutlined, UnlockOutlined } from '@ant-design/icons';
 import { App, Button, Flex, Input, Popconfirm, Select, Space, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { UserStatus } from '@phonics/contracts';
+import type { UserStatus } from '@phonics/contracts';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
@@ -18,6 +18,7 @@ import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { StatusTag } from '@/shared/ui/RoleTag';
+import { EDITABLE_STATUSES } from '@/shared/utils/status';
 import { formatDateTime } from '@/shared/utils/format';
 
 export function TeachersPage() {
@@ -149,7 +150,7 @@ export function TeachersPage() {
             placeholder={t.teachers.filterStatus}
             value={table.filters.status as UserStatus | undefined}
             onChange={(v) => table.setFilter('status', v)}
-            options={UserStatus.options.map((s) => ({ value: s, label: t.userStatus[s] }))}
+            options={EDITABLE_STATUSES.map((s) => ({ value: s, label: t.userStatus[s] }))}
             style={{ width: 150 }}
           />
           <ClassSelect
