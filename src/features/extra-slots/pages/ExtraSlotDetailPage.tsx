@@ -230,8 +230,13 @@ export function ExtraSlotDetailPage() {
         <RecentSessionsCard slotId={slot.id} />
       </Flex>
 
-      <ExtraSlotFormDrawer open={editing} slot={slot} onClose={() => setEditing(false)} />
-      <SlotTeachersModal slot={teachersOf} onClose={() => setTeachersOf(undefined)} />
+      {/* Chỉ người quản lý ca: modal gán GV tải danh sách GV (API admin) ngay khi render */}
+      {manage && (
+        <>
+          <ExtraSlotFormDrawer open={editing} slot={slot} onClose={() => setEditing(false)} />
+          <SlotTeachersModal slot={teachersOf} onClose={() => setTeachersOf(undefined)} />
+        </>
+      )}
       <SlotAssignmentModal action={assigning} onClose={() => setAssigning(undefined)} />
     </>
   );
