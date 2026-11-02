@@ -15,6 +15,7 @@ import type {
   Permission,
   PointKind,
   QuestionType,
+  RateSource,
   Role,
   RosterStatus,
   Subject,
@@ -26,6 +27,9 @@ import type {
 } from '@phonics/contracts';
 import type { LocalErrorCode } from '@/shared/api/errors';
 import type { RangeOption } from '@/shared/utils/range';
+
+/** ISO weekday: 1 = Thứ Hai … 7 = Chủ nhật (contracts `Weekday` là number) */
+export type IsoWeekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export const vi = {
   app: {
@@ -50,6 +54,7 @@ export const vi = {
     assignments: 'Giao bài',
     families: 'Duyệt tài khoản',
     guardians: 'Phụ huynh',
+    extraSlots: 'Ca học thêm',
     signOut: 'Đăng xuất',
   },
 
@@ -147,6 +152,8 @@ export const vi = {
     numberLocale: 'vi-VN',
     /** Dấu thập phân trong formatPercent */
     decimal: ',',
+    /** Mã tiền tệ cho formatMoney */
+    currency: 'VND',
     date: 'DD/MM/YYYY',
     dateTime: 'DD/MM/YYYY HH:mm',
     bucket: 'DD/MM',
@@ -170,6 +177,28 @@ export const vi = {
     OWN: 'Tự đăng nhập',
     MANAGED: 'Qua phụ huynh',
   } satisfies Record<LoginMode, string>,
+
+  weekday: {
+    1: 'Thứ 2',
+    2: 'Thứ 3',
+    3: 'Thứ 4',
+    4: 'Thứ 5',
+    5: 'Thứ 6',
+    6: 'Thứ 7',
+    7: 'Chủ nhật',
+  } satisfies Record<IsoWeekday, string>,
+
+  weekdayShort: { 1: 'T2', 2: 'T3', 3: 'T4', 4: 'T5', 5: 'T6', 6: 'T7', 7: 'CN' } satisfies Record<
+    IsoWeekday,
+    string
+  >,
+
+  rateSource: {
+    STUDENT_SLOT: 'Riêng học sinh ở ca',
+    STUDENT: 'Riêng học sinh',
+    SLOT: 'Mặc định ca',
+    NONE: 'Chưa có giá',
+  } satisfies Record<RateSource, string>,
 
   guardianRelation: {
     MOTHER: 'Mẹ',
@@ -484,6 +513,83 @@ export const vi = {
     duplicateOutOfScope: 'trùng với một gia đình khác — báo admin',
   },
 
+  extraSlots: {
+    title: 'Ca học thêm',
+    add: 'Thêm ca',
+    edit: 'Sửa ca',
+    name: 'Tên ca',
+    namePlaceholder: 'Phonics nâng cao — T3 18:00',
+    weekday: 'Thứ',
+    time: 'Giờ học',
+    startTime: 'Bắt đầu',
+    endTime: 'Kết thúc',
+    room: 'Phòng',
+    capacity: 'Sức chứa',
+    mainClass: 'Lớp chính (tham khảo)',
+    teachers: 'Giáo viên',
+    noTeachers: 'Chưa gán giáo viên',
+    setTeachers: 'Gán giáo viên',
+    archive: 'Lưu trữ',
+    archiveConfirm: 'Lưu trữ ca này? Học sinh đang học sẽ được cho rời ca từ hôm nay.',
+    archived: 'Đã lưu trữ',
+    archivedDone: 'Đã lưu trữ ca',
+    showArchived: 'Hiện ca đã lưu trữ',
+    studentCount: (n: number, capacity: number | null) =>
+      capacity ? `${n} / ${capacity} học sinh` : `${n} học sinh`,
+    noSlots: 'Chưa có ca học thêm',
+    emptyDay: 'Không có ca',
+    defaultPrice: 'Giá mặc định của ca',
+    defaultPriceHint: 'Áp cho học sinh của ca chưa có giá riêng.',
+    noPrice: 'Chưa đặt giá',
+    setPrice: 'Đặt giá',
+    price: 'Đơn giá / buổi',
+    perSession: '/ buổi',
+    effectiveFrom: 'Áp dụng từ',
+    effectiveTo: 'Đến ngày',
+    priceHistory: 'Lịch sử giá',
+    current: 'Đang áp dụng',
+    superseded: 'Đã thay thế',
+    ended: 'Đã dừng',
+    createdBy: 'Người đặt',
+    rateHint:
+      'Giá mới áp dụng từ ngày đã chọn, giá cũ dừng ở ngày đó. Chọn ngày trong quá khứ để sửa giá nhập sai.',
+    priceSaved: 'Đã đặt giá',
+    students: 'Học sinh của ca',
+    studentsOn: 'Học sinh học ngày',
+    addStudent: 'Thêm học sinh vào ca',
+    noStudents: 'Chưa có học sinh',
+    rate: 'Đơn giá áp dụng',
+    backToList: 'Danh sách ca',
+    searchStudent: 'Tìm học sinh theo tên / email',
+  },
+
+  studentExtra: {
+    tab: 'Học thêm',
+    schedule: 'Lịch học thêm',
+    addToSlot: 'Xếp vào ca',
+    slot: 'Ca',
+    selectSlot: 'Chọn ca',
+    from: 'Từ ngày',
+    to: 'Đến ngày',
+    toHint: 'Ngày đầu tiên không học nữa; để trống = đang học',
+    active: 'Đang học',
+    ended: 'Đã nghỉ',
+    upcoming: 'Sắp học',
+    leave: 'Cho rời ca',
+    leaveFrom: 'Rời ca từ ngày',
+    editDates: 'Sửa ngày',
+    move: 'Chuyển ca',
+    moveTo: 'Chuyển sang ca',
+    moveFrom: 'Chuyển từ ngày',
+    noAssignments: 'Chưa xếp ca học thêm',
+    appliedRates: 'Đơn giá đang áp dụng',
+    studentPrice: 'Giá riêng của học sinh',
+    setStudentPrice: 'Đặt giá riêng',
+    studentPriceHint: 'Giá riêng áp cho mọi ca của học sinh, ưu tiên hơn giá mặc định của ca.',
+    noStudentRates: 'Chưa có giá riêng',
+    noOpenSlots: 'Học sinh chưa học ca nào',
+  },
+
   games: {
     title: 'Game',
     edit: 'Sửa game',
@@ -620,6 +726,14 @@ export const vi = {
       'family.approve': 'Duyệt tài khoản',
       'family.reject': 'Từ chối tài khoản',
       'family.merge': 'Gộp đăng ký vào gia đình có sẵn',
+      'extraSlot.create': 'Tạo ca học thêm',
+      'extraSlot.update': 'Sửa ca học thêm',
+      'extraSlot.archive': 'Lưu trữ ca học thêm',
+      'extraSlot.setTeachers': 'Gán giáo viên cho ca',
+      'slotAssignment.create': 'Xếp học sinh vào ca',
+      'slotAssignment.update': 'Sửa lịch học thêm',
+      'slotAssignment.move': 'Chuyển ca học thêm',
+      'extraRate.create': 'Đặt đơn giá học thêm',
     } satisfies Record<AuditAction, string>,
   },
 
@@ -1072,6 +1186,10 @@ export const vi = {
     'worksheets.viewStats': 'Xem thống kê phiếu',
     'guardians.manage': 'Quản lý phụ huynh',
     'families.approve': 'Duyệt tài khoản',
+    'extra.manageSlots': 'Quản lý ca học thêm',
+    'extra.manageSchedule': 'Xếp lịch học thêm',
+    'extra.viewPricing': 'Xem đơn giá học thêm',
+    'extra.managePricing': 'Đặt đơn giá học thêm',
   } satisfies Record<Permission, string>,
 
   /** Mô tả dài theo ngôn ngữ; thiếu mã nào thì trang Phân quyền dùng `description` từ contracts (tiếng Việt) */
@@ -1092,5 +1210,9 @@ export const vi = {
     'guardians.manage':
       'Thêm / sửa phụ huynh, gắn phụ huynh cho học sinh, tạo / chuyển sang tài khoản gia đình',
     'families.approve': 'Duyệt tài khoản tự đăng ký (giáo viên: bé đăng ký vào lớp mình)',
+    'extra.manageSlots': 'Tạo / sửa / lưu trữ ca học thêm, gán giáo viên',
+    'extra.manageSchedule': 'Xếp / sửa lịch học thêm của học sinh (giáo viên: ca mình dạy)',
+    'extra.viewPricing': 'Xem đơn giá học thêm (giáo viên: ca mình dạy)',
+    'extra.managePricing': 'Đặt giá mặc định của ca, giá riêng học sinh (giáo viên: ca mình dạy)',
   } satisfies Partial<Record<Permission, string>>,
 };

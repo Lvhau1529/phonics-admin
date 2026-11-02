@@ -48,6 +48,15 @@ export const qk = {
     list: (params: QueryParams) => ['guardians', 'list', params] as const,
     detail: (id: string) => ['guardians', 'detail', id] as const,
   },
+  extraSlots: {
+    all: ['extra-slots'] as const,
+    list: (params: QueryParams) => ['extra-slots', 'list', params] as const,
+    detail: (id: string) => ['extra-slots', 'detail', id] as const,
+    students: (id: string, date: string) => ['extra-slots', 'detail', id, 'students', date] as const,
+    rates: (id: string) => ['extra-slots', 'detail', id, 'rates'] as const,
+    /** Tab "Học thêm" của học sinh (cùng prefix để đổi lịch / giá là làm mới cả hai phía) */
+    student: (studentId: string) => ['extra-slots', 'student', studentId] as const,
+  },
   families: {
     all: ['families'] as const,
     pending: ['families', 'pending'] as const,

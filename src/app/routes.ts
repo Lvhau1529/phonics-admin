@@ -14,6 +14,8 @@ export const ROUTES = {
   audit: '/audit',
   guardians: '/guardians',
   familiesPending: '/families/pending',
+  extraSlots: '/extra-slots',
+  extraSlotDetail: (id: string) => `/extra-slots/${id}`,
   reports: '/reports',
   profile: '/profile',
   // Phiếu bài tập

@@ -32,3 +32,4 @@ export const t: Dict = new Proxy({} as Dict, handler);
 
 /** Nhãn hiển thị của từng ngôn ngữ (bằng chính ngôn ngữ đó) */
 export const LANG_LABELS: Record<Lang, string> = { vi: 'Tiếng Việt', en: 'English' };
+export type { IsoWeekday } from '@/shared/i18n/vi';

@@ -22,7 +22,8 @@ export interface MenuEntry {
     | 'worksheet'
     | 'assignment'
     | 'approval'
-    | 'guardian';
+    | 'guardian'
+    | 'extra';
   /** Không khai báo = mọi role đã đăng nhập (ADMIN / TEACHER) */
   roles?: readonly Role[];
   /** Cần quyền này (ADMIN luôn qua) — router cũng chặn bằng RequirePermission */
@@ -53,6 +54,7 @@ export const MENU: readonly MenuEntry[] = [
     roles: ['ADMIN'],
     permission: 'guardians.manage',
   },
+  { key: 'extraSlots', path: ROUTES.extraSlots, labelKey: 'extraSlots', icon: 'extra' },
   { key: 'points', path: ROUTES.points, labelKey: 'points', icon: 'points' },
   { key: 'questions', path: ROUTES.questions, labelKey: 'questions', icon: 'question' },
   { key: 'worksheets', path: ROUTES.worksheets, labelKey: 'worksheets', icon: 'worksheet' },

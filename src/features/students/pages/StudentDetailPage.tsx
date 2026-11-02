@@ -6,6 +6,7 @@ import { Link, useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { StudentWorksheetsTab } from '@/features/worksheet-stats/components/StudentWorksheetsTab';
 import { useAuth } from '@/features/auth/authStore';
+import { StudentExtraTab } from '@/features/extra-slots/components/StudentExtraTab';
 import { GameSelect } from '@/features/games/components/GameSelect';
 import { StudentGuardiansCard } from '@/features/guardians/components/StudentGuardiansCard';
 import { PointsTable } from '@/features/points/components/PointsTable';
@@ -27,7 +28,7 @@ import { DEFAULT_RANGE, rangeParams, type RangeValue } from '@/shared/utils/rang
 import { StatusTag } from '@/shared/ui/RoleTag';
 import { formatDateTime, formatNumber } from '@/shared/utils/format';
 
-type TabKey = 'by-game' | 'points' | 'results' | 'games' | 'worksheets';
+type TabKey = 'by-game' | 'points' | 'results' | 'games' | 'worksheets' | 'extra';
 
 /** Tab Sổ điểm của học sinh: lọc loại / game / khoảng thời gian */
 function StudentPointsTab({ studentId }: { studentId: string }) {
@@ -169,6 +170,7 @@ export function StudentDetailPage() {
             label: t.worksheetStats.tabWorksheets,
             children: <StudentWorksheetsTab studentId={id} />,
           },
+          { key: 'extra', label: t.studentExtra.tab, children: <StudentExtraTab studentId={id} /> },
         ]}
       />
 

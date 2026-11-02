@@ -14,6 +14,7 @@ import type {
   Permission,
   PointKind,
   QuestionType,
+  RateSource,
   Role,
   RosterStatus,
   Subject,
@@ -25,6 +26,7 @@ import type {
 } from '@phonics/contracts';
 import type { LocalErrorCode } from '@/shared/api/errors';
 import type { RangeOption } from '@/shared/utils/range';
+import type { IsoWeekday } from '@/shared/i18n/vi';
 import type { vi } from '@/shared/i18n/vi';
 
 export const en = {
@@ -50,6 +52,7 @@ export const en = {
     assignments: 'Assignments',
     families: 'Account approval',
     guardians: 'Parents',
+    extraSlots: 'Extra classes',
     signOut: 'Sign out',
   },
 
@@ -145,6 +148,7 @@ export const en = {
   format: {
     numberLocale: 'en-US',
     decimal: '.',
+    currency: 'VND',
     date: 'MMM D, YYYY',
     dateTime: 'MMM D, YYYY HH:mm',
     bucket: 'MMM D',
@@ -168,6 +172,28 @@ export const en = {
     OWN: 'Own login',
     MANAGED: 'Via parent',
   } satisfies Record<LoginMode, string>,
+
+  weekday: {
+    1: 'Monday',
+    2: 'Tuesday',
+    3: 'Wednesday',
+    4: 'Thursday',
+    5: 'Friday',
+    6: 'Saturday',
+    7: 'Sunday',
+  } satisfies Record<IsoWeekday, string>,
+
+  weekdayShort: { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat', 7: 'Sun' } satisfies Record<
+    IsoWeekday,
+    string
+  >,
+
+  rateSource: {
+    STUDENT_SLOT: 'Student price in slot',
+    STUDENT: "Student's own price",
+    SLOT: 'Slot default',
+    NONE: 'No price',
+  } satisfies Record<RateSource, string>,
 
   guardianRelation: {
     MOTHER: 'Mother',
@@ -485,6 +511,83 @@ export const en = {
     duplicateOutOfScope: 'matches another family — ask an admin',
   },
 
+  extraSlots: {
+    title: 'Extra classes',
+    add: 'Add slot',
+    edit: 'Edit slot',
+    name: 'Slot name',
+    namePlaceholder: 'Advanced phonics — Tue 18:00',
+    weekday: 'Day',
+    time: 'Time',
+    startTime: 'Start',
+    endTime: 'End',
+    room: 'Room',
+    capacity: 'Capacity',
+    mainClass: 'Main class (reference)',
+    teachers: 'Teachers',
+    noTeachers: 'No teachers yet',
+    setTeachers: 'Assign teachers',
+    archive: 'Archive',
+    archiveConfirm: 'Archive this slot? Current students will leave the slot as of today.',
+    archived: 'Archived',
+    archivedDone: 'Slot archived',
+    showArchived: 'Show archived slots',
+    studentCount: (n: number, capacity: number | null) =>
+      capacity ? `${n} / ${capacity} students` : `${n} students`,
+    noSlots: 'No extra-class slots yet',
+    emptyDay: 'No slots',
+    defaultPrice: 'Default slot price',
+    defaultPriceHint: 'Applies to students of this slot without their own price.',
+    noPrice: 'No price set',
+    setPrice: 'Set price',
+    price: 'Price / session',
+    perSession: '/ session',
+    effectiveFrom: 'Effective from',
+    effectiveTo: 'Until',
+    priceHistory: 'Price history',
+    current: 'Current',
+    superseded: 'Superseded',
+    ended: 'Ended',
+    createdBy: 'Set by',
+    rateHint:
+      'The new price applies from the chosen date and the old one stops there. Pick a past date to fix a wrong price.',
+    priceSaved: 'Price saved',
+    students: 'Students in this slot',
+    studentsOn: 'Students on',
+    addStudent: 'Add student to slot',
+    noStudents: 'No students yet',
+    rate: 'Applied price',
+    backToList: 'All slots',
+    searchStudent: 'Search students by name / email',
+  },
+
+  studentExtra: {
+    tab: 'Extra classes',
+    schedule: 'Extra-class schedule',
+    addToSlot: 'Add to slot',
+    slot: 'Slot',
+    selectSlot: 'Select a slot',
+    from: 'From',
+    to: 'Until',
+    toHint: 'First day no longer attending; empty = still attending',
+    active: 'Attending',
+    ended: 'Left',
+    upcoming: 'Upcoming',
+    leave: 'Leave slot',
+    leaveFrom: 'Leave from',
+    editDates: 'Edit dates',
+    move: 'Move slot',
+    moveTo: 'Move to slot',
+    moveFrom: 'Move from',
+    noAssignments: 'Not in any extra-class slot',
+    appliedRates: 'Current prices',
+    studentPrice: "Student's own price",
+    setStudentPrice: 'Set own price',
+    studentPriceHint: "The student's own price applies to all their slots and overrides the slot default.",
+    noStudentRates: 'No own price yet',
+    noOpenSlots: 'The student is not in any slot',
+  },
+
   games: {
     title: 'Games',
     edit: 'Edit game',
@@ -621,6 +724,14 @@ export const en = {
       'family.approve': 'Approve account',
       'family.reject': 'Reject account',
       'family.merge': 'Merge registration into existing family',
+      'extraSlot.create': 'Create extra-class slot',
+      'extraSlot.update': 'Edit extra-class slot',
+      'extraSlot.archive': 'Archive extra-class slot',
+      'extraSlot.setTeachers': 'Assign slot teachers',
+      'slotAssignment.create': 'Add student to slot',
+      'slotAssignment.update': 'Edit extra-class schedule',
+      'slotAssignment.move': 'Move student to another slot',
+      'extraRate.create': 'Set extra-class price',
     } satisfies Record<AuditAction, string>,
   },
 
@@ -1074,6 +1185,10 @@ export const en = {
     'worksheets.viewStats': 'View worksheet statistics',
     'guardians.manage': 'Manage parents',
     'families.approve': 'Approve accounts',
+    'extra.manageSlots': 'Manage extra-class slots',
+    'extra.manageSchedule': 'Manage extra-class schedules',
+    'extra.viewPricing': 'View extra-class prices',
+    'extra.managePricing': 'Set extra-class prices',
   } satisfies Record<Permission, string>,
 
   permissionDescription: {
@@ -1092,5 +1207,9 @@ export const en = {
     'worksheets.viewStats': 'View worksheet statistics per assignment / class / student',
     'guardians.manage': 'Add / edit parents, link parents to students, create / switch to family accounts',
     'families.approve': 'Approve self-registered accounts (teachers: children registering into own classes)',
+    'extra.manageSlots': 'Create / edit / archive extra-class slots, assign teachers',
+    'extra.manageSchedule': "Manage students' extra-class schedules (teachers: own slots)",
+    'extra.viewPricing': 'View extra-class prices (teachers: own slots)',
+    'extra.managePricing': 'Set slot default prices and student prices (teachers: own slots)',
   } satisfies Partial<Record<Permission, string>>,
 } satisfies typeof vi;

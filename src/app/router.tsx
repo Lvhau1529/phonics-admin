@@ -52,6 +52,11 @@ export const routes: RouteObject[] = [
               lazy: page(() => import('@/features/families/pages/FamiliesPendingPage')),
             },
           ]),
+          { path: 'extra-slots', lazy: page(() => import('@/features/extra-slots/pages/ExtraSlotsPage')) },
+          {
+            path: 'extra-slots/:id',
+            lazy: page(() => import('@/features/extra-slots/pages/ExtraSlotDetailPage')),
+          },
           { path: 'points', lazy: page(() => import('@/features/points/pages/PointsPage')) },
           { path: 'reports', lazy: page(() => import('@/features/reports/pages/ReportsPage')) },
           { path: 'profile', lazy: page(() => import('@/features/profile/pages/ProfilePage')) },

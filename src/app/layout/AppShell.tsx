@@ -11,6 +11,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   ReadOutlined,
+  ScheduleOutlined,
   SafetyCertificateOutlined,
   TeamOutlined,
   TrophyOutlined,
@@ -49,6 +50,7 @@ const ICONS: Record<MenuEntry['icon'], ReactNode> = {
   assignment: <CalendarOutlined />,
   approval: <CheckSquareOutlined />,
   guardian: <UsergroupAddOutlined />,
+  extra: <ScheduleOutlined />,
 };
 
 /**
