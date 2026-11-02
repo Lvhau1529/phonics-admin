@@ -1,10 +1,11 @@
-import { App, DatePicker, Form, Input, InputNumber, Modal, Typography } from 'antd';
+import { App, DatePicker, Form, Input, InputNumber, Typography } from 'antd';
 import { CreateSlotRateBody, PricePerSession, type CreateSlotRateBody as RateBody } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useAffectedPrompt } from '@/features/extra-slots/components/useAffectedPrompt';
 import type { ExtraRateModel } from '@/features/extra-slots/models/ExtraSlotModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
+import { TypedConfirmModal } from '@/shared/ui/TypedConfirmModal';
 import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
 import { formatNumber, toIsoDate } from '@/shared/utils/format';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty, zodRule } from '@/shared/utils/zodForm';
@@ -28,7 +29,7 @@ interface SetRateModalProps {
   onClose: () => void;
 }
 
-/** Đặt giá mới từ một ngày — dùng chung cho giá mặc định của ca và giá riêng học sinh */
+/** Đặt giá mới từ một ngày (gõ cụm xác nhận) — dùng chung cho giá mặc định của ca và giá riêng học sinh */
 export function SetRateModal({
   open,
   title,
@@ -65,15 +66,15 @@ export function SetRateModal({
   };
 
   return (
-    <Modal
+    <TypedConfirmModal
       open={open}
       title={title}
-      onCancel={onClose}
-      onOk={() => form.submit()}
+      warning={t.extraSlots.setPriceWarning}
+      phrase={t.extraSlots.priceConfirmWord}
       okText={t.common.save}
-      cancelText={t.common.cancel}
-      confirmLoading={loading}
-      destroyOnHidden
+      loading={loading}
+      onOk={() => form.submit()}
+      onCancel={onClose}
     >
       <Typography.Paragraph type="secondary">{hint}</Typography.Paragraph>
       <Form<RateFormValues> form={form} layout="vertical" onFinish={handleFinish}>
@@ -103,6 +104,6 @@ export function SetRateModal({
           <Input maxLength={200} />
         </Form.Item>
       </Form>
-    </Modal>
+    </TypedConfirmModal>
   );
 }

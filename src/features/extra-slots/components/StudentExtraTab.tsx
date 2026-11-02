@@ -1,4 +1,4 @@
-import { EditOutlined, LogoutOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, LogoutOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Card, Empty, Flex, Space, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
@@ -6,8 +6,13 @@ import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { StudentAttendanceCard } from '@/features/attendance/components/StudentAttendanceCard';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
+import { EditRateModal } from '@/features/extra-slots/components/EditRateModal';
 import { RateHistoryTable } from '@/features/extra-slots/components/RateHistoryTable';
 import { RateSourceTag } from '@/features/extra-slots/components/RateSourceTag';
+import {
+  RemoveAssignmentModal,
+  type RemoveAssignmentTarget,
+} from '@/features/extra-slots/components/RemoveAssignmentModal';
 import { SetRateModal } from '@/features/extra-slots/components/SetRateModal';
 import {
   SlotAssignmentModal,
@@ -16,6 +21,7 @@ import {
 import {
   appliedRateText,
   slotTimeText,
+  type ExtraRateModel,
   type SlotAssignmentModel,
 } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
@@ -30,6 +36,7 @@ function buildColumns(
   today: string,
   canManage: boolean,
   act: (action: SlotAssignmentAction) => void,
+  remove: (assignment: SlotAssignmentModel) => void,
   studentId: string,
 ): ColumnsType<SlotAssignmentModel> {
   const columns: ColumnsType<SlotAssignmentModel> = [
@@ -91,6 +98,15 @@ function buildColumns(
               </Tooltip>
             </>
           )}
+          <Tooltip title={t.studentExtra.remove}>
+            <Button
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              aria-label={t.studentExtra.remove}
+              onClick={() => remove(a)}
+            />
+          </Tooltip>
         </Space>
       ),
     });
@@ -98,11 +114,13 @@ function buildColumns(
 }
 
 /** Tab "Học thêm" ở trang học sinh: lịch học các ca + đơn giá (nút theo cờ quyền server trả về) */
-export function StudentExtraTab({ studentId }: { studentId: string }) {
+export function StudentExtraTab({ studentId, studentName }: { studentId: string; studentName: string }) {
   const extra = ExtraSlotsService.useStudentExtra(studentId);
   const createRate = ExtraSlotsService.useCreateStudentRate();
   const [action, setAction] = useState<SlotAssignmentAction>();
   const [settingPrice, setSettingPrice] = useState(false);
+  const [removing, setRemoving] = useState<RemoveAssignmentTarget>();
+  const [editingRate, setEditingRate] = useState<ExtraRateModel>();
   const today = toIsoDate(dayjs());
   const data = extra.data;
   const currentOwnPrice = data?.rates?.find((r) => r.state === 'current' && !r.slotId)?.pricePerSession;
@@ -128,7 +146,20 @@ export function StudentExtraTab({ studentId }: { studentId: string }) {
         <DataTable.Static<SlotAssignmentModel>
           rowKey="id"
           loading={extra.isFetching}
-          columns={buildColumns(today, !!data?.canManageSchedule, setAction, studentId)}
+          columns={buildColumns(
+            today,
+            !!data?.canManageSchedule,
+            setAction,
+            (a) =>
+              setRemoving({
+                studentId,
+                assignmentId: a.id,
+                studentName,
+                slotName: a.slotLabel,
+                rangeText: a.rangeText,
+              }),
+            studentId,
+          )}
           dataSource={data?.assignments}
           pagination={false}
           locale={{ emptyText: t.studentExtra.noAssignments }}
@@ -170,6 +201,7 @@ export function StudentExtraTab({ studentId }: { studentId: string }) {
             rates={data.rates}
             loading={extra.isFetching}
             emptyText={t.studentExtra.noStudentRates}
+            onEdit={data.canManagePricing ? setEditingRate : undefined}
           />
         </Card>
       )}
@@ -177,6 +209,8 @@ export function StudentExtraTab({ studentId }: { studentId: string }) {
       <StudentAttendanceCard studentId={studentId} />
 
       <SlotAssignmentModal action={action} onClose={() => setAction(undefined)} />
+      <RemoveAssignmentModal target={removing} onClose={() => setRemoving(undefined)} />
+      <EditRateModal rate={editingRate} onClose={() => setEditingRate(undefined)} />
       <SetRateModal
         open={settingPrice}
         title={t.studentExtra.setStudentPrice}

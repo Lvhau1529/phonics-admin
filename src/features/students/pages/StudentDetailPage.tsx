@@ -170,7 +170,11 @@ export function StudentDetailPage() {
             label: t.worksheetStats.tabWorksheets,
             children: <StudentWorksheetsTab studentId={id} />,
           },
-          { key: 'extra', label: t.studentExtra.tab, children: <StudentExtraTab studentId={id} /> },
+          {
+            key: 'extra',
+            label: t.studentExtra.tab,
+            children: <StudentExtraTab studentId={id} studentName={s.fullName} />,
+          },
         ]}
       />
 
