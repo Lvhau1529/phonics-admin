@@ -36,10 +36,12 @@ import { Link, useParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { AttendanceService } from '@/features/attendance/api/attendanceService';
 import { AttendanceMarkTag, AttendanceStatusTag } from '@/features/attendance/components/AttendanceStatusTag';
+import { ResendDigestButton } from '@/features/attendance/components/ResendDigestButton';
 import type {
   AttendanceRecordModel,
   AttendanceSessionDetailModel,
 } from '@/features/attendance/models/AttendanceSessionModel';
+import { useAuth } from '@/features/auth/authStore';
 import { StudentPickSelect } from '@/features/extra-slots/components/StudentPickSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -236,6 +238,7 @@ function AddStudentModal({
 export function AttendanceSessionPage() {
   const { id = '' } = useParams<{ id: string }>();
   const { message } = App.useApp();
+  const { isAdmin } = useAuth();
   const detail = AttendanceService.useDetail(id);
   const update = AttendanceService.useUpdateRecords();
   const confirm = AttendanceService.useConfirm();
@@ -310,27 +313,32 @@ export function AttendanceSessionPage() {
         subtitle={`${session.dateText} · ${session.timeRange}`}
         backTo={ROUTES.attendance}
         extra={
-          session.editable && (
+          (session.editable || (isAdmin && session.isPending)) && (
             <Space wrap>
-              <Button icon={<PlusOutlined />} onClick={() => setAdding(true)}>
-                {t.attendance.addStudent}
-              </Button>
-              <Button
-                icon={<SaveOutlined />}
-                disabled={!dirty}
-                loading={update.isPending}
-                onClick={() => void handleSave()}
-              >
-                {t.common.save}
-              </Button>
-              <Button
-                type="primary"
-                icon={<CheckOutlined />}
-                loading={confirm.isPending}
-                onClick={() => void handleConfirm()}
-              >
-                {session.isPending ? t.attendance.confirm : t.attendance.confirmAgain}
-              </Button>
+              {isAdmin && session.isPending && <ResendDigestButton sessionIds={[session.id]} />}
+              {session.editable && (
+                <>
+                  <Button icon={<PlusOutlined />} onClick={() => setAdding(true)}>
+                    {t.attendance.addStudent}
+                  </Button>
+                  <Button
+                    icon={<SaveOutlined />}
+                    disabled={!dirty}
+                    loading={update.isPending}
+                    onClick={() => void handleSave()}
+                  >
+                    {t.common.save}
+                  </Button>
+                  <Button
+                    type="primary"
+                    icon={<CheckOutlined />}
+                    loading={confirm.isPending}
+                    onClick={() => void handleConfirm()}
+                  >
+                    {session.isPending ? t.attendance.confirm : t.attendance.confirmAgain}
+                  </Button>
+                </>
+              )}
             </Space>
           )
         }

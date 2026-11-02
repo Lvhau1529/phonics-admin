@@ -24,7 +24,8 @@ export interface MenuEntry {
     | 'approval'
     | 'guardian'
     | 'extra'
-    | 'attendance';
+    | 'attendance'
+    | 'tuition';
   /** Không khai báo = mọi role đã đăng nhập (ADMIN / TEACHER) */
   roles?: readonly Role[];
   /** Cần quyền này (ADMIN luôn qua) — router cũng chặn bằng RequirePermission */
@@ -63,6 +64,7 @@ export const MENU: readonly MenuEntry[] = [
     icon: 'attendance',
     badge: 'pendingAttendance',
   },
+  { key: 'tuition', path: ROUTES.tuition, labelKey: 'tuition', icon: 'tuition', roles: ['ADMIN'] },
   { key: 'points', path: ROUTES.points, labelKey: 'points', icon: 'points' },
   { key: 'questions', path: ROUTES.questions, labelKey: 'questions', icon: 'question' },
   { key: 'worksheets', path: ROUTES.worksheets, labelKey: 'worksheets', icon: 'worksheet' },

@@ -18,6 +18,7 @@ import {
   TrophyOutlined,
   UserOutlined,
   UsergroupAddOutlined,
+  WalletOutlined,
 } from '@ant-design/icons';
 import { Badge, Button, Dropdown, Flex, Grid, Layout, Menu, theme, Typography, type MenuProps } from 'antd';
 import { Suspense, useState, type ReactNode } from 'react';
@@ -54,6 +55,7 @@ const ICONS: Record<MenuEntry['icon'], ReactNode> = {
   guardian: <UsergroupAddOutlined />,
   extra: <ScheduleOutlined />,
   attendance: <CarryOutOutlined />,
+  tuition: <WalletOutlined />,
 };
 
 /**

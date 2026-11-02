@@ -11,10 +11,12 @@ import {
   ENDPOINTS,
   paginated,
   PendingCountResponse,
+  ResendDigestResponse,
   StudentAttendanceResponse,
   type CancelAttendanceSessionsBody,
   type ConfirmDigestBody,
   type CreateAttendanceSessionBody,
+  type ResendDigestBody,
   type UpdateAttendanceRecordsBody,
 } from '@phonics/contracts';
 import { HttpMethod, request, type QueryParams } from '@/shared/api/client';
@@ -48,6 +50,12 @@ export const attendanceRepository = {
       method: HttpMethod.POST,
       body,
       schema: CancelAttendanceSessionsResponse,
+    }),
+  resendDigest: (body: ResendDigestBody) =>
+    request(ENDPOINTS.attendance.resendDigest, {
+      method: HttpMethod.POST,
+      body,
+      schema: ResendDigestResponse,
     }),
   studentAttendance: (studentId: string, month: string) =>
     request(ENDPOINTS.students.attendance(studentId), {

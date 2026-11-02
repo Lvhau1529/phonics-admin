@@ -66,6 +66,10 @@ export const qk = {
     student: (studentId: string, month: string) => ['attendance', 'student', studentId, month] as const,
     /** Trang duyệt nhanh qua mail (public) */
     digest: (token: string) => ['attendance', 'digest', token] as const,
+    /** Học phí tạm tính (dưới `attendance` để sửa điểm danh làm mới luôn) */
+    tuition: (from: string, to: string) => ['attendance', 'tuition', from, to] as const,
+    studentTuition: (studentId: string, from: string, to: string) =>
+      ['attendance', 'tuition', 'student', studentId, from, to] as const,
   },
   families: {
     all: ['families'] as const,

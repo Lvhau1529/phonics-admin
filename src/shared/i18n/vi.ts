@@ -60,6 +60,7 @@ export const vi = {
     guardians: 'Phụ huynh',
     extraSlots: 'Ca học thêm',
     attendance: 'Điểm danh',
+    tuition: 'Học phí',
     signOut: 'Đăng xuất',
   },
 
@@ -166,6 +167,8 @@ export const vi = {
     date: 'DD/MM/YYYY',
     dateTime: 'DD/MM/YYYY HH:mm',
     bucket: 'DD/MM',
+    /** Nhãn tháng trên trục biểu đồ */
+    monthShort: 'MM/YY',
   },
 
   role: {
@@ -689,6 +692,16 @@ export const vi = {
     applyToSessions: 'Cập nhật luôn',
     skipApply: 'Giữ nguyên',
     appliedCount: (n: number) => `Đã cập nhật ${n} buổi`,
+    resendDigest: 'Gửi lại mail xác nhận',
+    resendSelected: (n: number) => `Gửi lại mail xác nhận (${n})`,
+    resendSelectHint: 'Chọn các buổi chưa xác nhận trong bảng để gửi lại mail cho giáo viên',
+    resendConfirm: 'Gửi lại mail xác nhận cho giáo viên phụ trách?',
+    resendHint:
+      'Mỗi giáo viên nhận một mail mới gồm các buổi chưa xác nhận đã chọn; link trong mail cũ vẫn dùng được.',
+    resendSent: (names: string) => `Đã gửi mail cho ${names}`,
+    resendNoEmail: (names: string) => `Chưa có email: ${names}`,
+    resendSkipped: (n: number) => `${n} buổi bỏ qua (đã xác nhận / huỷ hoặc chưa có giáo viên)`,
+    resendNothing: 'Không có mail nào được gửi',
   },
 
   publicDigest: {
@@ -713,6 +726,33 @@ export const vi = {
     invalid: 'Link không dùng được',
     editHint: 'Có học sinh vắng hoặc cần thêm học sinh?',
     signInToEdit: 'Đăng nhập để sửa',
+  },
+
+  tuition: {
+    title: 'Học phí',
+    tab: 'Học phí',
+    estimateHint:
+      'Tạm tính từ điểm danh: đơn giá chốt trên từng buổi, chỉ lượt có mặt được tính phí, không gồm buổi huỷ. Chưa phải phiếu học phí gửi phụ huynh.',
+    range: 'Khoảng tháng',
+    rangeTooLong: 'Chọn tối đa 24 tháng',
+    total: 'Tổng tạm tính',
+    confirmed: 'Đã xác nhận',
+    pending: 'Chờ xác nhận',
+    chargedCount: 'Lượt tính phí',
+    students: 'Học sinh',
+    attendanceRate: 'Tỉ lệ có mặt',
+    avgPerMonth: 'Trung bình / tháng',
+    present: 'Có mặt',
+    absent: 'Vắng',
+    excused: 'Có phép',
+    byMonth: 'Theo tháng',
+    bySlot: 'Theo ca',
+    topStudents: 'Học sinh có học phí cao nhất',
+    month: 'Tháng',
+    slot: 'Ca',
+    pendingWarning: (n: number) => `${n} buổi chưa xác nhận — phần chờ xác nhận có thể còn thay đổi.`,
+    viewPending: 'Xem buổi chờ',
+    zeroPriceWarning: (n: number) => `${n} lượt tính phí có đơn giá 0 ₫ (học sinh thiếu giá).`,
   },
 
   studentExtra: {
@@ -900,6 +940,7 @@ export const vi = {
       'attendance.confirm': 'Xác nhận buổi học thêm',
       'attendance.cancelSession': 'Huỷ buổi học thêm',
       'attendance.createSession': 'Tạo buổi bù',
+      'attendance.resendDigest': 'Gửi lại mail xác nhận điểm danh',
     } satisfies Record<AuditAction, string>,
   },
 

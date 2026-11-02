@@ -17,6 +17,7 @@ export const ROUTES = {
   extraSlots: '/extra-slots',
   extraSlotDetail: (id: string) => `/extra-slots/${id}`,
   attendance: '/attendance',
+  tuition: '/tuition',
   attendanceSession: (id: string) => `/attendance/sessions/${id}`,
   /** Trang public duyệt nhanh từ mail 21:00 (không cần đăng nhập) */
   publicDigest: (token: string) => `/a/attendance/${token}`,

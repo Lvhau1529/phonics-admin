@@ -56,6 +56,19 @@ export function formatMoney(n: number | null | undefined): string {
   return fmt.format(n);
 }
 
+const compactFormats = new Map<string, Intl.NumberFormat>();
+
+/** Số gọn cho trục biểu đồ: 1200000 → "1,2 Tr" (vi) / "1.2M" (en) */
+export function formatCompact(n: number): string {
+  const locale = t.format.numberLocale;
+  let fmt = compactFormats.get(locale);
+  if (!fmt) {
+    fmt = new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 });
+    compactFormats.set(locale, fmt);
+  }
+  return fmt.format(n);
+}
+
 /** Điểm có dấu: +5 / -3 */
 export const formatSigned = (n: number): string =>
   n > 0 ? `+${numberFormat().format(n)}` : numberFormat().format(n);

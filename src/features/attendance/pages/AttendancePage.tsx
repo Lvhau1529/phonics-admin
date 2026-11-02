@@ -8,6 +8,7 @@ import { ROUTES } from '@/app/routes';
 import { AttendanceService } from '@/features/attendance/api/attendanceService';
 import { AttendanceStatusTag } from '@/features/attendance/components/AttendanceStatusTag';
 import { CancelSessionsModal } from '@/features/attendance/components/CancelSessionsModal';
+import { ResendDigestButton } from '@/features/attendance/components/ResendDigestButton';
 import { CreateSessionDrawer } from '@/features/attendance/components/CreateSessionDrawer';
 import type { AttendanceSessionModel } from '@/features/attendance/models/AttendanceSessionModel';
 import { useAuth } from '@/features/auth/authStore';
@@ -76,6 +77,10 @@ export function AttendancePage() {
   const [cancelling, setCancelling] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const { from, to } = table.filters;
+  // Gửi lại mail chỉ áp cho buổi chưa xác nhận đang chọn (trên trang hiện tại)
+  const pendingSelected = (list.data?.items ?? [])
+    .filter((s) => s.isPending && selected.includes(s.id))
+    .map((s) => s.id);
 
   return (
     <>
@@ -84,6 +89,9 @@ export function AttendancePage() {
         extra={
           manage && (
             <Space wrap>
+              {isAdmin && (
+                <ResendDigestButton sessionIds={pendingSelected} showCount onSent={() => setSelected([])} />
+              )}
               <Button icon={<StopOutlined />} onClick={() => setCancelling(true)}>
                 {t.attendance.cancelSessions}
               </Button>
