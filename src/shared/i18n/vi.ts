@@ -391,6 +391,25 @@ export const vi = {
 
   students: {
     title: 'Học sinh',
+    add: 'Thêm học sinh',
+    addNew: 'Học sinh mới',
+    createTitle: 'Thêm học sinh mới',
+    createHint:
+      'Học sinh chưa có tài khoản: tạo hồ sơ ngay, bé vào game sau qua tài khoản gia đình của phụ huynh. Anh chị em nhập chung một lần để cùng phụ huynh nhận học phí.',
+    createHintTeacher:
+      'Học sinh chưa có tài khoản: tạo hồ sơ ngay, bé vào game sau qua tài khoản gia đình của phụ huynh. Mỗi bé cần vào lớp hoặc ca học thêm bạn dạy.',
+    childN: (n: number) => `Học sinh ${n}`,
+    addChild: 'Thêm bé (anh chị em)',
+    removeChild: 'Bỏ bé này',
+    mainClass: 'Lớp chính',
+    extraSlot: 'Ca học thêm',
+    pricePerSession: 'Đơn giá riêng / buổi',
+    pricePerSessionHint: 'Để trống = dùng giá mặc định của ca. Cần chọn ca học thêm.',
+    startDate: 'Học ca từ ngày',
+    startDateHint: 'Đơn giá riêng cũng áp từ ngày này',
+    billingParent: 'Phụ huynh nhận học phí',
+    parentEmailHint: 'Trùng email phụ huynh đã có thì gắn vào phụ huynh đó',
+    createdCount: (n: number) => `Đã thêm ${n} học sinh`,
     edit: 'Sửa học sinh',
     moveClass: 'Chuyển lớp',
     moveClassTitle: (name: string) => `Chuyển lớp cho ${name}`,
@@ -790,6 +809,7 @@ export const vi = {
     after: 'Sau',
     filterAction: 'Hành động',
     actions: {
+      'student.create': 'Thêm học sinh',
       'student.update': 'Sửa học sinh',
       'student.moveClass': 'Chuyển lớp học sinh',
       'student.resetPassword': 'Đặt lại mật khẩu HS',
@@ -1287,6 +1307,7 @@ export const vi = {
     'class.changeStudentClass': 'Chuyển lớp học sinh',
     'points.award': 'Cộng điểm thưởng',
     'points.revoke': 'Thu hồi / trừ điểm',
+    'students.create': 'Thêm học sinh',
     'students.edit': 'Sửa học sinh',
     'students.viewParentContact': 'Xem liên hệ phụ huynh',
     'games.unlock': 'Mở / thu hồi khoá game',
@@ -1311,6 +1332,7 @@ export const vi = {
     'class.changeStudentClass': 'Chuyển học sinh sang lớp khác',
     'points.award': 'Cộng điểm thưởng cho học sinh',
     'points.revoke': 'Tạo bút toán âm / sửa điểm',
+    'students.create': 'Thêm học sinh chưa có tài khoản (giáo viên: vào lớp / ca mình dạy)',
     'students.edit': 'Sửa tên, avatar học sinh',
     'students.viewParentContact': 'Xem liên hệ phụ huynh (giáo viên: học sinh lớp mình)',
     'games.unlock': 'Mở / thu hồi khoá game cho học sinh',
@@ -1324,7 +1346,7 @@ export const vi = {
     'guardians.manage':
       'Thêm / sửa phụ huynh, gắn phụ huynh cho học sinh, tạo / chuyển sang tài khoản gia đình',
     'families.approve': 'Duyệt tài khoản tự đăng ký (giáo viên: bé đăng ký vào lớp mình)',
-    'extra.manageSlots': 'Tạo / sửa / lưu trữ ca học thêm, gán giáo viên',
+    'extra.manageSlots': 'Tạo / sửa / lưu trữ ca học thêm, gán giáo viên (giáo viên: ca mình tạo / dạy)',
     'extra.manageSchedule': 'Xếp / sửa lịch học thêm của học sinh (giáo viên: ca mình dạy)',
     'extra.viewPricing': 'Xem đơn giá học thêm (giáo viên: ca mình dạy)',
     'extra.managePricing': 'Đặt giá mặc định của ca, giá riêng học sinh (giáo viên: ca mình dạy)',

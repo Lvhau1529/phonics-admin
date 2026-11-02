@@ -1,4 +1,4 @@
-import { EyeOutlined, SwapOutlined } from '@ant-design/icons';
+import { EyeOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Select, Space, Tooltip } from 'antd';
 import { LoginMode, UserStatus } from '@phonics/contracts';
 import type { StudentModel } from '@/features/students/models/StudentModel';
@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { useAuth } from '@/features/auth/authStore';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
+import { CreateStudentsDrawer } from '@/features/students/components/CreateStudentsDrawer';
 import { MoveClassModal } from '@/features/students/components/MoveClassModal';
 import { StudentsTable } from '@/features/students/components/StudentsTable';
 import { StudentsService } from '@/features/students/api/studentsService';
@@ -25,10 +26,20 @@ export function StudentsPage() {
   const list = StudentsService.useList(table.params);
   const [moving, setMoving] = useState<StudentModel>();
   const canMove = auth.can('class.changeStudentClass');
+  const [creating, setCreating] = useState(false);
 
   return (
     <>
-      <PageHeader title={t.students.title}>
+      <PageHeader
+        title={t.students.title}
+        extra={
+          auth.can('students.create') && (
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>
+              {t.students.add}
+            </Button>
+          )
+        }
+      >
         <Flex gap={8} wrap>
           <Input.Search
             allowClear
@@ -87,6 +98,7 @@ export function StudentsPage() {
         )}
       />
       <MoveClassModal student={moving} onClose={() => setMoving(undefined)} />
+      <CreateStudentsDrawer open={creating} onClose={() => setCreating(false)} />
     </>
   );
 }

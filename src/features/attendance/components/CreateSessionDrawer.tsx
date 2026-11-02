@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { AttendanceService } from '@/features/attendance/api/attendanceService';
+import { useAuth } from '@/features/auth/authStore';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -21,12 +22,13 @@ interface SessionFormValues {
   note?: string;
 }
 
-/** Tạo buổi bù (không theo ca) — xong chuyển sang trang buổi để thêm học sinh */
+/** Tạo buổi bù (không theo ca) — xong chuyển sang trang buổi để thêm học sinh. GV: buổi bù do chính mình phụ trách */
 export function CreateSessionDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { message } = App.useApp();
   const navigate = useNavigate();
   const [form] = Form.useForm<SessionFormValues>();
   const create = AttendanceService.useCreate();
+  const { isAdmin, user } = useAuth();
 
   useEffect(() => {
     if (!open) return;
@@ -39,6 +41,8 @@ export function CreateSessionDrawer({ open, onClose }: { open: boolean; onClose:
       CreateAttendanceSessionBody,
       stripEmpty({
         ...raw,
+        // GV không chọn được GV khác (danh sách giáo viên chỉ admin xem)
+        teacherIds: isAdmin ? raw.teacherIds : user ? [user.id] : [],
         date: toIsoDate(raw.date),
         startTime: raw.startTime?.format(TIME_FORMAT),
         endTime: raw.endTime?.format(TIME_FORMAT),
@@ -84,9 +88,11 @@ export function CreateSessionDrawer({ open, onClose }: { open: boolean; onClose:
             <TimePicker format={TIME_FORMAT} minuteStep={5} needConfirm={false} style={{ width: '100%' }} />
           </Form.Item>
         </Flex>
-        <Form.Item name="teacherIds" label={t.extraSlots.teachers} rules={required}>
-          <TeacherSelect mode="multiple" style={{ width: '100%' }} />
-        </Form.Item>
+        {isAdmin && (
+          <Form.Item name="teacherIds" label={t.extraSlots.teachers} rules={required}>
+            <TeacherSelect mode="multiple" style={{ width: '100%' }} />
+          </Form.Item>
+        )}
         <Form.Item name="note" label={t.common.note} extra={t.attendance.makeUpHint}>
           <Input.TextArea maxLength={500} autoSize={{ minRows: 2 }} />
         </Form.Item>

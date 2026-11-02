@@ -4,6 +4,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
+  CreateStudentsBody,
   MoveClassBody,
   ResetPasswordBody,
   SetStudentGameUnlockBody,
@@ -25,6 +26,11 @@ const toDetail = (data: StudentDetail) => new StudentDetailModel(data);
 const api = {
   list: async (query: QueryParams) =>
     mapPage(await studentsRepository.list(query), (s) => new StudentModel(s)),
+  /** Thêm học sinh chưa có tài khoản: trả học sinh (model) + buổi đã xác nhận cần hỏi áp lịch (DTO) */
+  create: async (body: CreateStudentsBody) => {
+    const res = await studentsRepository.create(body);
+    return { items: res.items.map(toDetail), affectedSessions: res.affectedSessions };
+  },
   detail: async (id: string) => toDetail(await studentsRepository.detail(id)),
   update: async (id: string, body: UpdateStudentBody) => toDetail(await studentsRepository.update(id, body)),
   moveClass: async (id: string, body: MoveClassBody) =>
@@ -107,6 +113,20 @@ export const StudentsService = {
       queryKey: qk.students.games(id),
       queryFn: () => api.games(id),
     }),
+
+  useCreate() {
+    const invalidate = useInvalidateStudent();
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: (body: CreateStudentsBody) => api.create(body),
+      onSuccess: () => {
+        invalidate();
+        // Học sinh mới có thể vào ca học thêm / buổi điểm danh đang chờ
+        void qc.invalidateQueries({ queryKey: qk.extraSlots.all });
+        void qc.invalidateQueries({ queryKey: qk.attendance.all });
+      },
+    });
+  },
 
   useUpdate() {
     const invalidate = useInvalidateStudent();

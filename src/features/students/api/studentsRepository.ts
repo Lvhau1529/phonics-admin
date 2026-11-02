@@ -3,6 +3,7 @@
  * đúng như BE. Không map / format ở đây — việc đó của `StudentsService`.
  */
 import {
+  CreateStudentsResponse,
   ENDPOINTS,
   GameResultView,
   paginated,
@@ -12,6 +13,7 @@ import {
   StudentGamesResponse,
   StudentGameStatus,
   StudentSummary,
+  type CreateStudentsBody,
   type MoveClassBody,
   type ResetPasswordBody,
   type SetStudentGameUnlockBody,
@@ -27,6 +29,8 @@ const PointsByGameResponse = z.object({ items: z.array(PointsByGame) });
 
 export const studentsRepository = {
   list: (query: QueryParams) => request(ENDPOINTS.students.list, { query, schema: StudentPage }),
+  create: (body: CreateStudentsBody) =>
+    request(ENDPOINTS.students.create, { method: HttpMethod.POST, body, schema: CreateStudentsResponse }),
   detail: (id: string) => request(ENDPOINTS.students.detail(id), { schema: StudentDetail }),
   update: (id: string, body: UpdateStudentBody) =>
     request(ENDPOINTS.students.detail(id), { method: HttpMethod.PATCH, body, schema: StudentDetail }),

@@ -1,6 +1,7 @@
 import { App, Button, Drawer, Flex, Form, Input, InputNumber, Select, TimePicker } from 'antd';
 import { CreateExtraSlotBody, SlotName, UpdateExtraSlotBody, Weekday } from '@phonics/contracts';
 import { useEffect } from 'react';
+import { useAuth } from '@/features/auth/authStore';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import type { ExtraSlotModel } from '@/features/extra-slots/models/ExtraSlotModel';
@@ -42,9 +43,13 @@ interface ExtraSlotFormDrawerProps {
   onClose: () => void;
 }
 
-/** Tạo / sửa ca học thêm (admin, extra.manageSlots). Sửa: giáo viên đổi bằng "Gán giáo viên"; ô trống = xoá giá trị. */
+/**
+ * Tạo / sửa ca học thêm (extra.manageSlots). Sửa: giáo viên đổi bằng "Gán giáo viên"; ô trống = xoá giá trị. GV tạo ca:
+ * không chọn GV (server tự gán chính GV đó), lớp chỉ lớp mình dạy.
+ */
 export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawerProps) {
   const { message } = App.useApp();
+  const { isAdmin } = useAuth();
   const [form] = Form.useForm<SlotFormValues>();
   const create = ExtraSlotsService.useCreate();
   const update = ExtraSlotsService.useUpdate();
@@ -175,7 +180,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
         <Form.Item name="classId" label={t.extraSlots.mainClass}>
           <ClassSelect style={{ width: '100%' }} />
         </Form.Item>
-        {!slot && (
+        {!slot && isAdmin && (
           <Form.Item name="teacherIds" label={t.extraSlots.teachers}>
             <TeacherSelect mode="multiple" style={{ width: '100%' }} />
           </Form.Item>
