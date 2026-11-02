@@ -568,6 +568,13 @@ export const en = {
     name: 'Slot name',
     namePlaceholder: 'Advanced phonics — Tue 18:00',
     weekday: 'Day',
+    weekdaysHint: 'Pick several days to create one slot per day (same name, time, teachers)',
+    createdSlots: (n: number) => `Created ${n} slots`,
+    createdPartial: (done: number, total: number, error: string) =>
+      `Created ${done}/${total} slots. Error: ${error}`,
+    timeFrom: 'Apply the new time to sessions from',
+    timeFromHint:
+      'Sessions from this date (including confirmed ones) move to the new time; earlier ones keep the old time',
     time: 'Time',
     startTime: 'Start',
     endTime: 'End',

@@ -570,6 +570,12 @@ export const vi = {
     name: 'Tên ca',
     namePlaceholder: 'Phonics nâng cao — T3 18:00',
     weekday: 'Thứ',
+    weekdaysHint: 'Chọn nhiều thứ để tạo mỗi thứ một ca (cùng tên, giờ, giáo viên)',
+    createdSlots: (n: number) => `Đã tạo ${n} ca`,
+    createdPartial: (done: number, total: number, error: string) =>
+      `Đã tạo ${done}/${total} ca. Lỗi: ${error}`,
+    timeFrom: 'Áp giờ mới cho buổi đã tạo từ ngày',
+    timeFromHint: 'Buổi đã tạo từ ngày này (kể cả đã duyệt) đổi sang giờ mới; buổi trước đó giữ giờ cũ',
     time: 'Giờ học',
     startTime: 'Bắt đầu',
     endTime: 'Kết thúc',
