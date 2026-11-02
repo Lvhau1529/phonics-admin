@@ -1,7 +1,7 @@
 /**
  * Service điểm danh: DTO → `AttendanceSessionModel` / `AttendanceSessionDetailModel` / `DigestSessionModel` /
- * `StudentAttendanceItemModel` + hook React Query. Số buổi chờ (badge menu) và kết quả huỷ / duyệt qua mail là
- * response xác nhận → giữ DTO (kèm model khi cần hiển thị).
+ * `StudentAttendanceItemModel` + hook React Query. Số buổi chờ (badge menu) và kết quả huỷ / duyệt qua mail / gửi
+ * lại mail là response xác nhận → giữ DTO (kèm model khi cần hiển thị).
  */
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
@@ -43,6 +43,7 @@ const api = {
   create: async (body: CreateAttendanceSessionBody) =>
     new AttendanceSessionDetailModel(await attendanceRepository.create(body)),
   cancel: (body: CancelAttendanceSessionsBody) => attendanceRepository.cancel(body),
+  resendDigest: (sessionIds: string[]) => attendanceRepository.resendDigest({ sessionIds }),
   studentAttendance: async (studentId: string, month: string) => {
     const res = await attendanceRepository.studentAttendance(studentId, month);
     return {
@@ -119,6 +120,9 @@ export const AttendanceService = {
     const invalidate = useInvalidateAttendance();
     return useMutation({ mutationFn: api.cancel, onSuccess: invalidate });
   },
+
+  /** ADMIN: gửi lại mail xác nhận — không đổi dữ liệu buổi nên không cần invalidate */
+  useResendDigest: () => useMutation({ mutationFn: api.resendDigest }),
 
   useConfirmDigest(token: string) {
     const qc = useQueryClient();

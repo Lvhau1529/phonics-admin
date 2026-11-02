@@ -58,6 +58,7 @@ export const en = {
     guardians: 'Parents',
     extraSlots: 'Extra classes',
     attendance: 'Attendance',
+    tuition: 'Tuition',
     signOut: 'Sign out',
   },
 
@@ -161,6 +162,7 @@ export const en = {
     date: 'MMM D, YYYY',
     dateTime: 'MMM D, YYYY HH:mm',
     bucket: 'MMM D',
+    monthShort: 'MM/YY',
   },
 
   role: {
@@ -688,6 +690,16 @@ export const en = {
     applyToSessions: 'Update them',
     skipApply: 'Keep as is',
     appliedCount: (n) => `Updated ${n} session(s)`,
+    resendDigest: 'Resend confirmation email',
+    resendSelected: (n) => `Resend confirmation email (${n})`,
+    resendSelectHint: 'Select unconfirmed sessions in the table to email their teachers again',
+    resendConfirm: 'Email the teachers in charge again?',
+    resendHint:
+      'Each teacher gets a new email with the selected unconfirmed sessions; links in earlier emails keep working.',
+    resendSent: (names) => `Emailed ${names}`,
+    resendNoEmail: (names) => `No email address: ${names}`,
+    resendSkipped: (n) => `${n} session(s) skipped (confirmed / cancelled or no teacher)`,
+    resendNothing: 'No email was sent',
   },
 
   publicDigest: {
@@ -712,6 +724,33 @@ export const en = {
     invalid: 'This link cannot be used',
     editHint: 'A student was absent or needs to be added?',
     signInToEdit: 'Sign in to edit',
+  },
+
+  tuition: {
+    title: 'Tuition',
+    tab: 'Tuition',
+    estimateHint:
+      'Estimated from attendance: the price locked on each session, only present students are charged, cancelled sessions excluded. Not yet the tuition statement sent to parents.',
+    range: 'Months',
+    rangeTooLong: 'Pick at most 24 months',
+    total: 'Estimated total',
+    confirmed: 'Confirmed',
+    pending: 'Awaiting confirmation',
+    chargedCount: 'Charged attendances',
+    students: 'Students',
+    attendanceRate: 'Attendance rate',
+    avgPerMonth: 'Average / month',
+    present: 'Present',
+    absent: 'Absent',
+    excused: 'Excused',
+    byMonth: 'By month',
+    bySlot: 'By slot',
+    topStudents: 'Students with the highest tuition',
+    month: 'Month',
+    slot: 'Slot',
+    pendingWarning: (n) => `${n} session(s) unconfirmed — the awaiting part may still change.`,
+    viewPending: 'View unconfirmed',
+    zeroPriceWarning: (n) => `${n} charged attendance(s) priced at 0 (missing price).`,
   },
 
   studentExtra: {
@@ -899,6 +938,7 @@ export const en = {
       'attendance.confirm': 'Confirm extra-class session',
       'attendance.cancelSession': 'Cancel extra-class session',
       'attendance.createSession': 'Create make-up session',
+      'attendance.resendDigest': 'Resend attendance confirmation email',
     } satisfies Record<AuditAction, string>,
   },
 

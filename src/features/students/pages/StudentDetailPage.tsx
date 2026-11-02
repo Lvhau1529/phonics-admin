@@ -16,6 +16,7 @@ import { StudentFormDrawer } from '@/features/students/components/StudentFormDra
 import { StudentGamesTab } from '@/features/students/components/StudentGamesTab';
 import { StudentPointsByGame } from '@/features/students/components/StudentPointsByGame';
 import { StudentResultsTable } from '@/features/students/components/StudentResultsTable';
+import { StudentTuitionTab } from '@/features/tuition/components/StudentTuitionTab';
 import { StudentsService } from '@/features/students/api/studentsService';
 import type { StudentDetailModel } from '@/features/students/models/StudentDetailModel';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
@@ -28,7 +29,10 @@ import { DEFAULT_RANGE, rangeParams, type RangeValue } from '@/shared/utils/rang
 import { StatusTag } from '@/shared/ui/RoleTag';
 import { formatDateTime, formatNumber } from '@/shared/utils/format';
 
-type TabKey = 'by-game' | 'points' | 'results' | 'games' | 'worksheets' | 'extra';
+type TabKey = 'by-game' | 'points' | 'results' | 'games' | 'worksheets' | 'extra' | 'tuition';
+
+/** Tab học thêm / học phí: ẩn số liệu điểm game ở đầu trang để hai mảng tách biệt */
+const EXTRA_TABS: readonly TabKey[] = ['extra', 'tuition'];
 
 /** Tab Sổ điểm của học sinh: lọc loại / game / khoảng thời gian */
 function StudentPointsTab({ studentId }: { studentId: string }) {
@@ -79,6 +83,7 @@ export function StudentDetailPage() {
   const setTab = (key: string) => setSearchParams(new URLSearchParams({ tab: key }), { replace: true });
   const canEdit = auth.can('students.edit');
   const canMove = auth.can('class.changeStudentClass');
+  const canViewTuition = auth.can('extra.viewPricing');
 
   if (student.isLoading) return <Skeleton active />;
   if (student.error || !student.data)
@@ -119,13 +124,15 @@ export function StudentDetailPage() {
       />
 
       <Card style={{ marginBottom: 16 }}>
-        <Flex gap={24} wrap style={{ marginBottom: 16 }}>
-          <Statistic title={t.students.pointsTotal} value={s.points} />
-          <Statistic title={t.students.pointsGame} value={s.pointsByKind.GAME} />
-          <Statistic title={t.students.pointsBonus} value={s.pointsByKind.BONUS} />
-          <Statistic title={t.common.rank} value={s.rank ?? t.common.none} />
-          <Statistic title={t.students.gamesPlayed} value={formatNumber(s.gamesPlayed)} />
-        </Flex>
+        {!EXTRA_TABS.includes(tab) && (
+          <Flex gap={24} wrap style={{ marginBottom: 16 }}>
+            <Statistic title={t.students.pointsTotal} value={s.points} />
+            <Statistic title={t.students.pointsGame} value={s.pointsByKind.GAME} />
+            <Statistic title={t.students.pointsBonus} value={s.pointsByKind.BONUS} />
+            <Statistic title={t.common.rank} value={s.rank ?? t.common.none} />
+            <Statistic title={t.students.gamesPlayed} value={formatNumber(s.gamesPlayed)} />
+          </Flex>
+        )}
         <Descriptions size="small" column={{ xs: 1, sm: 2, lg: 3 }} title={t.students.profile}>
           <Descriptions.Item label={t.common.status}>
             <StatusTag status={s.status} />
@@ -175,6 +182,9 @@ export function StudentDetailPage() {
             label: t.studentExtra.tab,
             children: <StudentExtraTab studentId={id} studentName={s.fullName} />,
           },
+          ...(canViewTuition
+            ? [{ key: 'tuition', label: t.tuition.tab, children: <StudentTuitionTab studentId={id} /> }]
+            : []),
         ]}
       />
 

@@ -110,6 +110,7 @@ export const routes: RouteObject[] = [
             { path: 'games/:id', lazy: page(() => import('@/features/games/pages/GameDetailPage')) },
             { path: 'permissions', lazy: page(() => import('@/features/permissions/pages/PermissionsPage')) },
             { path: 'audit', lazy: page(() => import('@/features/audit/pages/AuditPage')) },
+            { path: 'tuition', lazy: page(() => import('@/features/tuition/pages/TuitionPage')) },
             withPermission('guardians.manage', [
               { path: 'guardians', lazy: page(() => import('@/features/guardians/pages/GuardiansPage')) },
             ]),
