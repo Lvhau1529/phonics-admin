@@ -182,8 +182,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@19.3.0)
       '@phonics/contracts':
-        specifier: npm:@lvhau1529/phonics-contracts@^1.7.0
-        version: '@lvhau1529/phonics-contracts@1.7.0(zod@4.6.5)'
+        specifier: npm:@lvhau1529/phonics-contracts@^1.8.0
+        version: '@lvhau1529/phonics-contracts@1.8.0(zod@4.6.5)'
       '@tanstack/react-query':
         specifier: ^5.104.0
         version: 5.104.0(react@19.3.0)
@@ -563,8 +563,8 @@ packages:
   '@keyv/serialize@1.1.1':
     resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
 
-  '@lvhau1529/phonics-contracts@1.7.0':
-    resolution: {integrity: sha512-+fmFJY55ynjVPEoxPwllOg50hXACH16D06CWcSsLfv/46NdstZjw56JC8ORcjHRI8AzcpTwB1nub7x5TA2InZA==, tarball: https://npm.pkg.github.com/download/@lvhau1529/phonics-contracts/1.7.0/294fecbf4e4ccab1fe011cd0a45d29e53fec53cf}
+  '@lvhau1529/phonics-contracts@1.8.0':
+    resolution: {integrity: sha512-UKZl1wQmIgk4c/O4ixwCNpP6jiBBfJ7KDd6mVp4UOzqeBqqY3cfTZPol1YLJhA/TyumrYOo4IYqdB7b1ramm7w==, tarball: https://npm.pkg.github.com/download/@lvhau1529/phonics-contracts/1.8.0/0b04429b6695b045f105f5144f9e8f810783af74}
     peerDependencies:
       zod: ^4.6.0
 
@@ -2546,7 +2546,7 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
-  '@lvhau1529/phonics-contracts@1.7.0(zod@4.6.5)':
+  '@lvhau1529/phonics-contracts@1.8.0(zod@4.6.5)':
     dependencies:
       zod: 4.6.5
 
