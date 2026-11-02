@@ -20,7 +20,7 @@ pnpm test         # vitest (jsdom + Testing Library)
 ```
 
 Tài khoản demo (API seed với `SEED_DEMO=true`): admin `admin@phonics.local` (mật khẩu trong `.env` của
-phonics-api, `ADMIN_PASSWORD`), giáo viên `teacher1@demo.local` / `Demo1234!`. Học sinh **không** đăng nhập được admin.
+phonics-api, `ADMIN_PASSWORD`), giáo viên `teacher1@demo.local` / `12345678`. Học sinh **không** đăng nhập được admin.
 
 ## Env
 
