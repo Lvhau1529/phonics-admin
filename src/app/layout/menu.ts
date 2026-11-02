@@ -23,13 +23,14 @@ export interface MenuEntry {
     | 'assignment'
     | 'approval'
     | 'guardian'
-    | 'extra';
+    | 'extra'
+    | 'attendance';
   /** Không khai báo = mọi role đã đăng nhập (ADMIN / TEACHER) */
   roles?: readonly Role[];
   /** Cần quyền này (ADMIN luôn qua) — router cũng chặn bằng RequirePermission */
   permission?: Permission;
-  /** Hiện badge số đơn chờ (AppShell lấy số) */
-  badge?: 'pendingFamilies';
+  /** Hiện badge số việc chờ (AppShell lấy số): đơn chờ duyệt / buổi chờ xác nhận */
+  badge?: 'pendingFamilies' | 'pendingAttendance';
 }
 
 /** Menu trái theo thứ tự hiển thị; lọc theo role ở AppShell (router cũng chặn lại bằng RequireRole) */
@@ -55,6 +56,13 @@ export const MENU: readonly MenuEntry[] = [
     permission: 'guardians.manage',
   },
   { key: 'extraSlots', path: ROUTES.extraSlots, labelKey: 'extraSlots', icon: 'extra' },
+  {
+    key: 'attendance',
+    path: ROUTES.attendance,
+    labelKey: 'attendance',
+    icon: 'attendance',
+    badge: 'pendingAttendance',
+  },
   { key: 'points', path: ROUTES.points, labelKey: 'points', icon: 'points' },
   { key: 'questions', path: ROUTES.questions, labelKey: 'questions', icon: 'question' },
   { key: 'worksheets', path: ROUTES.worksheets, labelKey: 'worksheets', icon: 'worksheet' },

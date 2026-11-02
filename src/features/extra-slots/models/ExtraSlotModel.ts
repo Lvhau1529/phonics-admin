@@ -1,5 +1,7 @@
 import {
   studentFullName,
+  type AffectedRecord,
+  type AffectedSession,
   type AppliedRate,
   type AvatarKey,
   type ExtraRate,
@@ -127,6 +129,8 @@ export class SlotAssignmentModel {
   readonly note: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
+  /** Chỉ có ở response tạo / sửa / chuyển: buổi đã xác nhận lệch với lịch mới */
+  readonly affectedSessions: AffectedSession[];
 
   constructor(data: SlotAssignment) {
     this.id = data.id;
@@ -137,6 +141,7 @@ export class SlotAssignmentModel {
     this.note = data.note;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
+    this.affectedSessions = data.affectedSessions ?? [];
   }
 
   get slotLabel(): string {
@@ -210,6 +215,8 @@ export class ExtraRateModel {
   readonly note: string | null;
   readonly createdBy: { id: string; displayName: string } | null;
   readonly createdAt: string;
+  /** Chỉ có ở response đặt giá: bản ghi đã xác nhận có đơn giá khác giá mới */
+  readonly affectedRecords: AffectedRecord[];
 
   constructor(data: ExtraRate) {
     this.id = data.id;
@@ -221,6 +228,7 @@ export class ExtraRateModel {
     this.note = data.note;
     this.createdBy = data.createdBy;
     this.createdAt = data.createdAt;
+    this.affectedRecords = data.affectedRecords ?? [];
   }
 
   get state(): RateState {

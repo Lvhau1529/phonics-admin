@@ -5,7 +5,11 @@
  */
 import type {
   AssignmentStatus,
+  AttendanceMark,
+  AttendanceRecordSource,
+  AttendanceSessionStatus,
   AuditAction,
+  ConfirmedVia,
   ContentStatus,
   EndedBy,
   GameId,
@@ -55,6 +59,7 @@ export const vi = {
     families: 'Duyệt tài khoản',
     guardians: 'Phụ huynh',
     extraSlots: 'Ca học thêm',
+    attendance: 'Điểm danh',
     signOut: 'Đăng xuất',
   },
 
@@ -199,6 +204,28 @@ export const vi = {
     SLOT: 'Mặc định ca',
     NONE: 'Chưa có giá',
   } satisfies Record<RateSource, string>,
+
+  attendanceStatus: {
+    PENDING: 'Chờ xác nhận',
+    CONFIRMED: 'Đã xác nhận',
+    CANCELLED: 'Đã huỷ',
+  } satisfies Record<AttendanceSessionStatus, string>,
+
+  attendanceMark: {
+    PRESENT: 'Có mặt',
+    ABSENT: 'Vắng',
+    EXCUSED: 'Có phép',
+  } satisfies Record<AttendanceMark, string>,
+
+  attendanceSource: {
+    SNAPSHOT: 'Theo lịch',
+    MANUAL: 'Thêm tay',
+  } satisfies Record<AttendanceRecordSource, string>,
+
+  confirmedVia: {
+    APP: 'trong app',
+    EMAIL: 'qua mail',
+  } satisfies Record<ConfirmedVia, string>,
 
   guardianRelation: {
     MOTHER: 'Mẹ',
@@ -563,6 +590,86 @@ export const vi = {
     searchStudent: 'Tìm học sinh theo tên / email',
   },
 
+  attendance: {
+    title: 'Điểm danh',
+    session: 'Buổi',
+    date: 'Ngày',
+    makeUp: 'Buổi bù',
+    makeUpHint: 'Buổi không theo ca (học bù) — tạo xong thêm học sinh ở trang buổi.',
+    createMakeUp: 'Tạo buổi bù',
+    present: 'Có mặt',
+    confirmed: 'Xác nhận',
+    mark: 'Điểm danh',
+    unitPrice: 'Đơn giá',
+    charged: 'Tính phí',
+    students: 'Học sinh của buổi',
+    noStudents: 'Chưa có học sinh',
+    noSessions: 'Chưa có buổi nào',
+    addStudent: 'Thêm học sinh',
+    addStudentHint: 'Học sinh học bù / học thử ở buổi này (không đổi lịch học của học sinh).',
+    removeConfirm: 'Bỏ học sinh này khỏi buổi?',
+    editSchedule: 'Sửa lịch học sinh',
+    sessionNote: 'Ghi chú buổi học',
+    confirm: 'Xác nhận',
+    confirmAgain: 'Xác nhận lại',
+    confirmedDone: 'Đã xác nhận buổi',
+    confirmedEditHint: 'Buổi đã xác nhận — sửa điểm danh vẫn được, mọi thay đổi được ghi nhật ký.',
+    missingRate: (n: number) =>
+      `${n} học sinh chưa có đơn giá (tính 0 ₫) — đặt giá ở trang ca hoặc trang học sinh.`,
+    countText: (students: number, present: number) => `${students} học sinh · ${present} có mặt`,
+    confirmedBy: (name: string, at: string) => `Đã xác nhận bởi ${name} lúc ${at}`,
+    cancelSessions: 'Huỷ buổi',
+    cancelHint:
+      'Buổi bị huỷ không tính phí. Huỷ theo ngày (nghỉ lễ) thì cả các buổi chưa tạo của ngày đó cũng bị huỷ.',
+    cancelSelected: (n: number) => `${n} buổi đang chọn`,
+    cancelByDate: 'Cả một ngày',
+    cancelReason: 'Lý do huỷ',
+    cancelReasonPlaceholder: 'Nghỉ lễ Quốc khánh',
+    cancelledCount: (n: number) => `Đã huỷ ${n} buổi`,
+    monthly: 'Điểm danh theo tháng',
+    monthFormat: 'MM/YYYY',
+    noSessionsInMonth: 'Không có buổi nào trong tháng',
+    chargedTotal: 'Tổng tiền tính phí',
+    recentSessions: 'Buổi gần đây',
+    viewAll: 'Xem tất cả',
+    affectedSessionsTitle: (n: number) => `Cập nhật luôn ${n} buổi đã xác nhận?`,
+    affectedSessionsHint:
+      'Các buổi chưa xác nhận đã được cập nhật theo lịch mới. Những buổi đã xác nhận dưới đây đang lệch với lịch mới:',
+    affectedChange: { ADD: 'thêm học sinh', REMOVE: 'bỏ học sinh' },
+    affectedRecordsTitle: (n: number) => `Áp giá mới cho ${n} lượt đã xác nhận?`,
+    affectedRecordsHint:
+      'Các buổi chưa xác nhận đã dùng giá mới. Những buổi đã xác nhận trong khoảng ngày áp dụng đang chốt giá cũ.',
+    totalDelta: 'Chênh lệch (buổi tính phí)',
+    andMore: (n: number) => `và ${n} buổi khác`,
+    applyToSessions: 'Cập nhật luôn',
+    skipApply: 'Giữ nguyên',
+    appliedCount: (n: number) => `Đã cập nhật ${n} buổi`,
+  },
+
+  publicDigest: {
+    title: 'Xác nhận điểm danh',
+    greeting: (name: string) => `Chào ${name}`,
+    subtitle: (date: string, expires: string) =>
+      `Các buổi học thêm cần xác nhận — ${date}. Link hết hạn lúc ${expires}.`,
+    confirmSelected: (n: number) => `Duyệt ${n} buổi đã chọn`,
+    confirmAll: (n: number) => `Duyệt tất cả ${n} buổi`,
+    outcome: (confirmed: number, already: number, rejected: number) =>
+      [
+        `Đã duyệt ${confirmed} buổi`,
+        already ? `${already} buổi đã được xác nhận trước đó` : null,
+        rejected
+          ? `${rejected} buổi không duyệt được (danh sách đã đổi hoặc buổi đã huỷ) — đăng nhập để xem`
+          : null,
+      ]
+        .filter(Boolean)
+        .join('. '),
+    nothingLeft: 'Không còn buổi nào cần duyệt từ link này.',
+    changedSignIn: 'Danh sách đã đổi — đăng nhập để xem',
+    invalid: 'Link không dùng được',
+    editHint: 'Có học sinh vắng hoặc cần thêm học sinh?',
+    signInToEdit: 'Đăng nhập để sửa',
+  },
+
   studentExtra: {
     tab: 'Học thêm',
     schedule: 'Lịch học thêm',
@@ -734,6 +841,12 @@ export const vi = {
       'slotAssignment.update': 'Sửa lịch học thêm',
       'slotAssignment.move': 'Chuyển ca học thêm',
       'extraRate.create': 'Đặt đơn giá học thêm',
+      'extraRate.reprice': 'Áp giá mới cho buổi đã xác nhận',
+      'slotAssignment.apply': 'Áp lịch mới cho buổi đã xác nhận',
+      'attendance.updateRecords': 'Sửa điểm danh',
+      'attendance.confirm': 'Xác nhận buổi học thêm',
+      'attendance.cancelSession': 'Huỷ buổi học thêm',
+      'attendance.createSession': 'Tạo buổi bù',
     } satisfies Record<AuditAction, string>,
   },
 
@@ -1190,6 +1303,7 @@ export const vi = {
     'extra.manageSchedule': 'Xếp lịch học thêm',
     'extra.viewPricing': 'Xem đơn giá học thêm',
     'extra.managePricing': 'Đặt đơn giá học thêm',
+    'attendance.confirm': 'Điểm danh học thêm',
   } satisfies Record<Permission, string>,
 
   /** Mô tả dài theo ngôn ngữ; thiếu mã nào thì trang Phân quyền dùng `description` từ contracts (tiếng Việt) */
@@ -1214,5 +1328,6 @@ export const vi = {
     'extra.manageSchedule': 'Xếp / sửa lịch học thêm của học sinh (giáo viên: ca mình dạy)',
     'extra.viewPricing': 'Xem đơn giá học thêm (giáo viên: ca mình dạy)',
     'extra.managePricing': 'Đặt giá mặc định của ca, giá riêng học sinh (giáo viên: ca mình dạy)',
+    'attendance.confirm': 'Điểm danh và xác nhận buổi học thêm (giáo viên: buổi mình dạy)',
   } satisfies Partial<Record<Permission, string>>,
 };

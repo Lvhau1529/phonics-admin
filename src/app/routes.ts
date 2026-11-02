@@ -16,6 +16,10 @@ export const ROUTES = {
   familiesPending: '/families/pending',
   extraSlots: '/extra-slots',
   extraSlotDetail: (id: string) => `/extra-slots/${id}`,
+  attendance: '/attendance',
+  attendanceSession: (id: string) => `/attendance/sessions/${id}`,
+  /** Trang public duyệt nhanh từ mail 21:00 (không cần đăng nhập) */
+  publicDigest: (token: string) => `/a/attendance/${token}`,
   reports: '/reports',
   profile: '/profile',
   // Phiếu bài tập

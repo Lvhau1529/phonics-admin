@@ -1,6 +1,7 @@
 import {
   AuditOutlined,
   BarChartOutlined,
+  CarryOutOutlined,
   CheckSquareOutlined,
   CalendarOutlined,
   DashboardOutlined,
@@ -23,6 +24,7 @@ import { Suspense, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { activeMenuKey, menuFor, type MenuEntry } from '@/app/layout/menu';
 import { ROUTES } from '@/app/routes';
+import { AttendanceService } from '@/features/attendance/api/attendanceService';
 import { signOut, useAuth } from '@/features/auth/authStore';
 import { FamiliesService } from '@/features/families/api/familiesService';
 import { t } from '@/shared/i18n';
@@ -51,6 +53,7 @@ const ICONS: Record<MenuEntry['icon'], ReactNode> = {
   approval: <CheckSquareOutlined />,
   guardian: <UsergroupAddOutlined />,
   extra: <ScheduleOutlined />,
+  attendance: <CarryOutOutlined />,
 };
 
 /**
@@ -70,25 +73,38 @@ export function AppShell() {
 
   const entries = menuFor(auth.role, auth.can);
   // Badge số đơn chờ duyệt (chỉ gọi API khi menu có mục Duyệt tài khoản)
-  const pendingCount = FamiliesService.usePendingCount(
+  const pendingFamilies = FamiliesService.usePendingCount(
     entries.some((e) => e.badge === 'pendingFamilies'),
   ).data;
-  const items: MenuProps['items'] = entries.map((entry) => ({
-    key: entry.key,
-    icon: ICONS[entry.icon],
-    label: (
-      <Link to={entry.path}>
-        {entry.badge === 'pendingFamilies' && pendingCount ? (
-          <Flex align="center" justify="space-between" gap={8}>
-            {t.nav[entry.labelKey]}
-            <Badge count={pendingCount} size="small" />
-          </Flex>
-        ) : (
-          t.nav[entry.labelKey]
-        )}
-      </Link>
-    ),
-  }));
+  // Badge số buổi học thêm chờ xác nhận
+  const pendingAttendance = AttendanceService.usePendingCount(
+    entries.some((e) => e.badge === 'pendingAttendance'),
+  ).data;
+  const badgeCount = (badge: MenuEntry['badge']): number | undefined =>
+    badge === 'pendingFamilies'
+      ? pendingFamilies
+      : badge === 'pendingAttendance'
+        ? pendingAttendance
+        : undefined;
+  const items: MenuProps['items'] = entries.map((entry) => {
+    const count = badgeCount(entry.badge);
+    return {
+      key: entry.key,
+      icon: ICONS[entry.icon],
+      label: (
+        <Link to={entry.path}>
+          {count ? (
+            <Flex align="center" justify="space-between" gap={8}>
+              {t.nav[entry.labelKey]}
+              <Badge count={count} size="small" />
+            </Flex>
+          ) : (
+            t.nav[entry.labelKey]
+          )}
+        </Link>
+      ),
+    };
+  });
   const selected = activeMenuKey(location.pathname);
 
   const userMenu: MenuProps['items'] = [

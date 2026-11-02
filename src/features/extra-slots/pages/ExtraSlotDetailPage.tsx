@@ -17,6 +17,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
+import { RecentSessionsCard } from '@/features/attendance/components/RecentSessionsCard';
 import { useAuth } from '@/features/auth/authStore';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import { ExtraSlotFormDrawer } from '@/features/extra-slots/components/ExtraSlotFormDrawer';
@@ -225,6 +226,8 @@ export function ExtraSlotDetailPage() {
             locale={{ emptyText: t.extraSlots.noStudents }}
           />
         </Card>
+
+        <RecentSessionsCard slotId={slot.id} />
       </Flex>
 
       <ExtraSlotFormDrawer open={editing} slot={slot} onClose={() => setEditing(false)} />

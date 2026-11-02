@@ -4,7 +4,11 @@
  */
 import type {
   AssignmentStatus,
+  AttendanceMark,
+  AttendanceRecordSource,
+  AttendanceSessionStatus,
   AuditAction,
+  ConfirmedVia,
   ContentStatus,
   EndedBy,
   GameId,
@@ -53,6 +57,7 @@ export const en = {
     families: 'Account approval',
     guardians: 'Parents',
     extraSlots: 'Extra classes',
+    attendance: 'Attendance',
     signOut: 'Sign out',
   },
 
@@ -194,6 +199,28 @@ export const en = {
     SLOT: 'Slot default',
     NONE: 'No price',
   } satisfies Record<RateSource, string>,
+
+  attendanceStatus: {
+    PENDING: 'Awaiting confirmation',
+    CONFIRMED: 'Confirmed',
+    CANCELLED: 'Cancelled',
+  } satisfies Record<AttendanceSessionStatus, string>,
+
+  attendanceMark: {
+    PRESENT: 'Present',
+    ABSENT: 'Absent',
+    EXCUSED: 'Excused',
+  } satisfies Record<AttendanceMark, string>,
+
+  attendanceSource: {
+    SNAPSHOT: 'Scheduled',
+    MANUAL: 'Added',
+  } satisfies Record<AttendanceRecordSource, string>,
+
+  confirmedVia: {
+    APP: 'in the app',
+    EMAIL: 'via email',
+  } satisfies Record<ConfirmedVia, string>,
 
   guardianRelation: {
     MOTHER: 'Mother',
@@ -561,6 +588,86 @@ export const en = {
     searchStudent: 'Search students by name / email',
   },
 
+  attendance: {
+    title: 'Attendance',
+    session: 'Session',
+    date: 'Date',
+    makeUp: 'Make-up session',
+    makeUpHint: 'A session outside the weekly slots — add students on the session page after creating it.',
+    createMakeUp: 'New make-up session',
+    present: 'Present',
+    confirmed: 'Confirmation',
+    mark: 'Attendance',
+    unitPrice: 'Price',
+    charged: 'Charged',
+    students: 'Students in this session',
+    noStudents: 'No students yet',
+    noSessions: 'No sessions yet',
+    addStudent: 'Add student',
+    addStudentHint: "A make-up or trial student for this session only (the student's schedule is unchanged).",
+    removeConfirm: 'Remove this student from the session?',
+    editSchedule: "Edit student's schedule",
+    sessionNote: 'Session note',
+    confirm: 'Confirm',
+    confirmAgain: 'Confirm again',
+    confirmedDone: 'Session confirmed',
+    confirmedEditHint: 'This session is confirmed — you can still edit it; every change is logged.',
+    missingRate: (n) =>
+      `${n} student(s) have no price (charged 0 ₫) — set a price on the slot or student page.`,
+    countText: (students, present) => `${students} students · ${present} present`,
+    confirmedBy: (name, at) => `Confirmed by ${name} at ${at}`,
+    cancelSessions: 'Cancel sessions',
+    cancelHint:
+      'Cancelled sessions are not charged. Cancelling a whole day (holiday) also cancels sessions not created yet.',
+    cancelSelected: (n) => `${n} selected session(s)`,
+    cancelByDate: 'A whole day',
+    cancelReason: 'Reason',
+    cancelReasonPlaceholder: 'National holiday',
+    cancelledCount: (n) => `Cancelled ${n} session(s)`,
+    monthly: 'Monthly attendance',
+    monthFormat: 'MM/YYYY',
+    noSessionsInMonth: 'No sessions this month',
+    chargedTotal: 'Total charged',
+    recentSessions: 'Recent sessions',
+    viewAll: 'View all',
+    affectedSessionsTitle: (n) => `Also update ${n} confirmed session(s)?`,
+    affectedSessionsHint:
+      'Unconfirmed sessions already follow the new schedule. These confirmed sessions differ from it:',
+    affectedChange: { ADD: 'add student', REMOVE: 'remove student' },
+    affectedRecordsTitle: (n) => `Apply the new price to ${n} confirmed record(s)?`,
+    affectedRecordsHint:
+      'Unconfirmed sessions already use the new price. These confirmed sessions in the date range keep the old price.',
+    totalDelta: 'Difference (charged sessions)',
+    andMore: (n) => `and ${n} more`,
+    applyToSessions: 'Update them',
+    skipApply: 'Keep as is',
+    appliedCount: (n) => `Updated ${n} session(s)`,
+  },
+
+  publicDigest: {
+    title: 'Confirm attendance',
+    greeting: (name) => `Hello ${name}`,
+    subtitle: (date, expires) =>
+      `Extra-class sessions to confirm — ${date}. This link expires at ${expires}.`,
+    confirmSelected: (n) => `Confirm ${n} selected`,
+    confirmAll: (n) => `Confirm all ${n}`,
+    outcome: (confirmed, already, rejected) =>
+      [
+        `Confirmed ${confirmed} session(s)`,
+        already ? `${already} were already confirmed` : null,
+        rejected
+          ? `${rejected} could not be confirmed (list changed or session cancelled) — sign in to review`
+          : null,
+      ]
+        .filter(Boolean)
+        .join('. '),
+    nothingLeft: 'Nothing left to confirm from this link.',
+    changedSignIn: 'List changed — sign in to review',
+    invalid: 'This link cannot be used',
+    editHint: 'A student was absent or needs to be added?',
+    signInToEdit: 'Sign in to edit',
+  },
+
   studentExtra: {
     tab: 'Extra classes',
     schedule: 'Extra-class schedule',
@@ -732,6 +839,12 @@ export const en = {
       'slotAssignment.update': 'Edit extra-class schedule',
       'slotAssignment.move': 'Move student to another slot',
       'extraRate.create': 'Set extra-class price',
+      'extraRate.reprice': 'Apply new price to confirmed sessions',
+      'slotAssignment.apply': 'Apply new schedule to confirmed sessions',
+      'attendance.updateRecords': 'Edit attendance',
+      'attendance.confirm': 'Confirm extra-class session',
+      'attendance.cancelSession': 'Cancel extra-class session',
+      'attendance.createSession': 'Create make-up session',
     } satisfies Record<AuditAction, string>,
   },
 
@@ -1189,6 +1302,7 @@ export const en = {
     'extra.manageSchedule': 'Manage extra-class schedules',
     'extra.viewPricing': 'View extra-class prices',
     'extra.managePricing': 'Set extra-class prices',
+    'attendance.confirm': 'Take extra-class attendance',
   } satisfies Record<Permission, string>,
 
   permissionDescription: {
@@ -1211,5 +1325,6 @@ export const en = {
     'extra.manageSchedule': "Manage students' extra-class schedules (teachers: own slots)",
     'extra.viewPricing': 'View extra-class prices (teachers: own slots)',
     'extra.managePricing': 'Set slot default prices and student prices (teachers: own slots)',
+    'attendance.confirm': 'Take attendance and confirm extra-class sessions (teachers: own sessions)',
   } satisfies Partial<Record<Permission, string>>,
 } satisfies typeof vi;

@@ -58,12 +58,22 @@ const api = {
     new SlotAssignmentModel(await extraSlotsRepository.moveAssignment(studentId, assignmentId, body)),
   createStudentRate: async (studentId: string, body: CreateStudentRateBody) =>
     new ExtraRateModel(await extraSlotsRepository.createStudentRate(studentId, body)),
+  // Kết quả áp vào buổi đã xác nhận là response xác nhận → giữ DTO
+  applyAssignments: (studentId: string, sessionIds: string[]) =>
+    extraSlotsRepository.applyAssignments(studentId, sessionIds),
+  applyRate: (rateId: string, sessionIds: string[]) => extraSlotsRepository.applyRate(rateId, sessionIds),
 };
 
-/** Mọi dữ liệu học thêm (danh sách ca, chi tiết ca, học sinh của ca, giá, tab của học sinh) */
+/**
+ * Mọi dữ liệu học thêm (danh sách ca, chi tiết ca, học sinh của ca, giá, tab của học sinh) + điểm danh (đổi lịch /
+ * giá tự đồng bộ buổi chưa xác nhận)
+ */
 function useInvalidateExtra() {
   const qc = useQueryClient();
-  return () => void qc.invalidateQueries({ queryKey: qk.extraSlots.all });
+  return () => {
+    void qc.invalidateQueries({ queryKey: qk.extraSlots.all });
+    void qc.invalidateQueries({ queryKey: qk.attendance.all });
+  };
 }
 
 export const ExtraSlotsService = {
@@ -155,6 +165,24 @@ export const ExtraSlotsService = {
     return useMutation({
       mutationFn: ({ studentId, body }: { studentId: string; body: CreateStudentRateBody }) =>
         api.createStudentRate(studentId, body),
+      onSuccess: invalidate,
+    });
+  },
+
+  useApplyAssignments() {
+    const invalidate = useInvalidateExtra();
+    return useMutation({
+      mutationFn: ({ studentId, sessionIds }: { studentId: string; sessionIds: string[] }) =>
+        api.applyAssignments(studentId, sessionIds),
+      onSuccess: invalidate,
+    });
+  },
+
+  useApplyRate() {
+    const invalidate = useInvalidateExtra();
+    return useMutation({
+      mutationFn: ({ rateId, sessionIds }: { rateId: string; sessionIds: string[] }) =>
+        api.applyRate(rateId, sessionIds),
       onSuccess: invalidate,
     });
   },

@@ -33,6 +33,8 @@ export interface TableQuery<F extends string> {
   setSort: (sort: string | undefined) => void;
   setQ: (q: string | undefined) => void;
   setFilter: (key: F, value: string | undefined) => void;
+  /** Đổi nhiều bộ lọc cùng lúc (vd from + to của khoảng ngày) */
+  setFilters: (patch: Partial<Record<F, string | undefined>>) => void;
   reset: () => void;
 }
 
@@ -97,6 +99,10 @@ export function useTableQuery<F extends string = never>(options: TableQueryOptio
     (key: F, value: string | undefined) => update({ [key]: value, page: 1 }),
     [update],
   );
+  const setFilters = useCallback(
+    (patch: Partial<Record<F, string | undefined>>) => update({ ...patch, page: 1 }),
+    [update],
+  );
   const reset = useCallback(
     () => setSearchParams(new URLSearchParams(), { replace: true }),
     [setSearchParams],
@@ -107,5 +113,5 @@ export function useTableQuery<F extends string = never>(options: TableQueryOptio
     [page, pageSize, sort, q, filters],
   );
 
-  return { page, pageSize, sort, q, filters, params, setPage, setSort, setQ, setFilter, reset };
+  return { page, pageSize, sort, q, filters, params, setPage, setSort, setQ, setFilter, setFilters, reset };
 }

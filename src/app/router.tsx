@@ -29,6 +29,11 @@ const page = (load: () => Promise<{ default: ComponentType }>): RouteObject['laz
 
 export const routes: RouteObject[] = [
   { path: ROUTES.login, element: <LoginPage /> },
+  // Duyệt nhanh điểm danh từ mail 21:00: public (token trong link), ngoài RequireAuth / AppShell
+  {
+    path: 'a/attendance/:token',
+    lazy: page(() => import('@/features/attendance/pages/PublicDigestPage')),
+  },
   {
     element: <RequireAuth />,
     children: [
@@ -56,6 +61,11 @@ export const routes: RouteObject[] = [
           {
             path: 'extra-slots/:id',
             lazy: page(() => import('@/features/extra-slots/pages/ExtraSlotDetailPage')),
+          },
+          { path: 'attendance', lazy: page(() => import('@/features/attendance/pages/AttendancePage')) },
+          {
+            path: 'attendance/sessions/:id',
+            lazy: page(() => import('@/features/attendance/pages/AttendanceSessionPage')),
           },
           { path: 'points', lazy: page(() => import('@/features/points/pages/PointsPage')) },
           { path: 'reports', lazy: page(() => import('@/features/reports/pages/ReportsPage')) },

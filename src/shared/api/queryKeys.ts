@@ -57,6 +57,16 @@ export const qk = {
     /** Tab "Học thêm" của học sinh (cùng prefix để đổi lịch / giá là làm mới cả hai phía) */
     student: (studentId: string) => ['extra-slots', 'student', studentId] as const,
   },
+  attendance: {
+    all: ['attendance'] as const,
+    list: (params: QueryParams) => ['attendance', 'list', params] as const,
+    detail: (id: string) => ['attendance', 'detail', id] as const,
+    pendingCount: ['attendance', 'pending', 'count'] as const,
+    /** Điểm danh theo tháng của học sinh */
+    student: (studentId: string, month: string) => ['attendance', 'student', studentId, month] as const,
+    /** Trang duyệt nhanh qua mail (public) */
+    digest: (token: string) => ['attendance', 'digest', token] as const,
+  },
   families: {
     all: ['families'] as const,
     pending: ['families', 'pending'] as const,

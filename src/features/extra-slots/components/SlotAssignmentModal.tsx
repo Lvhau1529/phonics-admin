@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import { ExtraSlotSelect } from '@/features/extra-slots/components/ExtraSlotSelect';
 import { StudentPickSelect } from '@/features/extra-slots/components/StudentPickSelect';
+import { useAffectedPrompt } from '@/features/extra-slots/components/useAffectedPrompt';
 import type { SlotAssignmentModel } from '@/features/extra-slots/models/ExtraSlotModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -53,6 +54,7 @@ export function SlotAssignmentModal({
   const create = ExtraSlotsService.useCreateAssignment();
   const update = ExtraSlotsService.useUpdateAssignment();
   const move = ExtraSlotsService.useMoveAssignment();
+  const prompt = useAffectedPrompt();
 
   useEffect(() => {
     if (!action) return;
@@ -83,7 +85,8 @@ export function SlotAssignmentModal({
         applyFieldErrors(form, parsed.success ? { studentId: [t.common.requiredField] } : parsed.fieldErrors);
         return false;
       }
-      await create.mutateAsync({ studentId, body: parsed.data });
+      const created = await create.mutateAsync({ studentId, body: parsed.data });
+      prompt.sessions(studentId, created.affectedSessions);
       return true;
     }
     const { studentId, assignment } = action;
@@ -97,7 +100,8 @@ export function SlotAssignmentModal({
         applyFieldErrors(form, { ...parsed.fieldErrors, effectiveFrom: parsed.fieldErrors.from ?? [] });
         return false;
       }
-      await move.mutateAsync({ studentId, assignmentId: assignment.id, body: parsed.data });
+      const moved = await move.mutateAsync({ studentId, assignmentId: assignment.id, body: parsed.data });
+      prompt.sessions(studentId, moved.affectedSessions);
       return true;
     }
     const next =
@@ -121,7 +125,8 @@ export function SlotAssignmentModal({
       applyFieldErrors(form, parsed.fieldErrors);
       return false;
     }
-    await update.mutateAsync({ studentId, assignmentId: assignment.id, body: parsed.data });
+    const updated = await update.mutateAsync({ studentId, assignmentId: assignment.id, body: parsed.data });
+    prompt.sessions(studentId, updated.affectedSessions);
     return true;
   };
 

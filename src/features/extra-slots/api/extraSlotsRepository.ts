@@ -3,6 +3,7 @@
  * contracts, trả DTO đúng như BE.
  */
 import {
+  ApplyToSessionsResponse,
   ENDPOINTS,
   ExtraRate,
   ExtraRatesResponse,
@@ -63,4 +64,18 @@ export const extraSlotsRepository = {
     }),
   createStudentRate: (studentId: string, body: CreateStudentRateBody) =>
     request(ENDPOINTS.students.rates(studentId), { method: HttpMethod.POST, body, schema: ExtraRate }),
+  /** Áp lịch mới vào các buổi đã xác nhận được liệt kê */
+  applyAssignments: (studentId: string, sessionIds: string[]) =>
+    request(ENDPOINTS.students.applySlotAssignments(studentId), {
+      method: HttpMethod.POST,
+      body: { sessionIds },
+      schema: ApplyToSessionsResponse,
+    }),
+  /** Tính lại đơn giá các buổi đã xác nhận được liệt kê theo giá mới */
+  applyRate: (rateId: string, sessionIds: string[]) =>
+    request(ENDPOINTS.extraRates.apply(rateId), {
+      method: HttpMethod.POST,
+      body: { sessionIds },
+      schema: ApplyToSessionsResponse,
+    }),
 };

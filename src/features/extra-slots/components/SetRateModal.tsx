@@ -1,6 +1,8 @@
 import { App, DatePicker, Form, Input, InputNumber, Modal, Typography } from 'antd';
 import { CreateSlotRateBody, PricePerSession, type CreateSlotRateBody as RateBody } from '@phonics/contracts';
 import { useEffect } from 'react';
+import { useAffectedPrompt } from '@/features/extra-slots/components/useAffectedPrompt';
+import type { ExtraRateModel } from '@/features/extra-slots/models/ExtraSlotModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
@@ -21,7 +23,8 @@ interface SetRateModalProps {
   /** Giá đang áp dụng (điền sẵn) */
   currentPrice?: number | null;
   loading: boolean;
-  onSubmit: (body: RateBody) => Promise<unknown>;
+  /** Trả dòng giá vừa tạo (kèm bản ghi đã xác nhận bị lệch giá, nếu có) */
+  onSubmit: (body: RateBody) => Promise<ExtraRateModel>;
   onClose: () => void;
 }
 
@@ -37,6 +40,7 @@ export function SetRateModal({
 }: SetRateModalProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<RateFormValues>();
+  const prompt = useAffectedPrompt();
 
   useEffect(() => {
     if (!open) return;
@@ -51,9 +55,10 @@ export function SetRateModal({
     );
     if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
     try {
-      await onSubmit(parsed.data);
+      const rate = await onSubmit(parsed.data);
       message.success(t.extraSlots.priceSaved);
       onClose();
+      prompt.records(rate.id, rate.affectedRecords);
     } catch (error) {
       if (!applyServerErrors(form, error)) message.error(errorMessage(error));
     }

@@ -4,6 +4,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
+import { StudentAttendanceCard } from '@/features/attendance/components/StudentAttendanceCard';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import { RateHistoryTable } from '@/features/extra-slots/components/RateHistoryTable';
 import { RateSourceTag } from '@/features/extra-slots/components/RateSourceTag';
@@ -172,6 +173,8 @@ export function StudentExtraTab({ studentId }: { studentId: string }) {
           />
         </Card>
       )}
+
+      <StudentAttendanceCard studentId={studentId} />
 
       <SlotAssignmentModal action={action} onClose={() => setAction(undefined)} />
       <SetRateModal
