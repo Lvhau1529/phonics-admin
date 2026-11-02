@@ -29,6 +29,11 @@ const page = (load: () => Promise<{ default: ComponentType }>): RouteObject['laz
 
 export const routes: RouteObject[] = [
   { path: ROUTES.login, element: <LoginPage /> },
+  // Duyệt nhanh điểm danh từ mail 21:00: public (token trong link), ngoài RequireAuth / AppShell
+  {
+    path: 'a/attendance/:token',
+    lazy: page(() => import('@/features/attendance/pages/PublicDigestPage')),
+  },
   {
     element: <RequireAuth />,
     children: [
@@ -46,6 +51,22 @@ export const routes: RouteObject[] = [
           { path: 'classes/:id', lazy: page(() => import('@/features/classes/pages/ClassDetailPage')) },
           { path: 'students', lazy: page(() => import('@/features/students/pages/StudentsPage')) },
           { path: 'students/:id', lazy: page(() => import('@/features/students/pages/StudentDetailPage')) },
+          withPermission('families.approve', [
+            {
+              path: 'families/pending',
+              lazy: page(() => import('@/features/families/pages/FamiliesPendingPage')),
+            },
+          ]),
+          { path: 'extra-slots', lazy: page(() => import('@/features/extra-slots/pages/ExtraSlotsPage')) },
+          {
+            path: 'extra-slots/:id',
+            lazy: page(() => import('@/features/extra-slots/pages/ExtraSlotDetailPage')),
+          },
+          { path: 'attendance', lazy: page(() => import('@/features/attendance/pages/AttendancePage')) },
+          {
+            path: 'attendance/sessions/:id',
+            lazy: page(() => import('@/features/attendance/pages/AttendanceSessionPage')),
+          },
           { path: 'points', lazy: page(() => import('@/features/points/pages/PointsPage')) },
           { path: 'reports', lazy: page(() => import('@/features/reports/pages/ReportsPage')) },
           { path: 'profile', lazy: page(() => import('@/features/profile/pages/ProfilePage')) },
@@ -89,6 +110,9 @@ export const routes: RouteObject[] = [
             { path: 'games/:id', lazy: page(() => import('@/features/games/pages/GameDetailPage')) },
             { path: 'permissions', lazy: page(() => import('@/features/permissions/pages/PermissionsPage')) },
             { path: 'audit', lazy: page(() => import('@/features/audit/pages/AuditPage')) },
+            withPermission('guardians.manage', [
+              { path: 'guardians', lazy: page(() => import('@/features/guardians/pages/GuardiansPage')) },
+            ]),
           ]),
           { path: '*', element: <NotFoundPage /> },
         ],

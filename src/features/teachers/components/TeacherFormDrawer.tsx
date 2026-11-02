@@ -6,7 +6,7 @@ import {
   Password,
   SetUserPermissionGroupsBody,
   UpdateTeacherBody,
-  UserStatus,
+  type UserStatus,
   type AvatarKey,
 } from '@phonics/contracts';
 import { useEffect, useMemo } from 'react';
@@ -18,6 +18,7 @@ import type { TeacherModel } from '@/features/teachers/models/TeacherModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarSelect } from '@/shared/ui/AvatarSelect';
+import { EDITABLE_STATUSES } from '@/shared/utils/status';
 import {
   applyFieldErrors,
   applyServerErrors,
@@ -180,7 +181,7 @@ export function TeacherFormDrawer({ open, teacher, onClose }: TeacherFormDrawerP
         </Form.Item>
         {teacher ? (
           <Form.Item name="status" label={t.common.status}>
-            <Select options={UserStatus.options.map((s) => ({ value: s, label: t.userStatus[s] }))} />
+            <Select options={EDITABLE_STATUSES.map((s) => ({ value: s, label: t.userStatus[s] }))} />
           </Form.Item>
         ) : (
           <Form.Item name="classIds" label={t.teachers.classesCol}>

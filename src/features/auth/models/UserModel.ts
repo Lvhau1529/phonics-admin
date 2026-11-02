@@ -2,6 +2,7 @@ import {
   Role,
   type AuthProvider,
   type AvatarKey,
+  type LoginMode,
   type StudentClassRef,
   type User,
   type UserStatus,
@@ -11,7 +12,8 @@ import { t } from '@/shared/i18n';
 /** Người dùng đang đăng nhập (từ `User` của BE) + dữ liệu chỉ phía FE dùng */
 export class UserModel {
   readonly id: string;
-  readonly email: string;
+  /** null với học sinh vào qua tài khoản phụ huynh (admin / GV luôn có) */
+  readonly email: string | null;
   readonly role: Role;
   readonly status: UserStatus;
   readonly provider: AuthProvider;
@@ -19,6 +21,7 @@ export class UserModel {
   readonly avatarKey: AvatarKey;
   readonly class: StudentClassRef | null;
   readonly createdAt: string;
+  readonly loginMode: LoginMode | undefined;
 
   constructor(data: User) {
     this.id = data.id;
@@ -30,6 +33,7 @@ export class UserModel {
     this.avatarKey = data.avatarKey;
     this.class = data.class;
     this.createdAt = data.createdAt;
+    this.loginMode = data.loginMode;
   }
 
   get isAdmin(): boolean {
@@ -57,6 +61,7 @@ export class UserModel {
       avatarKey: this.avatarKey,
       class: this.class,
       createdAt: this.createdAt,
+      loginMode: this.loginMode,
     };
   }
 }

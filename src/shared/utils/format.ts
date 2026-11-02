@@ -18,6 +18,24 @@ function numberFormat(): Intl.NumberFormat {
 export const formatNumber = (n: number | null | undefined): string =>
   n === null || n === undefined ? t.common.none : numberFormat().format(n);
 
+const moneyFormats = new Map<string, Intl.NumberFormat>();
+
+/** Tiền theo ngôn ngữ hiện tại: 150000 → "150.000 ₫" (vi) / "₫150,000" (en) */
+export function formatMoney(n: number | null | undefined): string {
+  if (n === null || n === undefined) return t.common.none;
+  const locale = t.format.numberLocale;
+  let fmt = moneyFormats.get(locale);
+  if (!fmt) {
+    fmt = new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: t.format.currency,
+      maximumFractionDigits: 0,
+    });
+    moneyFormats.set(locale, fmt);
+  }
+  return fmt.format(n);
+}
+
 /** Điểm có dấu: +5 / -3 */
 export const formatSigned = (n: number): string =>
   n > 0 ? `+${numberFormat().format(n)}` : numberFormat().format(n);

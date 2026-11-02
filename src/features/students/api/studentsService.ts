@@ -60,13 +60,23 @@ export const StudentsService = {
 
   /** Học sinh của một lớp (≤100) cho ô chọn */
   useOptions(classId: string | undefined) {
-    const params: QueryParams = { classId, pageSize: 100, sort: 'displayName:asc' };
+    const params: QueryParams = { classId, pageSize: 100, sort: 'vietnameseName:asc' };
     return useQuery({
       queryKey: qk.students.list(params),
       queryFn: () => api.list(params),
       select: (data) => data.items,
       enabled: !!classId,
       staleTime: 60_000,
+    });
+  },
+
+  /** Ô tìm học sinh mọi lớp (tìm phía server theo tên / email) */
+  useSearch(q: string) {
+    const params: QueryParams = { q: q || undefined, pageSize: 20, sort: 'vietnameseName:asc' };
+    return useQuery({
+      queryKey: qk.students.list(params),
+      queryFn: () => api.list(params),
+      select: (data) => data.items,
     });
   },
 

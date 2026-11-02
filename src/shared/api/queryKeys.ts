@@ -43,6 +43,35 @@ export const qk = {
     gameResults: (id: string, params: QueryParams) => ['students', 'detail', id, 'results', params] as const,
     games: (id: string) => ['students', 'detail', id, 'games'] as const,
   },
+  guardians: {
+    all: ['guardians'] as const,
+    list: (params: QueryParams) => ['guardians', 'list', params] as const,
+    detail: (id: string) => ['guardians', 'detail', id] as const,
+  },
+  extraSlots: {
+    all: ['extra-slots'] as const,
+    list: (params: QueryParams) => ['extra-slots', 'list', params] as const,
+    detail: (id: string) => ['extra-slots', 'detail', id] as const,
+    students: (id: string, date: string) => ['extra-slots', 'detail', id, 'students', date] as const,
+    rates: (id: string) => ['extra-slots', 'detail', id, 'rates'] as const,
+    /** Tab "Học thêm" của học sinh (cùng prefix để đổi lịch / giá là làm mới cả hai phía) */
+    student: (studentId: string) => ['extra-slots', 'student', studentId] as const,
+  },
+  attendance: {
+    all: ['attendance'] as const,
+    list: (params: QueryParams) => ['attendance', 'list', params] as const,
+    detail: (id: string) => ['attendance', 'detail', id] as const,
+    pendingCount: ['attendance', 'pending', 'count'] as const,
+    /** Điểm danh theo tháng của học sinh */
+    student: (studentId: string, month: string) => ['attendance', 'student', studentId, month] as const,
+    /** Trang duyệt nhanh qua mail (public) */
+    digest: (token: string) => ['attendance', 'digest', token] as const,
+  },
+  families: {
+    all: ['families'] as const,
+    pending: ['families', 'pending'] as const,
+    pendingCount: ['families', 'pending', 'count'] as const,
+  },
   games: {
     all: ['games'] as const,
     catalog: ['games', 'catalog'] as const,

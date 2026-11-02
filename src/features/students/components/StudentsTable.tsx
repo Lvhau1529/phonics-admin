@@ -1,4 +1,4 @@
-import { Space, Typography } from 'antd';
+import { Space, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { UserStatus } from '@phonics/contracts';
 import type { StudentModel } from '@/features/students/models/StudentModel';
@@ -22,19 +22,40 @@ interface StudentsTableProps extends Omit<DataTableProps<StudentModel>, 'columns
 export function StudentsTable({ hideClass, renderActions, ...rest }: StudentsTableProps) {
   const columns: ColumnsType<StudentModel> = [
     {
-      title: t.common.name,
-      key: 'displayName',
+      title: t.students.vietnameseName,
+      // Sắp theo tên (từ cuối) rồi họ tên — server
+      key: 'vietnameseName',
       sorter: true,
       render: (_, s) => (
         <Space>
           <AvatarImg avatarKey={s.avatarKey} name={s.displayName} size="small" />
           <Link to={ROUTES.studentDetail(s.id)}>
-            <Typography.Text strong>{s.displayName}</Typography.Text>
+            <Typography.Text strong>{s.vietnameseName}</Typography.Text>
           </Link>
         </Space>
       ),
     },
-    { title: t.common.email, dataIndex: 'email', key: 'email', sorter: true },
+    {
+      title: t.students.englishName,
+      dataIndex: 'englishName',
+      render: (name: string | null) =>
+        name ?? <Typography.Text type="secondary">{t.common.none}</Typography.Text>,
+    },
+    {
+      title: t.common.email,
+      dataIndex: 'email',
+      key: 'email',
+      sorter: true,
+      render: (_: unknown, s: StudentModel) =>
+        s.email ?? <Typography.Text type="secondary">{t.common.none}</Typography.Text>,
+    },
+    {
+      title: t.students.loginMode,
+      dataIndex: 'loginMode',
+      render: (_: unknown, s: StudentModel) => (
+        <Tag color={s.isManaged ? 'gold' : undefined}>{s.loginModeLabel}</Tag>
+      ),
+    },
     ...(hideClass
       ? []
       : [

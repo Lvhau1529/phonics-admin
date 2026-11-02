@@ -45,7 +45,7 @@ export function ResetPasswordModal({ student, onClose }: ResetPasswordModalProps
       onCancel={onClose}
       onOk={() => form.submit()}
       confirmLoading={reset.isPending}
-      title={student ? t.students.resetPasswordTitle(student.displayName) : ''}
+      title={student ? t.students.resetPasswordTitle(student.fullName) : ''}
       okText={t.common.save}
       cancelText={t.common.cancel}
       destroyOnHidden

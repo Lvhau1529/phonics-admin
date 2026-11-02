@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { t } from '@/shared/i18n';
-import { formatDuration } from '@/shared/utils/format';
+import { formatDuration, formatMoney } from '@/shared/utils/format';
 
 describe('formatDuration', () => {
   it('không có giá trị → chuỗi "không có"', () => {
@@ -24,5 +24,13 @@ describe('formatDuration', () => {
   it('phút không quay vòng sau 59', () => {
     expect(formatDuration(3_605_000)).toBe('60:05');
     expect(formatDuration(4_500_000)).toBe('75:00');
+  });
+});
+
+describe('formatMoney', () => {
+  it('tiền VND không phần lẻ, rỗng → —', () => {
+    expect(formatMoney(150_000)).toMatch(/150[.,]000/);
+    expect(formatMoney(150_000)).toContain('₫');
+    expect(formatMoney(null)).toBe(t.common.none);
   });
 });

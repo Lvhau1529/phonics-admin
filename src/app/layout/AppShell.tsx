@@ -1,6 +1,8 @@
 import {
   AuditOutlined,
   BarChartOutlined,
+  CarryOutOutlined,
+  CheckSquareOutlined,
   CalendarOutlined,
   DashboardOutlined,
   FileExcelOutlined,
@@ -10,17 +12,21 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   ReadOutlined,
+  ScheduleOutlined,
   SafetyCertificateOutlined,
   TeamOutlined,
   TrophyOutlined,
   UserOutlined,
+  UsergroupAddOutlined,
 } from '@ant-design/icons';
-import { Button, Dropdown, Flex, Grid, Layout, Menu, theme, Typography, type MenuProps } from 'antd';
+import { Badge, Button, Dropdown, Flex, Grid, Layout, Menu, theme, Typography, type MenuProps } from 'antd';
 import { Suspense, useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { activeMenuKey, menuForRole, type MenuEntry } from '@/app/layout/menu';
+import { activeMenuKey, menuFor, type MenuEntry } from '@/app/layout/menu';
 import { ROUTES } from '@/app/routes';
+import { AttendanceService } from '@/features/attendance/api/attendanceService';
 import { signOut, useAuth } from '@/features/auth/authStore';
+import { FamiliesService } from '@/features/families/api/familiesService';
 import { t } from '@/shared/i18n';
 import { THEME_COLORS } from '@/shared/theme/theme';
 import { useThemeMode } from '@/shared/theme/themeStore';
@@ -44,6 +50,10 @@ const ICONS: Record<MenuEntry['icon'], ReactNode> = {
   question: <QuestionCircleOutlined />,
   worksheet: <FileTextOutlined />,
   assignment: <CalendarOutlined />,
+  approval: <CheckSquareOutlined />,
+  guardian: <UsergroupAddOutlined />,
+  extra: <ScheduleOutlined />,
+  attendance: <CarryOutOutlined />,
 };
 
 /**
@@ -61,11 +71,40 @@ export function AppShell() {
   const colors = THEME_COLORS[mode];
   const { token } = theme.useToken();
 
-  const items: MenuProps['items'] = menuForRole(auth.role).map((entry) => ({
-    key: entry.key,
-    icon: ICONS[entry.icon],
-    label: <Link to={entry.path}>{t.nav[entry.labelKey]}</Link>,
-  }));
+  const entries = menuFor(auth.role, auth.can);
+  // Badge số đơn chờ duyệt (chỉ gọi API khi menu có mục Duyệt tài khoản)
+  const pendingFamilies = FamiliesService.usePendingCount(
+    entries.some((e) => e.badge === 'pendingFamilies'),
+  ).data;
+  // Badge số buổi học thêm chờ xác nhận
+  const pendingAttendance = AttendanceService.usePendingCount(
+    entries.some((e) => e.badge === 'pendingAttendance'),
+  ).data;
+  const badgeCount = (badge: MenuEntry['badge']): number | undefined =>
+    badge === 'pendingFamilies'
+      ? pendingFamilies
+      : badge === 'pendingAttendance'
+        ? pendingAttendance
+        : undefined;
+  const items: MenuProps['items'] = entries.map((entry) => {
+    const count = badgeCount(entry.badge);
+    return {
+      key: entry.key,
+      icon: ICONS[entry.icon],
+      label: (
+        <Link to={entry.path}>
+          {count ? (
+            <Flex align="center" justify="space-between" gap={8}>
+              {t.nav[entry.labelKey]}
+              <Badge count={count} size="small" />
+            </Flex>
+          ) : (
+            t.nav[entry.labelKey]
+          )}
+        </Link>
+      ),
+    };
+  });
   const selected = activeMenuKey(location.pathname);
 
   const userMenu: MenuProps['items'] = [

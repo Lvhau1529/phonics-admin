@@ -6,6 +6,8 @@ import {
   type QuestionExample,
 } from '@phonics/contracts';
 import { useState } from 'react';
+import { useMediaMap } from '@/features/media/mediaMap';
+import { StudentAppPreview } from '@/features/questions/components/StudentAppPreview';
 import type { QuestionDraft } from '@/features/questions/components/editor/types';
 import { QuestionRenderer } from '@/features/questions/renderers/QuestionRenderer';
 import { checkAnswer, type CheckResult } from '@/features/questions/utils/checkAnswer';
@@ -19,9 +21,15 @@ interface QuestionPreviewPaneProps {
   example?: QuestionExample | null;
 }
 
-/** Xem trước như học sinh thấy + "Thử làm" (chấm tại chỗ bằng checkAnswer — chỉ để tham khảo) */
+type PaneMode = 'preview' | 'try' | 'student';
+
+/**
+ * Xem trước như học sinh thấy + "Thử làm" (chấm tại chỗ bằng checkAnswer — chỉ để tham khảo) + "Giao diện học
+ * sinh" (nhúng app học sinh thật, xem StudentAppPreview)
+ */
 export function QuestionPreviewPane({ draft, instruction, example }: QuestionPreviewPaneProps) {
-  const [mode, setMode] = useState<'preview' | 'try'>('preview');
+  const { media } = useMediaMap();
+  const [mode, setMode] = useState<PaneMode>('preview');
   const [answer, setAnswer] = useState<QuestionAnswer | null>(null);
   const [result, setResult] = useState<CheckResult | null>(null);
   const config = QuestionConfig.safeParse(draft.config);
@@ -60,7 +68,7 @@ export function QuestionPreviewPane({ draft, instruction, example }: QuestionPre
       size="small"
       title={t.questions.preview}
       extra={
-        <Segmented<'preview' | 'try'>
+        <Segmented<PaneMode>
           size="small"
           value={mode}
           onChange={(m) => {
@@ -70,45 +78,63 @@ export function QuestionPreviewPane({ draft, instruction, example }: QuestionPre
           options={[
             { value: 'preview', label: t.questions.preview },
             { value: 'try', label: t.questions.tryIt },
+            { value: 'student', label: t.questions.studentApp },
           ]}
         />
       }
     >
-      <Flex vertical gap={12}>
-        <QuestionRenderer
-          config={config.data}
-          answerKey={result && key.success ? key.data : null}
-          answer={answer}
-          mode={result ? 'review' : mode}
-          onChange={mode === 'try' && !result ? setAnswer : undefined}
-          parts={result?.parts}
-          instruction={instruction}
-          example={example}
+      {mode === 'student' ? (
+        <StudentAppPreview
+          title=""
+          items={[
+            {
+              key: 'question',
+              instruction: instruction ?? '',
+              example: example ?? null,
+              config: config.data,
+              answerKey: key.success ? key.data : null,
+            },
+          ]}
+          media={media}
+          maxHeight={560}
         />
-        {mode === 'try' && draft.type !== 'SPEAK' && draft.type !== 'TRACE_AND_READ' && (
-          <Flex gap={8} align="center">
-            <Button type="primary" size="small" onClick={check} disabled={!key.success || !!result}>
-              {t.questions.check}
-            </Button>
-            {result && (
-              <Button size="small" onClick={() => setResult(null)}>
-                {t.common.reset}
+      ) : (
+        <Flex vertical gap={12}>
+          <QuestionRenderer
+            config={config.data}
+            answerKey={result && key.success ? key.data : null}
+            answer={answer}
+            mode={result ? 'review' : mode}
+            onChange={mode === 'try' && !result ? setAnswer : undefined}
+            parts={result?.parts}
+            instruction={instruction}
+            example={example}
+          />
+          {mode === 'try' && draft.type !== 'SPEAK' && draft.type !== 'TRACE_AND_READ' && (
+            <Flex gap={8} align="center">
+              <Button type="primary" size="small" onClick={check} disabled={!key.success || !!result}>
+                {t.questions.check}
               </Button>
-            )}
-            {result && (
-              <Tag color={result.correct ? 'success' : result.fraction > 0 ? 'warning' : 'error'}>
-                {result.correct ? t.questions.correct : t.questions.incorrect} ·{' '}
-                {formatPercent(result.fraction)}
-              </Tag>
-            )}
-            {!key.success && (
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                {t.questions.contentErrors}
-              </Typography.Text>
-            )}
-          </Flex>
-        )}
-      </Flex>
+              {result && (
+                <Button size="small" onClick={() => setResult(null)}>
+                  {t.common.reset}
+                </Button>
+              )}
+              {result && (
+                <Tag color={result.correct ? 'success' : result.fraction > 0 ? 'warning' : 'error'}>
+                  {result.correct ? t.questions.correct : t.questions.incorrect} ·{' '}
+                  {formatPercent(result.fraction)}
+                </Tag>
+              )}
+              {!key.success && (
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  {t.questions.contentErrors}
+                </Typography.Text>
+              )}
+            </Flex>
+          )}
+        </Flex>
+      )}
     </Card>
   );
 }

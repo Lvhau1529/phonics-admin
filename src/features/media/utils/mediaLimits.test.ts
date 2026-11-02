@@ -15,6 +15,6 @@ describe('mediaLimits', () => {
   it('accept / maxMb', () => {
     expect(acceptFor('IMAGE')).toContain('image/png');
     expect(maxMb('IMAGE')).toBe(5);
-    expect(maxMb('AUDIO')).toBe(10);
+    expect(maxMb('AUDIO')).toBe(5);
   });
 });

@@ -1,10 +1,11 @@
 import { App, Button, Divider, Drawer, Flex, Form, Input, Select, Typography } from 'antd';
 import {
-  DisplayName,
+  EnglishName,
   Email,
   ParentContact,
   UpdateStudentBody,
-  UserStatus,
+  VietnameseName,
+  type UserStatus,
   type AvatarKey,
 } from '@phonics/contracts';
 import { useEffect } from 'react';
@@ -14,6 +15,7 @@ import type { StudentDetailModel } from '@/features/students/models/StudentDetai
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarSelect } from '@/shared/ui/AvatarSelect';
+import { EDITABLE_STATUSES, isEditableStatus } from '@/shared/utils/status';
 import {
   applyFieldErrors,
   applyServerErrors,
@@ -30,7 +32,8 @@ interface ParentValues {
 }
 
 interface StudentFormValues {
-  displayName: string;
+  vietnameseName: string;
+  englishName?: string;
   avatarKey: AvatarKey;
   email?: string;
   status?: UserStatus;
@@ -63,9 +66,10 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
     if (!open) return;
     form.resetFields();
     form.setFieldsValue({
-      displayName: student.displayName,
+      vietnameseName: student.vietnameseName,
+      englishName: student.englishName ?? undefined,
       avatarKey: student.avatarKey,
-      email: student.email,
+      email: student.email ?? undefined,
       status: student.status,
       parent: student.parent ?? {},
       notes: student.notes ?? undefined,
@@ -74,9 +78,15 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
 
   const handleFinish = async (raw: StudentFormValues) => {
     const values = stripEmpty({ ...raw, parent: undefined }) as StudentFormValues;
-    const next: Record<string, unknown> = { displayName: values.displayName, avatarKey: values.avatarKey };
+    const next: Record<string, unknown> = {
+      vietnameseName: values.vietnameseName,
+      // Ô trống = xoá tên tiếng Anh (null), không phải "không đổi"
+      englishName: values.englishName ?? null,
+      avatarKey: values.avatarKey,
+    };
     const original: Record<string, unknown> = {
-      displayName: student.displayName,
+      vietnameseName: student.vietnameseName,
+      englishName: student.englishName,
       avatarKey: student.avatarKey,
     };
     if (full) {
@@ -125,9 +135,17 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
       {!full && <Typography.Paragraph type="secondary">{t.students.teacherEditHint}</Typography.Paragraph>}
       <Form<StudentFormValues> form={form} layout="vertical" onFinish={handleFinish}>
         <Form.Item
-          name="displayName"
-          label={t.common.name}
-          rules={[{ required: true, message: t.common.requiredField }, zodRule(DisplayName)]}
+          name="vietnameseName"
+          label={t.students.vietnameseName}
+          rules={[{ required: true, message: t.common.requiredField }, zodRule(VietnameseName)]}
+        >
+          <Input maxLength={30} />
+        </Form.Item>
+        <Form.Item
+          name="englishName"
+          label={t.students.englishName}
+          extra={t.students.englishNameHint}
+          rules={[zodRule(EnglishName)]}
         >
           <Input maxLength={30} />
         </Form.Item>
@@ -139,12 +157,21 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
             <Form.Item
               name="email"
               label={t.common.email}
-              rules={[{ required: true, message: t.common.requiredField }, zodRule(Email)]}
+              extra={student.isManaged ? t.students.emailManagedHint : undefined}
+              rules={[
+                // Bé vào qua tài khoản phụ huynh: email để trống (nhập = cho bé tự đăng nhập)
+                { required: !student.isManaged, message: t.common.requiredField },
+                zodRule(Email),
+              ]}
             >
               <Input />
             </Form.Item>
             <Form.Item name="status" label={t.common.status}>
-              <Select options={UserStatus.options.map((s) => ({ value: s, label: t.userStatus[s] }))} />
+              <Select
+                // Chờ duyệt / bị từ chối: đổi qua màn Duyệt tài khoản
+                disabled={!isEditableStatus(student.status)}
+                options={EDITABLE_STATUSES.map((s) => ({ value: s, label: t.userStatus[s] }))}
+              />
             </Form.Item>
             <Divider plain>{t.students.parent}</Divider>
             <Form.Item

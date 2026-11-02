@@ -55,6 +55,13 @@ describe('useTableQuery', () => {
     expect(result.current.search).toBe('?q=b%C3%A9&status=DISABLED');
   });
 
+  it('setFilters đổi nhiều bộ lọc trong một lần ghi URL', () => {
+    const { result } = renderHook(useHarness, { wrapper: wrapper('/x?page=3&status=ACTIVE') });
+    act(() => result.current.table.setFilters({ status: undefined, classId: 'c1' }));
+    expect(result.current.table.filters).toEqual({ status: undefined, classId: 'c1' });
+    expect(result.current.search).toBe('?classId=c1');
+  });
+
   it('reset xoá mọi tham số', () => {
     const { result } = renderHook(useHarness, { wrapper: wrapper('/x?page=2&q=a&status=ACTIVE') });
     act(() => result.current.table.reset());

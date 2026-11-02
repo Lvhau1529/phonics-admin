@@ -47,7 +47,7 @@ export function MoveClassModal({ student, onClose }: MoveClassModalProps) {
       onCancel={onClose}
       onOk={() => form.submit()}
       confirmLoading={move.isPending}
-      title={student ? t.students.moveClassTitle(student.displayName) : ''}
+      title={student ? t.students.moveClassTitle(student.fullName) : ''}
       okText={t.students.moveClass}
       cancelText={t.common.cancel}
       destroyOnHidden
