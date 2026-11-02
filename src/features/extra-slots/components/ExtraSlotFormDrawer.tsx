@@ -1,4 +1,4 @@
-import { App, Button, Drawer, Flex, Form, Input, InputNumber, Select, TimePicker } from 'antd';
+import { App, Button, DatePicker, Drawer, Flex, Form, Input, InputNumber, Select, TimePicker } from 'antd';
 import { CreateExtraSlotBody, SlotName, UpdateExtraSlotBody, Weekday } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useAuth } from '@/features/auth/authStore';
@@ -10,6 +10,7 @@ import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import type { IsoWeekday } from '@/shared/i18n';
 import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
+import { toIsoDate } from '@/shared/utils/format';
 import {
   applyFieldErrors,
   applyServerErrors,
@@ -24,7 +25,12 @@ const WEEKDAYS: readonly IsoWeekday[] = [1, 2, 3, 4, 5, 6, 7];
 
 interface SlotFormValues {
   name: string;
+  /** Sửa: một thứ */
   weekday: number;
+  /** Tạo: nhiều thứ → mỗi thứ một ca */
+  weekdays: number[];
+  /** Sửa giờ: áp cho buổi đã tạo từ ngày này */
+  timeFrom?: Dayjs;
   startTime: Dayjs;
   endTime: Dayjs;
   room?: string;
@@ -44,8 +50,9 @@ interface ExtraSlotFormDrawerProps {
 }
 
 /**
- * Tạo / sửa ca học thêm (extra.manageSlots). Sửa: giáo viên đổi bằng "Gán giáo viên"; ô trống = xoá giá trị. GV tạo ca:
- * không chọn GV (server tự gán chính GV đó), lớp chỉ lớp mình dạy.
+ * Tạo / sửa ca học thêm (extra.manageSlots). Tạo: chọn nhiều thứ = mỗi thứ một ca cùng tên / giờ. Sửa: giáo viên đổi
+ * bằng "Gán giáo viên"; ô trống = xoá giá trị; đổi giờ thì chọn ngày áp giờ mới cho buổi đã tạo (mặc định hôm nay).
+ * GV tạo ca: không chọn GV (server tự gán chính GV đó), lớp chỉ lớp mình dạy.
  */
 export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawerProps) {
   const { message } = App.useApp();
@@ -53,6 +60,13 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
   const [form] = Form.useForm<SlotFormValues>();
   const create = ExtraSlotsService.useCreate();
   const update = ExtraSlotsService.useUpdate();
+  const startTime = Form.useWatch('startTime', form);
+  const endTime = Form.useWatch('endTime', form);
+  const timeChanged =
+    !!slot &&
+    !!startTime &&
+    !!endTime &&
+    (startTime.format(TIME_FORMAT) !== slot.startTime || endTime.format(TIME_FORMAT) !== slot.endTime);
 
   useEffect(() => {
     if (!open) return;
@@ -63,6 +77,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
         weekday: slot.weekday,
         startTime: timeValue(slot.startTime),
         endTime: timeValue(slot.endTime),
+        timeFrom: dayjs(),
         room: slot.room ?? undefined,
         capacity: slot.capacity,
         classId: slot.class?.id,
@@ -70,8 +85,9 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
   }, [open, slot, form]);
 
   const handleFinish = async (raw: SlotFormValues) => {
+    const { weekdays, timeFrom, ...rest } = raw;
     const values = stripEmpty({
-      ...raw,
+      ...rest,
       startTime: raw.startTime.format(TIME_FORMAT),
       endTime: raw.endTime.format(TIME_FORMAT),
       capacity: raw.capacity ?? undefined,
@@ -104,22 +120,50 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
           diff.endTime = values.endTime;
         }
         if (Object.keys(diff).length === 0) return void message.info(t.common.noChanges);
-        const parsed = parseForm(UpdateExtraSlotBody, diff);
+        const parsed = parseForm(UpdateExtraSlotBody, {
+          ...diff,
+          ...(diff.startTime !== undefined && timeFrom ? { timeFrom: toIsoDate(timeFrom) } : {}),
+        });
         if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
         await update.mutateAsync({ id: slot.id, body: parsed.data });
         message.success(t.common.updated);
+        onClose();
       } else {
-        const parsed = parseForm(CreateExtraSlotBody, values);
-        if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
-        await create.mutateAsync(parsed.data);
-        message.success(t.common.created);
+        await createAll(
+          values,
+          [...new Set(weekdays)].sort((a, b) => a - b),
+        );
       }
-      onClose();
     } catch (error) {
       if (!applyServerErrors(form, error)) message.error(errorMessage(error));
     }
   };
 
+  /** Mỗi thứ một ca; ca đầu lỗi thì báo theo field, lỗi giữa chừng thì báo số ca đã tạo rồi đóng */
+  const createAll = async (values: Record<string, unknown>, days: readonly number[]) => {
+    const bodies = [];
+    for (const weekday of days) {
+      const parsed = parseForm(CreateExtraSlotBody, { ...values, weekday });
+      if (!parsed.success)
+        return applyFieldErrors(form, { ...parsed.fieldErrors, weekdays: parsed.fieldErrors.weekday ?? [] });
+      bodies.push(parsed.data);
+    }
+    let done = 0;
+    try {
+      for (const body of bodies) {
+        await create.mutateAsync(body);
+        done += 1;
+      }
+    } catch (error) {
+      if (done === 0) throw error;
+      message.error(t.extraSlots.createdPartial(done, bodies.length, errorMessage(error)));
+      return onClose();
+    }
+    message.success(bodies.length > 1 ? t.extraSlots.createdSlots(bodies.length) : t.common.created);
+    onClose();
+  };
+
+  const weekdayOptions = WEEKDAYS.map((d) => ({ value: d, label: t.weekday[d] }));
   return (
     <Drawer
       open={open}
@@ -144,13 +188,24 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
         >
           <Input maxLength={80} placeholder={t.extraSlots.namePlaceholder} />
         </Form.Item>
-        <Form.Item
-          name="weekday"
-          label={t.extraSlots.weekday}
-          rules={[{ required: true, message: t.common.requiredField }, zodRule(Weekday)]}
-        >
-          <Select options={WEEKDAYS.map((d) => ({ value: d, label: t.weekday[d] }))} />
-        </Form.Item>
+        {slot ? (
+          <Form.Item
+            name="weekday"
+            label={t.extraSlots.weekday}
+            rules={[{ required: true, message: t.common.requiredField }, zodRule(Weekday)]}
+          >
+            <Select options={weekdayOptions} />
+          </Form.Item>
+        ) : (
+          <Form.Item
+            name="weekdays"
+            label={t.extraSlots.weekday}
+            extra={t.extraSlots.weekdaysHint}
+            rules={[{ required: true, message: t.common.requiredField }]}
+          >
+            <Select mode="multiple" options={weekdayOptions} />
+          </Form.Item>
+        )}
         <Flex gap={12}>
           <Form.Item
             name="startTime"
@@ -169,6 +224,16 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
             <TimePicker format={TIME_FORMAT} minuteStep={5} needConfirm={false} style={{ width: '100%' }} />
           </Form.Item>
         </Flex>
+        {timeChanged && (
+          <Form.Item
+            name="timeFrom"
+            label={t.extraSlots.timeFrom}
+            extra={t.extraSlots.timeFromHint}
+            rules={[{ required: true, message: t.common.requiredField }]}
+          >
+            <DatePicker format={t.format.date} style={{ width: '100%' }} />
+          </Form.Item>
+        )}
         <Flex gap={12}>
           <Form.Item name="room" label={t.extraSlots.room} style={{ flex: 1 }}>
             <Input maxLength={40} />
