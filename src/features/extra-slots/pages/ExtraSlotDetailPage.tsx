@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined, TeamOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, TeamOutlined, UserAddOutlined } from '@ant-design/icons';
 import {
   App,
   Button,
@@ -30,6 +30,7 @@ import {
 } from '@/features/extra-slots/components/SlotAssignmentModal';
 import { SlotTeachersModal } from '@/features/extra-slots/components/SlotTeachersModal';
 import type { ExtraSlotModel, SlotStudentModel } from '@/features/extra-slots/models/ExtraSlotModel';
+import { CreateStudentsDrawer } from '@/features/students/components/CreateStudentsDrawer';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
@@ -112,7 +113,7 @@ function SlotPriceCard({ slot }: { slot: ExtraSlotModel }) {
 /** Chi tiết ca: thông tin, giá mặc định, học sinh học ở một ngày */
 export function ExtraSlotDetailPage() {
   const { id = '' } = useParams<{ id: string }>();
-  const { can } = useAuth();
+  const { can, isAdmin } = useAuth();
   const { message } = App.useApp();
   const navigate = useNavigate();
   const detail = ExtraSlotsService.useDetail(id);
@@ -122,6 +123,7 @@ export function ExtraSlotDetailPage() {
   const [editing, setEditing] = useState(false);
   const [teachersOf, setTeachersOf] = useState<ExtraSlotModel>();
   const [assigning, setAssigning] = useState<SlotAssignmentAction>();
+  const [creatingStudents, setCreatingStudents] = useState(false);
 
   const slot = detail.data;
   if (detail.error) return <ErrorAlert error={detail.error} onRetry={() => void detail.refetch()} />;
@@ -150,9 +152,12 @@ export function ExtraSlotDetailPage() {
               <Button icon={<EditOutlined />} onClick={() => setEditing(true)}>
                 {t.common.edit}
               </Button>
-              <Button icon={<TeamOutlined />} onClick={() => setTeachersOf(slot)}>
-                {t.extraSlots.setTeachers}
-              </Button>
+              {/* Chọn GV cần danh sách giáo viên (chỉ admin) */}
+              {isAdmin && (
+                <Button icon={<TeamOutlined />} onClick={() => setTeachersOf(slot)}>
+                  {t.extraSlots.setTeachers}
+                </Button>
+              )}
               <Popconfirm
                 title={t.extraSlots.archiveConfirm}
                 okText={t.extraSlots.archive}
@@ -195,15 +200,23 @@ export function ExtraSlotDetailPage() {
         <Card
           title={t.extraSlots.students}
           extra={
-            can('extra.manageSchedule') &&
             !slot.isArchived && (
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => setAssigning({ mode: 'add', slotId: slot.id })}
-              >
-                {t.extraSlots.addStudent}
-              </Button>
+              <Space wrap>
+                {can('students.create') && (
+                  <Button icon={<UserAddOutlined />} onClick={() => setCreatingStudents(true)}>
+                    {t.students.addNew}
+                  </Button>
+                )}
+                {can('extra.manageSchedule') && (
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => setAssigning({ mode: 'add', slotId: slot.id })}
+                  >
+                    {t.extraSlots.addStudent}
+                  </Button>
+                )}
+              </Space>
             )
           }
         >
@@ -230,14 +243,15 @@ export function ExtraSlotDetailPage() {
         <RecentSessionsCard slotId={slot.id} />
       </Flex>
 
-      {/* Chỉ người quản lý ca: modal gán GV tải danh sách GV (API admin) ngay khi render */}
-      {manage && (
-        <>
-          <ExtraSlotFormDrawer open={editing} slot={slot} onClose={() => setEditing(false)} />
-          <SlotTeachersModal slot={teachersOf} onClose={() => setTeachersOf(undefined)} />
-        </>
-      )}
+      {/* Modal gán GV tải danh sách GV (API chỉ admin) ngay khi render */}
+      {manage && <ExtraSlotFormDrawer open={editing} slot={slot} onClose={() => setEditing(false)} />}
+      {manage && isAdmin && <SlotTeachersModal slot={teachersOf} onClose={() => setTeachersOf(undefined)} />}
       <SlotAssignmentModal action={assigning} onClose={() => setAssigning(undefined)} />
+      <CreateStudentsDrawer
+        open={creatingStudents}
+        slotId={slot.id}
+        onClose={() => setCreatingStudents(false)}
+      />
     </>
   );
 }

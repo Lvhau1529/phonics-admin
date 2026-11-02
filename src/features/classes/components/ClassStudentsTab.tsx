@@ -1,4 +1,4 @@
-import { EyeOutlined, PlusCircleOutlined, SwapOutlined } from '@ant-design/icons';
+import { EyeOutlined, PlusCircleOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Space, Tooltip } from 'antd';
 import type { StudentModel } from '@/features/students/models/StudentModel';
 import { useState } from 'react';
@@ -7,6 +7,7 @@ import { ROUTES } from '@/app/routes';
 import { useAuth } from '@/features/auth/authStore';
 import { BonusPointsModal } from '@/features/classes/components/BonusPointsModal';
 import { ClassesService } from '@/features/classes/api/classesService';
+import { CreateStudentsDrawer } from '@/features/students/components/CreateStudentsDrawer';
 import { MoveClassModal } from '@/features/students/components/MoveClassModal';
 import { StudentsTable } from '@/features/students/components/StudentsTable';
 import { useTableQuery } from '@/shared/hooks/useTableQuery';
@@ -17,7 +18,7 @@ interface ClassStudentsTabProps {
   classId: string;
 }
 
-/** Tab Học sinh của lớp: bảng điểm / hạng, chuyển lớp (quyền), cộng điểm nhanh (quyền) */
+/** Tab Học sinh của lớp: bảng điểm / hạng, thêm học sinh mới, chuyển lớp, cộng điểm nhanh (theo quyền) */
 export function ClassStudentsTab({ classId }: ClassStudentsTabProps) {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ export function ClassStudentsTab({ classId }: ClassStudentsTabProps) {
   const [bonusFor, setBonusFor] = useState<StudentModel>();
   const canMove = auth.can('class.changeStudentClass');
   const canAward = auth.can('points.award');
+  const [creating, setCreating] = useState(false);
 
   return (
     <>
@@ -38,6 +40,11 @@ export function ClassStudentsTab({ classId }: ClassStudentsTabProps) {
           onSearch={(v) => table.setQ(v)}
           style={{ width: 260 }}
         />
+        {auth.can('students.create') && (
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>
+            {t.students.add}
+          </Button>
+        )}
       </Flex>
       <ErrorAlert error={list.error} onRetry={() => void list.refetch()} />
       <StudentsTable
@@ -78,6 +85,7 @@ export function ClassStudentsTab({ classId }: ClassStudentsTabProps) {
         studentId={bonusFor?.id}
         onClose={() => setBonusFor(undefined)}
       />
+      <CreateStudentsDrawer open={creating} classId={classId} onClose={() => setCreating(false)} />
     </>
   );
 }
