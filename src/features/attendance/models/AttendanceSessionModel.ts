@@ -17,7 +17,7 @@ import {
 import { isoWeekday } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
 import { dayjs } from '@/shared/utils/dayjs';
-import { formatDate, formatDateTime, formatMoney } from '@/shared/utils/format';
+import { formatDate, formatDateTime, formatMoney, shortList } from '@/shared/utils/format';
 
 /** "T3 03/11/2026" — thứ (theo ngày) + ngày */
 export function sessionDateText(date: string): string {
@@ -97,6 +97,11 @@ export class AttendanceSessionModel {
 
   get teacherNames(): string {
     return this.teachers.length ? this.teachers.map((tc) => tc.displayName).join(', ') : t.common.none;
+  }
+
+  /** Rút gọn cho bảng: "Cô Lan, Thầy Minh +1" */
+  get teacherNamesShort(): string {
+    return shortList(this.teachers.map((tc) => tc.displayName));
   }
 
   /** "7 / 8" — có mặt / sĩ số */

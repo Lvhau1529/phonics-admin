@@ -1,5 +1,5 @@
 import { PlusOutlined, StopOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Flex, Select, Space, Typography } from 'antd';
+import { Button, DatePicker, Flex, Select, Space, Tooltip, Typography } from 'antd';
 import { AttendanceSessionStatus } from '@phonics/contracts';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
@@ -40,7 +40,11 @@ function buildColumns(): ColumnsType<AttendanceSessionModel> {
           <Link to={ROUTES.extraSlotDetail(s.slot!.id)}>{s.title}</Link>
         ),
     },
-    { title: t.extraSlots.teachers, key: 'teachers', render: (_, s) => s.teacherNames },
+    {
+      title: t.extraSlots.teachers,
+      key: 'teachers',
+      render: (_, s) => <Tooltip title={s.teacherNames}>{s.teacherNamesShort}</Tooltip>,
+    },
     { title: t.attendance.present, key: 'present', render: (_, s) => s.presentText },
     {
       title: t.common.status,

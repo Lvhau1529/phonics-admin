@@ -7,7 +7,7 @@ import type { ExtraRateModel } from '@/features/extra-slots/models/ExtraSlotMode
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { TypedConfirmModal } from '@/shared/ui/TypedConfirmModal';
-import { formatNumber } from '@/shared/utils/format';
+import { formatPriceInput, parsePriceInput } from '@/shared/utils/format';
 import { applyFieldErrors, applyServerErrors, diffValues, parseForm, zodRule } from '@/shared/utils/zodForm';
 
 interface EditRateFormValues {
@@ -75,8 +75,8 @@ export function EditRateModal({ rate, onClose }: { rate: ExtraRateModel | undefi
             step={10_000}
             style={{ width: '100%' }}
             addonAfter={t.format.currency}
-            formatter={(v) => (v === undefined || v === null ? '' : formatNumber(Number(v)))}
-            parser={(v) => Number((v ?? '').replace(/\D/g, ''))}
+            formatter={formatPriceInput}
+            parser={parsePriceInput}
           />
         </Form.Item>
         <Form.Item name="note" label={t.common.note}>

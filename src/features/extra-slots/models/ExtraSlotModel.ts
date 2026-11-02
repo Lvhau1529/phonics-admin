@@ -15,7 +15,7 @@ import {
 } from '@phonics/contracts';
 import { t } from '@/shared/i18n';
 import type { IsoWeekday } from '@/shared/i18n';
-import { formatDate, formatMoney } from '@/shared/utils/format';
+import { formatDate, formatMoney, shortList } from '@/shared/utils/format';
 
 /** Contracts để weekday là number (1..7) → khoá từ điển thứ */
 export const isoWeekday = (n: number): IsoWeekday => Math.min(7, Math.max(1, Math.trunc(n))) as IsoWeekday;
@@ -98,9 +98,17 @@ export class ExtraSlotModel {
     return slotLabel(this);
   }
 
+  /** Đầy đủ (trang chi tiết, tooltip) */
   get teacherNames(): string {
     return this.teachers.length
       ? this.teachers.map((tc) => tc.displayName).join(', ')
+      : t.extraSlots.noTeachers;
+  }
+
+  /** Rút gọn cho thẻ ca: "Cô Lan, Thầy Minh +1" */
+  get teacherNamesShort(): string {
+    return this.teachers.length
+      ? shortList(this.teachers.map((tc) => tc.displayName))
       : t.extraSlots.noTeachers;
   }
 

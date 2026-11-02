@@ -30,7 +30,7 @@ import { StudentsService } from '@/features/students/api/studentsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
-import { formatNumber, toIsoDate } from '@/shared/utils/format';
+import { formatPriceInput, parsePriceInput, toIsoDate } from '@/shared/utils/format';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty, zodRule } from '@/shared/utils/zodForm';
 
 /** Tối đa số bé một lần (khớp `CreateStudentsBody`) */
@@ -187,8 +187,8 @@ export function CreateStudentsDrawer({ open, onClose, classId, slotId }: CreateS
                           step={10_000}
                           style={{ width: '100%' }}
                           addonAfter={t.format.currency}
-                          formatter={(v) => (v === undefined || v === null ? '' : formatNumber(Number(v)))}
-                          parser={(v) => Number((v ?? '').replace(/\D/g, ''))}
+                          formatter={formatPriceInput}
+                          parser={parsePriceInput}
                         />
                       </Form.Item>
                     )}
