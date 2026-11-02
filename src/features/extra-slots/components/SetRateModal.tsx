@@ -7,7 +7,7 @@ import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { TypedConfirmModal } from '@/shared/ui/TypedConfirmModal';
 import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
-import { formatNumber, toIsoDate } from '@/shared/utils/format';
+import { formatPriceInput, parsePriceInput, toIsoDate } from '@/shared/utils/format';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty, zodRule } from '@/shared/utils/zodForm';
 
 interface RateFormValues {
@@ -88,8 +88,8 @@ export function SetRateModal({
             step={10_000}
             style={{ width: '100%' }}
             addonAfter={t.format.currency}
-            formatter={(v) => (v === undefined || v === null ? '' : formatNumber(Number(v)))}
-            parser={(v) => Number((v ?? '').replace(/\D/g, ''))}
+            formatter={formatPriceInput}
+            parser={parsePriceInput}
           />
         </Form.Item>
         <Form.Item

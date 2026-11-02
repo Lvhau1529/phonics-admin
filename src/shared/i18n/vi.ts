@@ -153,6 +153,7 @@ export const vi = {
     typeToConfirm: (phrase: string) => `Gõ "${phrase}" để xác nhận`,
     untilNow: 'nay',
     typedConfirmHint: 'Không phân biệt hoa thường, có thể gõ không dấu.',
+    andMore: (n: number) => `+${n}`,
   },
 
   format: {
@@ -617,6 +618,15 @@ export const vi = {
     editPriceWarning: (oldPrice: string, range: string) =>
       `Thay giá ${oldPrice} trên toàn bộ khoảng ${range} (không tạo dòng giá mới). Buổi chưa xác nhận tự tính lại; buổi đã xác nhận sẽ được hỏi riêng.`,
     priceUpdated: 'Đã sửa đơn giá',
+    studentPrice: 'Đơn giá riêng ở ca',
+    studentPriceTitle: (student: string) => `Đơn giá riêng · ${student}`,
+    studentPriceHint:
+      'Chỉ áp cho học sinh này ở ca này, ưu tiên hơn giá mặc định của ca. Giá điền sẵn là giá đang áp dụng (chưa có giá riêng thì là giá của ca).',
+    addPrice: 'Đơn giá riêng (tuỳ chọn)',
+    addPriceHint: (slotPrice: string | null) =>
+      slotPrice
+        ? `Để trống = dùng giá mặc định của ca (${slotPrice}).`
+        : 'Để trống = dùng giá mặc định của ca.',
   },
 
   attendance: {

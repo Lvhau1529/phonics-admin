@@ -66,10 +66,16 @@ export function applyFieldErrors(form: FormInstance, fieldErrors: FieldErrors): 
   form.setFields(Object.entries(fieldErrors).map(([name, errors]) => ({ name: toNamePath(name), errors })));
 }
 
-/** Lỗi validate của API (400 VALIDATION_ERROR có `details`) → form. Trả về true nếu đã map được. */
+/**
+ * Lỗi validate của API (400 VALIDATION_ERROR có `details`) → form. Chỉ lấy key trùng field đang có trong form
+ * (409 có thể kèm `details` là id, vd `assignmentId`) — không trùng field nào thì trả false để nơi gọi báo lỗi chung.
+ */
 export function applyServerErrors(form: FormInstance, error: unknown): boolean {
-  if (!isApiError(error) || !error.details || Object.keys(error.details).length === 0) return false;
-  applyFieldErrors(form, error.details);
+  if (!isApiError(error) || !error.details) return false;
+  const fields = new Set(form.getFieldsError().map((f) => f.name.join('.')));
+  const matched = Object.entries(error.details).filter(([name]) => fields.has(name));
+  if (matched.length === 0) return false;
+  applyFieldErrors(form, Object.fromEntries(matched));
   return true;
 }
 

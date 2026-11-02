@@ -21,7 +21,7 @@ export function SlotCard({ slot }: { slot: ExtraSlotModel }) {
             </Typography.Text>
           )}
           <Typography.Text type="secondary" ellipsis={{ tooltip: slot.teacherNames }}>
-            <UserOutlined /> {slot.teacherNames}
+            <UserOutlined /> {slot.teacherNamesShort}
           </Typography.Text>
           <Flex gap={4} wrap>
             <Tag color={slot.isFull ? 'warning' : undefined} icon={<TeamOutlined />}>

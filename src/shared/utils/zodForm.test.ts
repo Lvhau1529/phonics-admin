@@ -41,7 +41,8 @@ describe('parseForm', () => {
 describe('applyServerErrors', () => {
   it('đưa details của ApiError vào form.setFields; lỗi không có details thì trả false', () => {
     const setFields = vi.fn();
-    const form = { setFields } as unknown as FormInstance;
+    const getFieldsError = () => [{ name: ['email'] }, { name: ['parent', 'phone'] }];
+    const form = { setFields, getFieldsError } as unknown as FormInstance;
     const withDetails = new ApiError(400, 'VALIDATION_ERROR', 'bad', {
       email: ['Email đã dùng'],
       'parent.phone': ['Sai'],
@@ -53,6 +54,17 @@ describe('applyServerErrors', () => {
     ]);
     expect(applyServerErrors(form, new ApiError(500, 'INTERNAL', 'x'))).toBe(false);
     expect(applyServerErrors(form, new Error('x'))).toBe(false);
+  });
+
+  it('details không trùng field nào của form (vd 409 kèm id) → false để báo lỗi chung', () => {
+    const setFields = vi.fn();
+    const form = {
+      setFields,
+      getFieldsError: () => [{ name: ['effectiveFrom'] }],
+    } as unknown as FormInstance;
+    const overlap = new ApiError(409, 'SLOT_ASSIGNMENT_OVERLAP', 'trùng', { assignmentId: ['a1'] });
+    expect(applyServerErrors(form, overlap)).toBe(false);
+    expect(setFields).not.toHaveBeenCalled();
   });
 });
 

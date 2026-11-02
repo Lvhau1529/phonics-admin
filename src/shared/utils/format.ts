@@ -18,6 +18,26 @@ function numberFormat(): Intl.NumberFormat {
 export const formatNumber = (n: number | null | undefined): string =>
   n === null || n === undefined ? t.common.none : numberFormat().format(n);
 
+/**
+ * Định dạng ô nhập tiền (InputNumber): ô trống phải giữ trống — antd đưa '' vào formatter / parser, mà `Number('')`
+ * là 0 nên ô trống từng hiện và lưu thành 0 ₫.
+ */
+export const formatPriceInput = (v: number | string | undefined): string =>
+  v === undefined || v === null || v === '' ? '' : formatNumber(Number(v));
+
+/** Ngược của formatPriceInput: bỏ dấu phân cách; trống → '' (antd hiểu là chưa nhập) */
+export const parsePriceInput = (v: string | undefined): number => {
+  const digits = (v ?? '').replace(/\D/g, '');
+  return (digits === '' ? '' : Number(digits)) as number;
+};
+
+/** Danh sách dài rút gọn: ["Cô Lan", "Thầy Minh", "Mr. Nam"] → "Cô Lan, Thầy Minh +1" (rỗng → "—") */
+export function shortList(items: readonly string[], max = 2): string {
+  if (items.length === 0) return t.common.none;
+  const shown = items.slice(0, max).join(', ');
+  return items.length > max ? `${shown} ${t.common.andMore(items.length - max)}` : shown;
+}
+
 const moneyFormats = new Map<string, Intl.NumberFormat>();
 
 /** Tiền theo ngôn ngữ hiện tại: 150000 → "150.000 ₫" (vi) / "₫150,000" (en) */

@@ -47,7 +47,7 @@ import { AvatarImg } from '@/shared/ui/AvatarImg';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
-import { formatMoney, formatNumber } from '@/shared/utils/format';
+import { formatMoney, formatPriceInput, parsePriceInput } from '@/shared/utils/format';
 
 /** Thay đổi chưa lưu của một học sinh (trừ studentId) */
 type RecordEdit = Omit<AttendanceRecordChange, 'studentId'>;
@@ -142,9 +142,9 @@ function buildColumns({ session, edits, edit, remove }: ColumnContext): ColumnsT
                   min={0}
                   step={10_000}
                   value={value ?? 0}
-                  formatter={(v) => (v === undefined || v === null ? '' : formatNumber(Number(v)))}
-                  parser={(v) => Number((v ?? '').replace(/\D/g, ''))}
-                  onChange={(v) => v !== null && edit(r.studentId, { unitPrice: v })}
+                  formatter={formatPriceInput}
+                  parser={parsePriceInput}
+                  onChange={(v) => edit(r.studentId, { unitPrice: v ?? 0 })}
                   style={{ width: 130 }}
                 />
               ) : (

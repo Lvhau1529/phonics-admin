@@ -1,4 +1,11 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined, TeamOutlined, UserAddOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  DollarOutlined,
+  EditOutlined,
+  PlusOutlined,
+  TeamOutlined,
+  UserAddOutlined,
+} from '@ant-design/icons';
 import {
   App,
   Button,
@@ -52,6 +59,7 @@ import { formatDate, formatMoney, toIsoDate } from '@/shared/utils/format';
 
 function buildStudentColumns(
   showRate: boolean,
+  onSetPrice?: (student: SlotStudentModel) => void,
   onRemove?: (student: SlotStudentModel) => void,
 ): ColumnsType<SlotStudentModel> {
   const columns: ColumnsType<SlotStudentModel> = [
@@ -85,20 +93,34 @@ function buildStudentColumns(
           </Space>
         ),
     });
-  if (onRemove)
+  if (onSetPrice || onRemove)
     columns.push({
       title: t.common.actions,
       key: 'actions',
       render: (_, s) => (
-        <Tooltip title={t.studentExtra.remove}>
-          <Button
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            aria-label={t.studentExtra.remove}
-            onClick={() => onRemove(s)}
-          />
-        </Tooltip>
+        <Space size={4}>
+          {onSetPrice && (
+            <Tooltip title={t.extraSlots.studentPrice}>
+              <Button
+                size="small"
+                icon={<DollarOutlined />}
+                aria-label={t.extraSlots.studentPrice}
+                onClick={() => onSetPrice(s)}
+              />
+            </Tooltip>
+          )}
+          {onRemove && (
+            <Tooltip title={t.studentExtra.remove}>
+              <Button
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+                aria-label={t.studentExtra.remove}
+                onClick={() => onRemove(s)}
+              />
+            </Tooltip>
+          )}
+        </Space>
       ),
     });
   return columns;
@@ -155,6 +177,8 @@ export function ExtraSlotDetailPage() {
   const [date, setDate] = useState(() => toIsoDate(dayjs()));
   const students = ExtraSlotsService.useStudents(id, date);
   const archive = ExtraSlotsService.useArchive();
+  const createStudentRate = ExtraSlotsService.useCreateStudentRate();
+  const [pricing, setPricing] = useState<SlotStudentModel>();
   const [editing, setEditing] = useState(false);
   const [teachersOf, setTeachersOf] = useState<ExtraSlotModel>();
   const [assigning, setAssigning] = useState<SlotAssignmentAction>();
@@ -247,7 +271,9 @@ export function ExtraSlotDetailPage() {
                   <Button
                     type="primary"
                     icon={<PlusOutlined />}
-                    onClick={() => setAssigning({ mode: 'add', slotId: slot.id })}
+                    onClick={() =>
+                      setAssigning({ mode: 'add', slotId: slot.id, slotPrice: slot.defaultPrice })
+                    }
                   >
                     {t.extraSlots.addStudent}
                   </Button>
@@ -271,6 +297,7 @@ export function ExtraSlotDetailPage() {
             loading={students.isFetching}
             columns={buildStudentColumns(
               can('extra.viewPricing'),
+              can('extra.managePricing') && !slot.isArchived ? setPricing : undefined,
               can('extra.manageSchedule')
                 ? (s) =>
                     setRemoving({
@@ -296,6 +323,23 @@ export function ExtraSlotDetailPage() {
       {manage && isAdmin && <SlotTeachersModal slot={teachersOf} onClose={() => setTeachersOf(undefined)} />}
       <SlotAssignmentModal action={assigning} onClose={() => setAssigning(undefined)} />
       <RemoveAssignmentModal target={removing} onClose={() => setRemoving(undefined)} />
+      <SetRateModal
+        open={!!pricing}
+        title={pricing ? t.extraSlots.studentPriceTitle(pricing.fullName) : ''}
+        hint={t.extraSlots.studentPriceHint}
+        // Chưa có giá riêng → điền sẵn giá mặc định của ca
+        currentPrice={
+          pricing?.rate && pricing.rate.source !== 'NONE' ? pricing.rate.pricePerSession : slot.defaultPrice
+        }
+        loading={createStudentRate.isPending}
+        onSubmit={(body) =>
+          createStudentRate.mutateAsync({
+            studentId: pricing?.studentId ?? '',
+            body: { ...body, slotId: slot.id },
+          })
+        }
+        onClose={() => setPricing(undefined)}
+      />
       <CreateStudentsDrawer
         open={creatingStudents}
         slotId={slot.id}

@@ -151,6 +151,7 @@ export const en = {
     typeToConfirm: (phrase: string) => `Type "${phrase}" to confirm`,
     untilNow: 'present',
     typedConfirmHint: 'Not case-sensitive.',
+    andMore: (n: number) => `+${n}`,
   },
 
   format: {
@@ -615,6 +616,15 @@ export const en = {
     editPriceWarning: (oldPrice: string, range: string) =>
       `Replaces ${oldPrice} over the whole range ${range} (no new price row). Unconfirmed sessions are repriced; you will be asked about confirmed ones.`,
     priceUpdated: 'Price updated',
+    studentPrice: 'Student price in this slot',
+    studentPriceTitle: (student: string) => `Student price · ${student}`,
+    studentPriceHint:
+      'Applies only to this student in this slot and overrides the slot default. Prefilled with the price in effect (the slot price when the student has none).',
+    addPrice: 'Student price (optional)',
+    addPriceHint: (slotPrice: string | null) =>
+      slotPrice
+        ? `Leave empty to use the slot default (${slotPrice}).`
+        : 'Leave empty to use the slot default.',
   },
 
   attendance: {
