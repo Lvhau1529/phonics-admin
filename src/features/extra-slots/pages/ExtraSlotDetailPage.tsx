@@ -11,6 +11,7 @@ import {
   Space,
   Statistic,
   Tag,
+  Tooltip,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -20,16 +21,25 @@ import { ROUTES } from '@/app/routes';
 import { RecentSessionsCard } from '@/features/attendance/components/RecentSessionsCard';
 import { useAuth } from '@/features/auth/authStore';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
+import { EditRateModal } from '@/features/extra-slots/components/EditRateModal';
 import { ExtraSlotFormDrawer } from '@/features/extra-slots/components/ExtraSlotFormDrawer';
 import { RateHistoryTable } from '@/features/extra-slots/components/RateHistoryTable';
 import { RateSourceTag } from '@/features/extra-slots/components/RateSourceTag';
+import {
+  RemoveAssignmentModal,
+  type RemoveAssignmentTarget,
+} from '@/features/extra-slots/components/RemoveAssignmentModal';
 import { SetRateModal } from '@/features/extra-slots/components/SetRateModal';
 import {
   SlotAssignmentModal,
   type SlotAssignmentAction,
 } from '@/features/extra-slots/components/SlotAssignmentModal';
 import { SlotTeachersModal } from '@/features/extra-slots/components/SlotTeachersModal';
-import type { ExtraSlotModel, SlotStudentModel } from '@/features/extra-slots/models/ExtraSlotModel';
+import type {
+  ExtraRateModel,
+  ExtraSlotModel,
+  SlotStudentModel,
+} from '@/features/extra-slots/models/ExtraSlotModel';
 import { CreateStudentsDrawer } from '@/features/students/components/CreateStudentsDrawer';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
@@ -40,7 +50,10 @@ import { PageHeader } from '@/shared/ui/PageHeader';
 import { dayjs } from '@/shared/utils/dayjs';
 import { formatDate, formatMoney, toIsoDate } from '@/shared/utils/format';
 
-function buildStudentColumns(showRate: boolean): ColumnsType<SlotStudentModel> {
+function buildStudentColumns(
+  showRate: boolean,
+  onRemove?: (student: SlotStudentModel) => void,
+): ColumnsType<SlotStudentModel> {
   const columns: ColumnsType<SlotStudentModel> = [
     {
       title: t.common.student,
@@ -72,6 +85,22 @@ function buildStudentColumns(showRate: boolean): ColumnsType<SlotStudentModel> {
           </Space>
         ),
     });
+  if (onRemove)
+    columns.push({
+      title: t.common.actions,
+      key: 'actions',
+      render: (_, s) => (
+        <Tooltip title={t.studentExtra.remove}>
+          <Button
+            size="small"
+            danger
+            icon={<DeleteOutlined />}
+            aria-label={t.studentExtra.remove}
+            onClick={() => onRemove(s)}
+          />
+        </Tooltip>
+      ),
+    });
   return columns;
 }
 
@@ -81,6 +110,7 @@ function SlotPriceCard({ slot }: { slot: ExtraSlotModel }) {
   const rates = ExtraSlotsService.useSlotRates(slot.id, true);
   const createRate = ExtraSlotsService.useCreateSlotRate();
   const [open, setOpen] = useState(false);
+  const [editingRate, setEditingRate] = useState<ExtraRateModel>();
   return (
     <Card
       title={t.extraSlots.defaultPrice}
@@ -96,7 +126,12 @@ function SlotPriceCard({ slot }: { slot: ExtraSlotModel }) {
       />
       <Typography.Paragraph type="secondary">{t.extraSlots.defaultPriceHint}</Typography.Paragraph>
       <Typography.Title level={5}>{t.extraSlots.priceHistory}</Typography.Title>
-      <RateHistoryTable rates={rates.data} loading={rates.isFetching} />
+      <RateHistoryTable
+        rates={rates.data}
+        loading={rates.isFetching}
+        onEdit={can('extra.managePricing') ? setEditingRate : undefined}
+      />
+      <EditRateModal rate={editingRate} onClose={() => setEditingRate(undefined)} />
       <SetRateModal
         open={open}
         title={`${t.extraSlots.setPrice} · ${slot.name}`}
@@ -124,6 +159,7 @@ export function ExtraSlotDetailPage() {
   const [teachersOf, setTeachersOf] = useState<ExtraSlotModel>();
   const [assigning, setAssigning] = useState<SlotAssignmentAction>();
   const [creatingStudents, setCreatingStudents] = useState(false);
+  const [removing, setRemoving] = useState<RemoveAssignmentTarget>();
 
   const slot = detail.data;
   if (detail.error) return <ErrorAlert error={detail.error} onRetry={() => void detail.refetch()} />;
@@ -233,7 +269,19 @@ export function ExtraSlotDetailPage() {
           <DataTable.Static<SlotStudentModel>
             rowKey="assignmentId"
             loading={students.isFetching}
-            columns={buildStudentColumns(can('extra.viewPricing'))}
+            columns={buildStudentColumns(
+              can('extra.viewPricing'),
+              can('extra.manageSchedule')
+                ? (s) =>
+                    setRemoving({
+                      studentId: s.studentId,
+                      assignmentId: s.assignmentId,
+                      studentName: s.fullName,
+                      slotName: slot.name,
+                      rangeText: s.rangeText,
+                    })
+                : undefined,
+            )}
             dataSource={students.data}
             pagination={false}
             locale={{ emptyText: t.extraSlots.noStudents }}
@@ -247,6 +295,7 @@ export function ExtraSlotDetailPage() {
       {manage && <ExtraSlotFormDrawer open={editing} slot={slot} onClose={() => setEditing(false)} />}
       {manage && isAdmin && <SlotTeachersModal slot={teachersOf} onClose={() => setTeachersOf(undefined)} />}
       <SlotAssignmentModal action={assigning} onClose={() => setAssigning(undefined)} />
+      <RemoveAssignmentModal target={removing} onClose={() => setRemoving(undefined)} />
       <CreateStudentsDrawer
         open={creatingStudents}
         slotId={slot.id}

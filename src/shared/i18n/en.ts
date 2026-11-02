@@ -148,6 +148,9 @@ export const en = {
     loadingAlt: 'Loading',
     selectAll: 'Select all',
     clearAll: 'Clear',
+    typeToConfirm: (phrase: string) => `Type "${phrase}" to confirm`,
+    untilNow: 'present',
+    typedConfirmHint: 'Not case-sensitive.',
   },
 
   format: {
@@ -605,6 +608,13 @@ export const en = {
     rate: 'Applied price',
     backToList: 'All slots',
     searchStudent: 'Search students by name / email',
+    editPrice: 'Edit price',
+    priceConfirmWord: 'CHANGE PRICE',
+    setPriceWarning:
+      'Prices drive tuition. Unconfirmed sessions are repriced automatically; you will be asked about confirmed ones.',
+    editPriceWarning: (oldPrice: string, range: string) =>
+      `Replaces ${oldPrice} over the whole range ${range} (no new price row). Unconfirmed sessions are repriced; you will be asked about confirmed ones.`,
+    priceUpdated: 'Price updated',
   },
 
   attendance: {
@@ -712,6 +722,11 @@ export const en = {
     studentPriceHint: "The student's own price applies to all their slots and overrides the slot default.",
     noStudentRates: 'No own price yet',
     noOpenSlots: 'The student is not in any slot',
+    remove: 'Remove from slot',
+    removeConfirmWord: 'DELETE',
+    removeWarning: (student: string, slot: string, range: string) =>
+      `Permanently remove ${student} from ${slot} (${range}). This schedule entry is deleted from history and cannot be restored; unconfirmed sessions drop the student. Use "Leave slot" to keep history.`,
+    removed: 'Student removed from slot',
   },
 
   games: {
@@ -858,6 +873,8 @@ export const en = {
       'slotAssignment.create': 'Add student to slot',
       'slotAssignment.update': 'Edit extra-class schedule',
       'slotAssignment.move': 'Move student to another slot',
+      'slotAssignment.delete': 'Remove student from slot',
+      'extraRate.update': 'Edit extra-class price',
       'extraRate.create': 'Set extra-class price',
       'extraRate.reprice': 'Apply new price to confirmed sessions',
       'slotAssignment.apply': 'Apply new schedule to confirmed sessions',

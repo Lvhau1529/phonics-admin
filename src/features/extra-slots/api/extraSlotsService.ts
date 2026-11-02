@@ -9,6 +9,7 @@ import type {
   CreateSlotRateBody,
   CreateStudentRateBody,
   MoveSlotAssignmentBody,
+  UpdateExtraRateBody,
   UpdateExtraSlotBody,
   UpdateSlotAssignmentBody,
 } from '@phonics/contracts';
@@ -56,6 +57,11 @@ const api = {
     new SlotAssignmentModel(await extraSlotsRepository.updateAssignment(studentId, assignmentId, body)),
   moveAssignment: async (studentId: string, assignmentId: string, body: MoveSlotAssignmentBody) =>
     new SlotAssignmentModel(await extraSlotsRepository.moveAssignment(studentId, assignmentId, body)),
+  // Response xoá chỉ có danh sách buổi đã xác nhận bị lệch → giữ DTO
+  deleteAssignment: (studentId: string, assignmentId: string) =>
+    extraSlotsRepository.deleteAssignment(studentId, assignmentId),
+  updateRate: async (rateId: string, body: UpdateExtraRateBody) =>
+    new ExtraRateModel(await extraSlotsRepository.updateRate(rateId, body)),
   createStudentRate: async (studentId: string, body: CreateStudentRateBody) =>
     new ExtraRateModel(await extraSlotsRepository.createStudentRate(studentId, body)),
   // Kết quả áp vào buổi đã xác nhận là response xác nhận → giữ DTO
@@ -156,6 +162,24 @@ export const ExtraSlotsService = {
     return useMutation({
       mutationFn: (v: { studentId: string; assignmentId: string; body: MoveSlotAssignmentBody }) =>
         api.moveAssignment(v.studentId, v.assignmentId, v.body),
+      onSuccess: invalidate,
+    });
+  },
+
+  useDeleteAssignment() {
+    const invalidate = useInvalidateExtra();
+    return useMutation({
+      mutationFn: (v: { studentId: string; assignmentId: string }) =>
+        api.deleteAssignment(v.studentId, v.assignmentId),
+      onSuccess: invalidate,
+    });
+  },
+
+  useUpdateRate() {
+    const invalidate = useInvalidateExtra();
+    return useMutation({
+      mutationFn: ({ rateId, body }: { rateId: string; body: UpdateExtraRateBody }) =>
+        api.updateRate(rateId, body),
       onSuccess: invalidate,
     });
   },

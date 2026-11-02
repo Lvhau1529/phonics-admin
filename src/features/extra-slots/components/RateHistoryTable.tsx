@@ -1,4 +1,5 @@
-import { Tag, Typography } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
+import { Button, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { ExtraRateModel, RateState } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
@@ -16,8 +17,8 @@ function stateLabel(state: RateState): string {
   return state === 'superseded' ? t.extraSlots.superseded : t.extraSlots.ended;
 }
 
-function buildColumns(): ColumnsType<ExtraRateModel> {
-  return [
+function buildColumns(onEdit?: (rate: ExtraRateModel) => void): ColumnsType<ExtraRateModel> {
+  const columns: ColumnsType<ExtraRateModel> = [
     {
       title: t.extraSlots.price,
       key: 'price',
@@ -53,24 +54,46 @@ function buildColumns(): ColumnsType<ExtraRateModel> {
     },
     { title: t.common.note, dataIndex: 'note', render: (note: string | null) => note ?? t.common.none },
   ];
+  if (onEdit)
+    columns.push({
+      title: t.common.actions,
+      key: 'actions',
+      render: (_, r) =>
+        r.state !== 'superseded' && (
+          <Tooltip title={t.extraSlots.editPrice}>
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              aria-label={t.extraSlots.editPrice}
+              onClick={() => onEdit(r)}
+            />
+          </Tooltip>
+        ),
+    });
+  return columns;
 }
 
-/** Lịch sử đơn giá (mới nhất trước — server sắp xếp); dòng bị thay thế từ đầu gạch ngang */
+/**
+ * Lịch sử đơn giá (mới nhất trước — server sắp xếp); dòng bị thay thế từ đầu gạch ngang. `onEdit` (người có quyền đặt
+ * giá) thêm nút sửa giá cho dòng còn ngày hiệu lực.
+ */
 export function RateHistoryTable({
   rates,
   loading,
   emptyText = t.extraSlots.noPrice,
+  onEdit,
 }: {
   rates: ExtraRateModel[] | undefined;
   loading?: boolean;
   emptyText?: string;
+  onEdit?: (rate: ExtraRateModel) => void;
 }) {
   return (
     <DataTable.Static<ExtraRateModel>
       rowKey="id"
       size="small"
       loading={loading}
-      columns={buildColumns()}
+      columns={buildColumns(onEdit)}
       dataSource={rates}
       pagination={false}
       locale={{ emptyText }}

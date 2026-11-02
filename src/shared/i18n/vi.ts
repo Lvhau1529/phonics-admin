@@ -150,6 +150,9 @@ export const vi = {
     loadingAlt: 'Đang tải',
     selectAll: 'Chọn tất cả',
     clearAll: 'Bỏ chọn',
+    typeToConfirm: (phrase: string) => `Gõ "${phrase}" để xác nhận`,
+    untilNow: 'nay',
+    typedConfirmHint: 'Không phân biệt hoa thường, có thể gõ không dấu.',
   },
 
   format: {
@@ -607,6 +610,13 @@ export const vi = {
     rate: 'Đơn giá áp dụng',
     backToList: 'Danh sách ca',
     searchStudent: 'Tìm học sinh theo tên / email',
+    editPrice: 'Sửa đơn giá',
+    priceConfirmWord: 'ĐỔI GIÁ',
+    setPriceWarning:
+      'Đơn giá ảnh hưởng tới học phí. Buổi chưa xác nhận sẽ tự tính lại theo giá mới; buổi đã xác nhận sẽ được hỏi riêng.',
+    editPriceWarning: (oldPrice: string, range: string) =>
+      `Thay giá ${oldPrice} trên toàn bộ khoảng ${range} (không tạo dòng giá mới). Buổi chưa xác nhận tự tính lại; buổi đã xác nhận sẽ được hỏi riêng.`,
+    priceUpdated: 'Đã sửa đơn giá',
   },
 
   attendance: {
@@ -714,6 +724,11 @@ export const vi = {
     studentPriceHint: 'Giá riêng áp cho mọi ca của học sinh, ưu tiên hơn giá mặc định của ca.',
     noStudentRates: 'Chưa có giá riêng',
     noOpenSlots: 'Học sinh chưa học ca nào',
+    remove: 'Xoá khỏi ca',
+    removeConfirmWord: 'XÓA',
+    removeWarning: (student: string, slot: string, range: string) =>
+      `Xoá hẳn ${student} khỏi ca ${slot} (${range}). Dòng lịch này bị xoá khỏi lịch sử và không khôi phục được; buổi chưa xác nhận tự bỏ học sinh. Muốn giữ lịch sử thì dùng "Cho rời ca".`,
+    removed: 'Đã xoá học sinh khỏi ca',
   },
 
   games: {
@@ -860,6 +875,8 @@ export const vi = {
       'slotAssignment.create': 'Xếp học sinh vào ca',
       'slotAssignment.update': 'Sửa lịch học thêm',
       'slotAssignment.move': 'Chuyển ca học thêm',
+      'slotAssignment.delete': 'Xoá học sinh khỏi ca',
+      'extraRate.update': 'Sửa đơn giá học thêm',
       'extraRate.create': 'Đặt đơn giá học thêm',
       'extraRate.reprice': 'Áp giá mới cho buổi đã xác nhận',
       'slotAssignment.apply': 'Áp lịch mới cho buổi đã xác nhận',

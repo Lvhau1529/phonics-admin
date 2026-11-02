@@ -119,6 +119,11 @@ export class ExtraSlotModel {
   }
 }
 
+/** Khoảng ngày nửa mở `[from, to)` để hiển thị: "01/10/2026 – nay" */
+export function dateRangeText(from: string, to: string | null): string {
+  return `${formatDate(from)} – ${to ? formatDate(to) : t.common.untilNow}`;
+}
+
 /** Một dòng lịch học thêm của học sinh */
 export class SlotAssignmentModel {
   readonly id: string;
@@ -165,6 +170,10 @@ export class SlotAssignmentModel {
   get toText(): string {
     return this.effectiveTo ? formatDate(this.effectiveTo) : t.common.none;
   }
+
+  get rangeText(): string {
+    return dateRangeText(this.effectiveFrom, this.effectiveTo);
+  }
 }
 
 /** Học sinh của ca tại một ngày */
@@ -195,6 +204,10 @@ export class SlotStudentModel {
 
   get fullName(): string {
     return studentFullName(this);
+  }
+
+  get rangeText(): string {
+    return dateRangeText(this.effectiveFrom, this.effectiveTo);
   }
 
   get rateText(): string | null {
@@ -238,6 +251,10 @@ export class ExtraRateModel {
 
   get priceText(): string {
     return formatMoney(this.pricePerSession);
+  }
+
+  get rangeText(): string {
+    return dateRangeText(this.effectiveFrom, this.effectiveTo);
   }
 
   get source(): RateSource {

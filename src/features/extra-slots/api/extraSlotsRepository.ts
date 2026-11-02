@@ -4,6 +4,7 @@
  */
 import {
   ApplyToSessionsResponse,
+  DeleteSlotAssignmentResponse,
   ENDPOINTS,
   ExtraRate,
   ExtraRatesResponse,
@@ -17,6 +18,7 @@ import {
   type CreateSlotRateBody,
   type CreateStudentRateBody,
   type MoveSlotAssignmentBody,
+  type UpdateExtraRateBody,
   type UpdateExtraSlotBody,
   type UpdateSlotAssignmentBody,
 } from '@phonics/contracts';
@@ -62,6 +64,15 @@ export const extraSlotsRepository = {
       body,
       schema: SlotAssignment,
     }),
+  /** Xoá hẳn dòng lịch → buổi đã xác nhận còn học sinh (hỏi áp dụng) */
+  deleteAssignment: (studentId: string, assignmentId: string) =>
+    request(ENDPOINTS.students.slotAssignment(studentId, assignmentId), {
+      method: HttpMethod.DELETE,
+      schema: DeleteSlotAssignmentResponse,
+    }),
+  /** Sửa giá / ghi chú của một dòng giá (giữ khoảng ngày) */
+  updateRate: (rateId: string, body: UpdateExtraRateBody) =>
+    request(ENDPOINTS.extraRates.detail(rateId), { method: HttpMethod.PATCH, body, schema: ExtraRate }),
   createStudentRate: (studentId: string, body: CreateStudentRateBody) =>
     request(ENDPOINTS.students.rates(studentId), { method: HttpMethod.POST, body, schema: ExtraRate }),
   /** Áp lịch mới vào các buổi đã xác nhận được liệt kê */
