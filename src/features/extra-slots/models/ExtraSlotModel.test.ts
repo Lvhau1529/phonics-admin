@@ -1,5 +1,5 @@
 import type { ExtraRate, ExtraSlot, SlotAssignment } from '@phonics/contracts';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   appliedRateText,
   lastSessionBefore,
@@ -96,6 +96,30 @@ describe('ExtraRateModel', () => {
     expect(new ExtraRateModel(rateDto).state).toBe('current');
     expect(new ExtraRateModel({ ...rateDto, effectiveTo: '2026-11-01' }).state).toBe('ended');
     expect(new ExtraRateModel({ ...rateDto, effectiveTo: '2026-10-01' }).state).toBe('superseded');
+  });
+
+  describe('theo hôm nay (05/11/2026)', () => {
+    afterEach(() => vi.useRealTimers());
+    const at = () => vi.useFakeTimers({ now: new Date('2026-11-05T05:00:00Z'), toFake: ['Date'] });
+
+    it('có hạn trong tương lai vẫn đang áp dụng; chưa tới ngày bắt đầu → sắp áp dụng', () => {
+      at();
+      const own = { ...rateDto, studentId: 's1', slotId: null };
+      expect(new ExtraRateModel({ ...own, effectiveTo: '2026-12-01' }).state).toBe('current');
+      expect(new ExtraRateModel({ ...own, effectiveFrom: '2026-12-01' }).state).toBe('upcoming');
+      expect(new ExtraRateModel({ ...own, effectiveTo: '2026-11-05' }).state).toBe('ended');
+    });
+
+    it('chỉ giá riêng học sinh chưa hết mới kết thúc được; hiện ngày hết', () => {
+      at();
+      const own = new ExtraRateModel({ ...rateDto, studentId: 's1', effectiveTo: '2026-12-01' });
+      expect(own.canEnd).toBe(true);
+      expect(own.endsText).toBe(t.extraSlots.rateEndsFrom(formatDate('2026-12-01')));
+      expect(new ExtraRateModel(rateDto).canEnd).toBe(false);
+      expect(new ExtraRateModel({ ...rateDto, studentId: 's1', effectiveTo: '2026-11-01' }).canEnd).toBe(
+        false,
+      );
+    });
   });
 
   it('nguồn giá theo phạm vi', () => {

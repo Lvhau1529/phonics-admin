@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StudentsService } from '@/features/students/api/studentsService';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { t } from '@/shared/i18n';
+import { selectLoading } from '@/shared/ui/selectLoading';
 
 type StudentPickSelectProps = Omit<
   SelectProps<string>,
@@ -27,7 +28,7 @@ export function StudentPickSelect(props: StudentPickSelectProps) {
       style={{ width: '100%' }}
       {...props}
       onSearch={setSearch}
-      loading={isFetching}
+      {...selectLoading(isFetching, options.length > 0)}
       options={options}
     />
   );

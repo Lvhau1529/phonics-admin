@@ -286,10 +286,22 @@ export class SlotStudentModel {
   get rateText(): string | null {
     return this.rate ? appliedRateText(this.rate) : null;
   }
+
+  /** Có giá riêng (ở ca này / mọi ca) — không đổi theo giá ca */
+  get hasOwnRate(): boolean {
+    return this.rate?.source === 'STUDENT_SLOT' || this.rate?.source === 'STUDENT';
+  }
+
+  /** "Hết từ 01/12/2026" — giá riêng có hạn */
+  get rateEndsText(): string | null {
+    return this.hasOwnRate && this.rate?.effectiveTo
+      ? t.extraSlots.rateEndsFrom(formatDate(this.rate.effectiveTo))
+      : null;
+  }
 }
 
 /** Trạng thái một dòng giá: đang áp dụng / đã dừng / bị dòng nhập sau thay thế từ đầu */
-export type RateState = 'current' | 'ended' | 'superseded';
+export type RateState = 'current' | 'upcoming' | 'ended' | 'superseded';
 
 export class ExtraRateModel {
   readonly id: string;
@@ -318,8 +330,20 @@ export class ExtraRateModel {
   }
 
   get state(): RateState {
-    if (this.effectiveTo === null) return 'current';
-    return this.effectiveTo === this.effectiveFrom ? 'superseded' : 'ended';
+    if (this.effectiveTo === this.effectiveFrom) return 'superseded';
+    const today = toIsoDate(dayjs());
+    if (this.effectiveTo !== null && this.effectiveTo <= today) return 'ended';
+    return this.effectiveFrom > today ? 'upcoming' : 'current';
+  }
+
+  /** Giá riêng học sinh chưa hết hiệu lực → kết thúc được (về giá chung / giá ca) */
+  get canEnd(): boolean {
+    return this.studentId !== null && (this.state === 'current' || this.state === 'upcoming');
+  }
+
+  /** "Hết từ 01/12/2026" — giá riêng có hạn chưa hết */
+  get endsText(): string | null {
+    return this.effectiveTo && this.canEnd ? t.extraSlots.rateEndsFrom(formatDate(this.effectiveTo)) : null;
   }
 
   get priceText(): string {

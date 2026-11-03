@@ -1,6 +1,11 @@
-import { App, DatePicker, Form, Input, Typography } from 'antd';
-import { CreateSlotRateBody, PricePerSession, type CreateSlotRateBody as RateBody } from '@phonics/contracts';
-import { useEffect } from 'react';
+import { Alert, App, DatePicker, Form, Input, Typography } from 'antd';
+import {
+  CreateSlotRateBody,
+  CreateStudentRateBody,
+  PricePerSession,
+  type CreateSlotRateBody as RateBody,
+} from '@phonics/contracts';
+import { type ReactNode, useEffect } from 'react';
 import { PriceInput } from '@/features/extra-slots/components/PriceInput';
 import { useAffectedPrompt } from '@/features/extra-slots/components/useAffectedPrompt';
 import type { ExtraRateModel } from '@/features/extra-slots/models/ExtraSlotModel';
@@ -14,6 +19,7 @@ import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty, zodRule } f
 interface RateFormValues {
   pricePerSession: number;
   effectiveFrom: Dayjs;
+  effectiveTo?: Dayjs;
   note?: string;
 }
 
@@ -25,8 +31,12 @@ interface SetRateModalProps {
   /** Giá đang áp dụng (điền sẵn) */
   currentPrice?: number | null;
   loading: boolean;
+  /** Giá riêng học sinh: thêm ô ngày hết (ưu đãi có hạn) */
+  withEnd?: boolean;
+  /** Cảnh báo thêm phía trên form (vd học sinh có giá riêng không đổi theo giá ca) */
+  notice?: ReactNode;
   /** Trả dòng giá vừa tạo (kèm bản ghi đã xác nhận bị lệch giá, nếu có) */
-  onSubmit: (body: RateBody) => Promise<ExtraRateModel>;
+  onSubmit: (body: RateBody & { effectiveTo?: string }) => Promise<ExtraRateModel>;
   onClose: () => void;
 }
 
@@ -37,6 +47,8 @@ export function SetRateModal({
   hint,
   currentPrice,
   loading,
+  withEnd,
+  notice,
   onSubmit,
   onClose,
 }: SetRateModalProps) {
@@ -52,8 +64,12 @@ export function SetRateModal({
 
   const handleFinish = async (values: RateFormValues) => {
     const parsed = parseForm(
-      CreateSlotRateBody,
-      stripEmpty({ ...values, effectiveFrom: toIsoDate(values.effectiveFrom) }),
+      withEnd ? CreateStudentRateBody : CreateSlotRateBody,
+      stripEmpty({
+        ...values,
+        effectiveFrom: toIsoDate(values.effectiveFrom),
+        effectiveTo: values.effectiveTo ? toIsoDate(values.effectiveTo) : undefined,
+      }),
     );
     if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
     try {
@@ -78,6 +94,7 @@ export function SetRateModal({
       onCancel={onClose}
     >
       <Typography.Paragraph type="secondary">{hint}</Typography.Paragraph>
+      {notice && <Alert type="warning" showIcon message={notice} style={{ marginBottom: 16 }} />}
       <Form<RateFormValues> form={form} layout="vertical" onFinish={handleFinish}>
         <Form.Item
           name="pricePerSession"
@@ -94,6 +111,11 @@ export function SetRateModal({
         >
           <DatePicker format={t.format.date} style={{ width: '100%' }} />
         </Form.Item>
+        {withEnd && (
+          <Form.Item name="effectiveTo" label={t.extraSlots.rateEndsOn} extra={t.extraSlots.rateEndsOnHint}>
+            <DatePicker format={t.format.date} style={{ width: '100%' }} />
+          </Form.Item>
+        )}
         <Form.Item name="note" label={t.common.note}>
           <Input maxLength={200} />
         </Form.Item>

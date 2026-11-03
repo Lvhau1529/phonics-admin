@@ -1,5 +1,5 @@
-import { EditOutlined } from '@ant-design/icons';
-import { Button, Tag, Tooltip, Typography } from 'antd';
+import { EditOutlined, StopOutlined } from '@ant-design/icons';
+import { Button, Space, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { ExtraRateModel, RateState } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
@@ -8,16 +8,19 @@ import { formatDate, formatDateTime } from '@/shared/utils/format';
 
 const STATE_COLOR: Record<RateState, string | undefined> = {
   current: 'green',
+  upcoming: 'blue',
   ended: undefined,
   superseded: 'default',
 };
 
 function stateLabel(state: RateState): string {
-  if (state === 'current') return t.extraSlots.current;
-  return state === 'superseded' ? t.extraSlots.superseded : t.extraSlots.ended;
+  return t.extraSlots[state];
 }
 
-function buildColumns(onEdit?: (rate: ExtraRateModel) => void): ColumnsType<ExtraRateModel> {
+function buildColumns(
+  onEdit?: (rate: ExtraRateModel) => void,
+  onEnd?: (rate: ExtraRateModel) => void,
+): ColumnsType<ExtraRateModel> {
   const columns: ColumnsType<ExtraRateModel> = [
     {
       title: t.extraSlots.price,
@@ -54,20 +57,34 @@ function buildColumns(onEdit?: (rate: ExtraRateModel) => void): ColumnsType<Extr
     },
     { title: t.common.note, dataIndex: 'note', render: (note: string | null) => note ?? t.common.none },
   ];
-  if (onEdit)
+  if (onEdit || onEnd)
     columns.push({
       title: t.common.actions,
       key: 'actions',
       render: (_, r) =>
         r.state !== 'superseded' && (
-          <Tooltip title={t.extraSlots.editPrice}>
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              aria-label={t.extraSlots.editPrice}
-              onClick={() => onEdit(r)}
-            />
-          </Tooltip>
+          <Space size={4}>
+            {onEdit && (
+              <Tooltip title={t.extraSlots.editPrice}>
+                <Button
+                  size="small"
+                  icon={<EditOutlined />}
+                  aria-label={t.extraSlots.editPrice}
+                  onClick={() => onEdit(r)}
+                />
+              </Tooltip>
+            )}
+            {onEnd && r.canEnd && (
+              <Tooltip title={t.extraSlots.endRate}>
+                <Button
+                  size="small"
+                  icon={<StopOutlined />}
+                  aria-label={t.extraSlots.endRate}
+                  onClick={() => onEnd(r)}
+                />
+              </Tooltip>
+            )}
+          </Space>
         ),
     });
   return columns;
@@ -75,25 +92,27 @@ function buildColumns(onEdit?: (rate: ExtraRateModel) => void): ColumnsType<Extr
 
 /**
  * Lịch sử đơn giá (mới nhất trước — server sắp xếp); dòng bị thay thế từ đầu gạch ngang. `onEdit` (người có quyền đặt
- * giá) thêm nút sửa giá cho dòng còn ngày hiệu lực.
+ * giá) thêm nút sửa giá cho dòng còn ngày hiệu lực; `onEnd` thêm nút kết thúc cho giá riêng học sinh chưa hết.
  */
 export function RateHistoryTable({
   rates,
   loading,
   emptyText = t.extraSlots.noPrice,
   onEdit,
+  onEnd,
 }: {
   rates: ExtraRateModel[] | undefined;
   loading?: boolean;
   emptyText?: string;
   onEdit?: (rate: ExtraRateModel) => void;
+  onEnd?: (rate: ExtraRateModel) => void;
 }) {
   return (
     <DataTable.Static<ExtraRateModel>
       rowKey="id"
       size="small"
       loading={loading}
-      columns={buildColumns(onEdit)}
+      columns={buildColumns(onEdit, onEnd)}
       dataSource={rates}
       pagination={false}
       locale={{ emptyText }}

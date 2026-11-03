@@ -88,6 +88,8 @@ export const vi = {
     enabled: 'Bật',
     disabled: 'Tắt',
     loading: 'Đang tải…',
+    searching: 'Đang tìm…',
+    noMatches: 'Không tìm thấy kết quả',
     noData: 'Chưa có dữ liệu',
     total: (n: number) => `Tổng ${n}`,
     pageTotal: (range: [number, number], total: number) => `${range[0]}–${range[1]} / ${total}`,
@@ -208,9 +210,9 @@ export const vi = {
   >,
 
   rateSource: {
-    STUDENT_SLOT: 'Riêng học sinh ở ca',
-    STUDENT: 'Riêng học sinh',
-    SLOT: 'Mặc định ca',
+    STUDENT_SLOT: 'Giá riêng ở ca này',
+    STUDENT: 'Giá riêng mọi ca',
+    SLOT: 'Giá ca',
     NONE: 'Chưa có giá',
   } satisfies Record<RateSource, string>,
 
@@ -653,8 +655,26 @@ export const vi = {
     effectiveTo: 'Đến ngày',
     priceHistory: 'Lịch sử giá',
     current: 'Đang áp dụng',
+    upcoming: 'Sắp áp dụng',
     superseded: 'Đã thay thế',
     ended: 'Đã dừng',
+    rateEndsFrom: (date: string) => `Hết từ ${date}`,
+    endRate: 'Kết thúc giá riêng',
+    endRateTitle: (name: string) => `Kết thúc giá riêng · ${name}`,
+    endRateFrom: 'Kết thúc từ ngày',
+    endRateFromHint: 'Ngày đầu tiên không còn áp giá riêng.',
+    endRateExplain:
+      'Từ ngày này học sinh dùng mức giá tiếp theo: giá riêng mọi ca (nếu có), không thì giá ca. Buổi chưa xác nhận tự tính lại; buổi đã xác nhận sẽ được hỏi riêng. Lịch sử giá vẫn giữ.',
+    endRateNow: 'Kết thúc',
+    clearRateEnd: 'Bỏ hạn',
+    clearRateEndHint: 'Áp dụng lại không thời hạn',
+    rateEnded: 'Đã kết thúc giá riêng',
+    rateEndCleared: 'Đã bỏ hạn giá riêng',
+    rateEndsOn: 'Hết giá riêng từ (tuỳ chọn)',
+    rateEndsOnHint:
+      'Để trống = không thời hạn. Hết hạn thì tự về giá riêng mọi ca / giá ca (vd miễn phí tháng đầu).',
+    ownPriceNotice: (count: number) =>
+      `${count} học sinh đang có giá riêng — giá riêng không đổi theo giá ca:`,
     createdBy: 'Người đặt',
     rateHint:
       'Giá mới áp dụng từ ngày đã chọn, giá cũ dừng ở ngày đó. Chọn ngày trong quá khứ để sửa giá nhập sai.',
@@ -676,12 +696,12 @@ export const vi = {
     studentPrice: 'Đơn giá riêng ở ca',
     studentPriceTitle: (student: string) => `Đơn giá riêng · ${student}`,
     studentPriceHint:
-      'Chỉ áp cho học sinh này ở ca này, ưu tiên hơn giá mặc định của ca. Giá điền sẵn là giá đang áp dụng (chưa có giá riêng thì là giá của ca).',
-    addPrice: 'Đơn giá riêng (tuỳ chọn)',
+      'Chỉ áp cho học sinh này ở ca này, ưu tiên hơn giá riêng mọi ca và giá ca. Giá điền sẵn là giá đang áp dụng.',
+    addPrice: 'Đơn giá riêng ở ca (tuỳ chọn)',
     addPriceHint: (slotPrice: string | null) =>
       slotPrice
-        ? `Để trống = dùng giá mặc định của ca (${slotPrice}).`
-        : 'Để trống = dùng giá mặc định của ca.',
+        ? `Để trống = dùng giá riêng mọi ca của học sinh (nếu có), không thì giá ca (${slotPrice}).`
+        : 'Để trống = dùng giá riêng mọi ca của học sinh (nếu có), không thì giá ca.',
   },
 
   attendance: {
@@ -863,7 +883,8 @@ export const vi = {
     appliedRates: 'Đơn giá đang áp dụng',
     studentPrice: 'Giá riêng của học sinh',
     setStudentPrice: 'Đặt giá riêng',
-    studentPriceHint: 'Giá riêng áp cho mọi ca của học sinh, ưu tiên hơn giá mặc định của ca.',
+    studentPriceHint:
+      'Giá riêng áp cho mọi ca của học sinh, ưu tiên hơn giá ca. Ca nào học sinh có giá riêng ở ca thì vẫn dùng giá đó.',
     noStudentRates: 'Chưa có giá riêng',
     noOpenSlots: 'Học sinh chưa học ca nào',
     remove: 'Xoá khỏi ca',

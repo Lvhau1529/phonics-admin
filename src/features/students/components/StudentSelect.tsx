@@ -1,8 +1,12 @@
 import { Select, type SelectProps } from 'antd';
 import { StudentsService } from '@/features/students/api/studentsService';
 import { t } from '@/shared/i18n';
+import { selectLoading } from '@/shared/ui/selectLoading';
 
-type StudentSelectProps = Omit<SelectProps<string>, 'options' | 'loading'> & {
+type StudentSelectProps = Omit<
+  SelectProps<string>,
+  'options' | 'loading' | 'notFoundContent' | 'popupRender'
+> & {
   /** Lớp cần liệt kê học sinh; không có lớp thì ô bị khoá */
   classId: string | undefined;
 };
@@ -23,7 +27,7 @@ export function StudentSelect({ classId, ...props }: StudentSelectProps) {
       style={{ minWidth: 220 }}
       disabled={!classId}
       {...props}
-      loading={isLoading}
+      {...selectLoading(isLoading, options.length > 0)}
       options={options}
     />
   );

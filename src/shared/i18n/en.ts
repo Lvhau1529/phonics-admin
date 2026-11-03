@@ -86,6 +86,8 @@ export const en = {
     enabled: 'On',
     disabled: 'Off',
     loading: 'Loading…',
+    searching: 'Searching…',
+    noMatches: 'No matches found',
     noData: 'No data yet',
     total: (n: number) => `Total ${n}`,
     pageTotal: (range: [number, number], total: number) => `${range[0]}–${range[1]} of ${total}`,
@@ -202,9 +204,9 @@ export const en = {
   >,
 
   rateSource: {
-    STUDENT_SLOT: 'Student price in slot',
-    STUDENT: "Student's own price",
-    SLOT: 'Slot default',
+    STUDENT_SLOT: 'Own price in this slot',
+    STUDENT: 'Own price (all slots)',
+    SLOT: 'Slot price',
     NONE: 'No price',
   } satisfies Record<RateSource, string>,
 
@@ -653,8 +655,26 @@ export const en = {
     effectiveTo: 'Until',
     priceHistory: 'Price history',
     current: 'Current',
+    upcoming: 'Upcoming',
     superseded: 'Superseded',
     ended: 'Ended',
+    rateEndsFrom: (date: string) => `Ends ${date}`,
+    endRate: 'End own price',
+    endRateTitle: (name: string) => `End own price · ${name}`,
+    endRateFrom: 'End from',
+    endRateFromHint: 'The first day the own price no longer applies.',
+    endRateExplain:
+      'From this day the student gets the next price: their all-slots price (if any), otherwise the slot price. Unconfirmed sessions are repriced; you will be asked about confirmed ones. Price history is kept.',
+    endRateNow: 'End',
+    clearRateEnd: 'Remove end date',
+    clearRateEndHint: 'Apply again with no end date',
+    rateEnded: 'Own price ended',
+    rateEndCleared: 'End date removed',
+    rateEndsOn: 'Own price ends from (optional)',
+    rateEndsOnHint:
+      'Leave empty for no end. After it ends the student falls back to their all-slots price / the slot price (e.g. first month free).',
+    ownPriceNotice: (count: number) =>
+      `${count} student(s) have their own price — own prices do not follow the slot price:`,
     createdBy: 'Set by',
     rateHint:
       'The new price applies from the chosen date and the old one stops there. Pick a past date to fix a wrong price.',
@@ -676,12 +696,12 @@ export const en = {
     studentPrice: 'Student price in this slot',
     studentPriceTitle: (student: string) => `Student price · ${student}`,
     studentPriceHint:
-      'Applies only to this student in this slot and overrides the slot default. Prefilled with the price in effect (the slot price when the student has none).',
-    addPrice: 'Student price (optional)',
+      'Applies only to this student in this slot and overrides their all-slots price and the slot price. Prefilled with the price in effect.',
+    addPrice: 'Own price in this slot (optional)',
     addPriceHint: (slotPrice: string | null) =>
       slotPrice
-        ? `Leave empty to use the slot default (${slotPrice}).`
-        : 'Leave empty to use the slot default.',
+        ? `Leave empty to use the student's all-slots price (if any), otherwise the slot price (${slotPrice}).`
+        : "Leave empty to use the student's all-slots price (if any), otherwise the slot price.",
   },
 
   attendance: {
@@ -864,7 +884,8 @@ export const en = {
     appliedRates: 'Current prices',
     studentPrice: "Student's own price",
     setStudentPrice: 'Set own price',
-    studentPriceHint: "The student's own price applies to all their slots and overrides the slot default.",
+    studentPriceHint:
+      "The student's own price applies to all their slots and overrides the slot price. Slots where the student has an own price for that slot keep using it.",
     noStudentRates: 'No own price yet',
     noOpenSlots: 'The student is not in any slot',
     remove: 'Remove from slot',
