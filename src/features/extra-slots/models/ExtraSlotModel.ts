@@ -15,7 +15,8 @@ import {
 } from '@phonics/contracts';
 import { t } from '@/shared/i18n';
 import type { IsoWeekday } from '@/shared/i18n';
-import { formatDate, formatMoney, shortList } from '@/shared/utils/format';
+import { dayjs } from '@/shared/utils/dayjs';
+import { formatDate, formatMoney, shortList, toIsoDate } from '@/shared/utils/format';
 
 /** Contracts để weekday là number (1..7) → khoá từ điển thứ */
 export const isoWeekday = (n: number): IsoWeekday => Math.min(7, Math.max(1, Math.trunc(n))) as IsoWeekday;
@@ -38,9 +39,31 @@ export function isActiveOn(
   return range.effectiveFrom <= date && (range.effectiveTo === null || date < range.effectiveTo);
 }
 
-/** Đơn giá áp dụng: "150.000 ₫" hoặc "Chưa có giá" */
+/** Đơn giá đã đặt: 0đ là "Miễn phí" (học miễn phí / học thử) */
+export function priceText(price: number): string {
+  return price === 0 ? t.extraSlots.free : formatMoney(price);
+}
+
+/** Đơn giá áp dụng: "150.000 ₫", "Miễn phí" hoặc "Chưa có giá" */
 export function appliedRateText(rate: AppliedRate): string {
-  return rate.source === 'NONE' ? t.rateSource.NONE : formatMoney(rate.pricePerSession);
+  return rate.source === 'NONE' ? t.rateSource.NONE : priceText(rate.pricePerSession);
+}
+
+/** "T3 18/11/2026" */
+export function sessionDateText(date: string): string {
+  return `${t.weekdayShort[isoWeekday(dayjs(date).day() || 7)]} ${formatDate(date)}`;
+}
+
+/** Ngày có buổi cuối cùng của ca thứ `weekday` trước ngày ngừng `endsOn` (không trước `startsOn`); null = không còn */
+export function lastSessionBefore(
+  slot: { weekday: number; startsOn: string | null },
+  endsOn: string,
+  today: string,
+): string | null {
+  const end = dayjs(endsOn).subtract(1, 'day');
+  const last = end.subtract(((end.day() || 7) - slot.weekday + 7) % 7, 'day').format('YYYY-MM-DD');
+  const from = slot.startsOn && slot.startsOn > today ? slot.startsOn : today;
+  return last >= from ? last : null;
 }
 
 /** Ca học thêm (từ `ExtraSlot` của BE) */
@@ -50,6 +73,8 @@ export class ExtraSlotModel {
   readonly weekday: IsoWeekday;
   readonly startTime: string;
   readonly endTime: string;
+  readonly startsOn: string | null;
+  readonly endsOn: string | null;
   readonly archivedAt: string | null;
   readonly room: string | null;
   readonly capacity: number | null;
@@ -57,6 +82,7 @@ export class ExtraSlotModel {
   readonly teachers: TeacherRef[];
   readonly studentCount: number;
   readonly defaultPrice: number | null;
+  readonly nextSessionDate: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
 
@@ -66,6 +92,8 @@ export class ExtraSlotModel {
     this.weekday = isoWeekday(data.weekday);
     this.startTime = data.startTime;
     this.endTime = data.endTime;
+    this.startsOn = data.startsOn;
+    this.endsOn = data.endsOn;
     this.archivedAt = data.archivedAt;
     this.room = data.room;
     this.capacity = data.capacity;
@@ -73,12 +101,35 @@ export class ExtraSlotModel {
     this.teachers = data.teachers;
     this.studentCount = data.studentCount;
     this.defaultPrice = data.defaultPrice;
+    this.nextSessionDate = data.nextSessionDate;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }
 
   get isArchived(): boolean {
     return this.archivedAt !== null;
+  }
+
+  /** Đã hẹn ngày ngừng nhưng chưa tới */
+  get isStopping(): boolean {
+    return !this.isArchived && this.endsOn !== null;
+  }
+
+  /** "Ngừng từ 01/12/2026" (ca chưa ngừng mà đã hẹn ngày) */
+  get stopsText(): string | null {
+    return this.isStopping && this.endsOn ? t.extraSlots.stopsFrom(formatDate(this.endsOn)) : null;
+  }
+
+  /** "Bắt đầu 10/11/2026" khi ca chưa tới ngày bắt đầu */
+  get startsText(): string | null {
+    return this.startsOn && this.startsOn > toIsoDate(dayjs())
+      ? t.extraSlots.startsFrom(formatDate(this.startsOn))
+      : null;
+  }
+
+  /** "T3 18/11/2026" hoặc "Không còn buổi" */
+  get nextSessionText(): string {
+    return this.nextSessionDate ? sessionDateText(this.nextSessionDate) : t.extraSlots.noNextSession;
   }
 
   get weekdayLabel(): string {
@@ -123,7 +174,10 @@ export class ExtraSlotModel {
 
   /** null khi chưa đặt giá hoặc người xem không có quyền xem giá */
   get defaultPriceText(): string | null {
-    return this.defaultPrice === null ? null : `${formatMoney(this.defaultPrice)} ${t.extraSlots.perSession}`;
+    if (this.defaultPrice === null) return null;
+    return this.defaultPrice === 0
+      ? t.extraSlots.free
+      : `${formatMoney(this.defaultPrice)} ${t.extraSlots.perSession}`;
   }
 }
 
@@ -258,7 +312,7 @@ export class ExtraRateModel {
   }
 
   get priceText(): string {
-    return formatMoney(this.pricePerSession);
+    return priceText(this.pricePerSession);
   }
 
   get rangeText(): string {

@@ -14,7 +14,7 @@ import {
   type StudentAttendanceItem,
   type TeacherRef,
 } from '@phonics/contracts';
-import { isoWeekday } from '@/features/extra-slots/models/ExtraSlotModel';
+import { isoWeekday, priceText } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
 import { dayjs } from '@/shared/utils/dayjs';
 import { formatDate, formatDateTime, formatMoney, shortList } from '@/shared/utils/format';
@@ -175,9 +175,10 @@ export class AttendanceRecordModel {
     return t.attendanceSource[this.source];
   }
 
-  /** null khi người xem không có quyền xem giá */
+  /** null khi người xem không có quyền xem giá; 0đ có dòng giá = "Miễn phí", thiếu giá thì giữ "0 ₫" (kèm cảnh báo) */
   get priceText(): string | null {
-    return this.unitPrice === null ? null : formatMoney(this.unitPrice);
+    if (this.unitPrice === null) return null;
+    return this.missingRate ? formatMoney(this.unitPrice) : priceText(this.unitPrice);
   }
 }
 
@@ -300,6 +301,6 @@ export class StudentAttendanceItemModel {
   }
 
   get priceText(): string | null {
-    return this.unitPrice === null ? null : formatMoney(this.unitPrice);
+    return this.unitPrice === null ? null : priceText(this.unitPrice);
   }
 }

@@ -43,6 +43,7 @@ import type {
 } from '@/features/attendance/models/AttendanceSessionModel';
 import { useAuth } from '@/features/auth/authStore';
 import { StudentPickSelect } from '@/features/extra-slots/components/StudentPickSelect';
+import { priceText } from '@/features/extra-slots/models/ExtraSlotModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
@@ -149,6 +150,8 @@ function buildColumns({ session, edits, edit, remove }: ColumnContext): ColumnsT
                   onChange={(v) => edit(r.studentId, { unitPrice: v ?? 0 })}
                   style={{ width: 130 }}
                 />
+              ) : value !== null && !r.missingRate ? (
+                priceText(value)
               ) : (
                 formatMoney(value)
               )}

@@ -1,4 +1,10 @@
-import { ClockCircleOutlined, EnvironmentOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClockCircleOutlined,
+  EnvironmentOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { Card, Flex, Tag, Typography } from 'antd';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
@@ -23,11 +29,18 @@ export function SlotCard({ slot }: { slot: ExtraSlotModel }) {
           <Typography.Text type="secondary" ellipsis={{ tooltip: slot.teacherNames }}>
             <UserOutlined /> {slot.teacherNamesShort}
           </Typography.Text>
+          {!slot.isArchived && (
+            <Typography.Text type="secondary">
+              <CalendarOutlined /> {t.extraSlots.nextSession}: {slot.nextSessionText}
+            </Typography.Text>
+          )}
           <Flex gap={4} wrap>
             <Tag color={slot.isFull ? 'warning' : undefined} icon={<TeamOutlined />}>
               {slot.studentCountText}
             </Tag>
             {slot.defaultPriceText && <Tag>{slot.defaultPriceText}</Tag>}
+            {slot.startsText && <Tag color="blue">{slot.startsText}</Tag>}
+            {slot.stopsText && <Tag color="orange">{slot.stopsText}</Tag>}
             {slot.isArchived && <Tag>{t.extraSlots.archived}</Tag>}
           </Flex>
         </Flex>

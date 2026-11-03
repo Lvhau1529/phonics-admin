@@ -52,7 +52,8 @@ export function GoogleSignInButton({
         // Vẽ nút mới vào lớp ẩn chồng lên nút cũ, đợi iframe tải xong mới đổi → không bị khoảng trống / nháy
         const hostEl = host.current;
         const layer = document.createElement('div');
-        layer.style.cssText = 'position:absolute;inset:0;display:flex;justify-content:center;opacity:0;pointer-events:none';
+        layer.style.cssText =
+          'position:absolute;inset:0;display:flex;justify-content:center;opacity:0;pointer-events:none';
         hostEl.append(layer);
         google.accounts.id.renderButton(layer, {
           type: 'standard',

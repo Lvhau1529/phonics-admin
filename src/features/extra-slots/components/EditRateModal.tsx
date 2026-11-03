@@ -1,13 +1,13 @@
-import { App, Form, Input, InputNumber } from 'antd';
+import { App, Form, Input } from 'antd';
 import { PricePerSession, UpdateExtraRateBody } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
+import { PriceInput } from '@/features/extra-slots/components/PriceInput';
 import { useAffectedPrompt } from '@/features/extra-slots/components/useAffectedPrompt';
 import type { ExtraRateModel } from '@/features/extra-slots/models/ExtraSlotModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { TypedConfirmModal } from '@/shared/ui/TypedConfirmModal';
-import { formatPriceInput, parsePriceInput } from '@/shared/utils/format';
 import { applyFieldErrors, applyServerErrors, diffValues, parseForm, zodRule } from '@/shared/utils/zodForm';
 
 interface EditRateFormValues {
@@ -70,14 +70,7 @@ export function EditRateModal({ rate, onClose }: { rate: ExtraRateModel | undefi
           label={t.extraSlots.price}
           rules={[{ required: true, message: t.common.requiredField }, zodRule(PricePerSession)]}
         >
-          <InputNumber<number>
-            min={0}
-            step={10_000}
-            style={{ width: '100%' }}
-            addonAfter={t.format.currency}
-            formatter={formatPriceInput}
-            parser={parsePriceInput}
-          />
+          <PriceInput />
         </Form.Item>
         <Form.Item name="note" label={t.common.note}>
           <Input maxLength={200} />

@@ -1,13 +1,14 @@
-import { App, DatePicker, Form, Input, InputNumber, Typography } from 'antd';
+import { App, DatePicker, Form, Input, Typography } from 'antd';
 import { CreateSlotRateBody, PricePerSession, type CreateSlotRateBody as RateBody } from '@phonics/contracts';
 import { useEffect } from 'react';
+import { PriceInput } from '@/features/extra-slots/components/PriceInput';
 import { useAffectedPrompt } from '@/features/extra-slots/components/useAffectedPrompt';
 import type { ExtraRateModel } from '@/features/extra-slots/models/ExtraSlotModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { TypedConfirmModal } from '@/shared/ui/TypedConfirmModal';
 import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
-import { formatPriceInput, parsePriceInput, toIsoDate } from '@/shared/utils/format';
+import { toIsoDate } from '@/shared/utils/format';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty, zodRule } from '@/shared/utils/zodForm';
 
 interface RateFormValues {
@@ -83,14 +84,7 @@ export function SetRateModal({
           label={t.extraSlots.price}
           rules={[{ required: true, message: t.common.requiredField }, zodRule(PricePerSession)]}
         >
-          <InputNumber<number>
-            min={0}
-            step={10_000}
-            style={{ width: '100%' }}
-            addonAfter={t.format.currency}
-            formatter={formatPriceInput}
-            parser={parsePriceInput}
-          />
+          <PriceInput />
         </Form.Item>
         <Form.Item
           name="effectiveFrom"
