@@ -31,7 +31,6 @@ const api = {
   create: async (body: CreateExtraSlotBody) => new ExtraSlotModel(await extraSlotsRepository.create(body)),
   update: async (id: string, body: UpdateExtraSlotBody) =>
     new ExtraSlotModel(await extraSlotsRepository.update(id, body)),
-  archive: (id: string) => extraSlotsRepository.archive(id),
   setTeachers: async (id: string, teacherIds: string[]) =>
     new ExtraSlotModel(await extraSlotsRepository.setTeachers(id, teacherIds)),
   students: async (id: string, date: string) =>
@@ -115,11 +114,6 @@ export const ExtraSlotsService = {
       mutationFn: ({ id, body }: { id: string; body: UpdateExtraSlotBody }) => api.update(id, body),
       onSuccess: invalidate,
     });
-  },
-
-  useArchive() {
-    const invalidate = useInvalidateExtra();
-    return useMutation({ mutationFn: api.archive, onSuccess: invalidate });
   },
 
   useSetTeachers() {

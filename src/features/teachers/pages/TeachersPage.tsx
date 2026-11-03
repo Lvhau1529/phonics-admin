@@ -1,6 +1,7 @@
 import {
   CheckOutlined,
   CloseOutlined,
+  DeleteOutlined,
   EditOutlined,
   LockOutlined,
   PlusOutlined,
@@ -13,6 +14,10 @@ import type { UserStatus } from '@phonics/contracts';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
+import {
+  DeleteAccountModal,
+  type DeleteTarget,
+} from '@/features/account-delete/components/DeleteAccountModal';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { TeacherClassesModal } from '@/features/teachers/components/TeacherClassesModal';
 import { TeacherFormDrawer } from '@/features/teachers/components/TeacherFormDrawer';
@@ -43,6 +48,7 @@ export function TeachersPage() {
   const update = TeachersService.useUpdate();
   const [drawer, setDrawer] = useState<{ open: boolean; teacher?: TeacherModel }>({ open: false });
   const [classesFor, setClassesFor] = useState<TeacherModel>();
+  const [deleting, setDeleting] = useState<DeleteTarget>();
   const pendingCount = TeachersService.usePendingCount().data ?? 0;
 
   const setStatus = async (teacher: TeacherModel, status: UserStatus, done = t.common.updated) => {
@@ -162,6 +168,14 @@ export function TeachersPage() {
               </Tooltip>
             </Popconfirm>
           )}
+          <Tooltip title={t.accountDelete.action}>
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => setDeleting({ kind: 'teacher', id: tc.id, name: tc.displayName })}
+            />
+          </Tooltip>
         </Space>
       ),
     },
@@ -234,6 +248,7 @@ export function TeachersPage() {
         teacher={classesFor}
         onClose={() => setClassesFor(undefined)}
       />
+      <DeleteAccountModal target={deleting} onClose={() => setDeleting(undefined)} />
     </>
   );
 }

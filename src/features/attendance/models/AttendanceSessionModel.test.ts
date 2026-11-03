@@ -40,6 +40,8 @@ const sessionDto: AttendanceSessionDetail = {
     weekday: 2,
     startTime: '18:00',
     endTime: '19:30',
+    startsOn: null,
+    endsOn: null,
     archivedAt: null,
   },
   date: '2026-11-03',

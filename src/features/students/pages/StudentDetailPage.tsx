@@ -1,9 +1,13 @@
-import { EditOutlined, KeyOutlined, SwapOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, KeyOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Card, Descriptions, Flex, Select, Skeleton, Space, Statistic, Tabs, Typography } from 'antd';
 import { PointKind, type GameId } from '@phonics/contracts';
 import { useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
+import {
+  DeleteAccountModal,
+  type DeleteTarget,
+} from '@/features/account-delete/components/DeleteAccountModal';
 import { StudentWorksheetsTab } from '@/features/worksheet-stats/components/StudentWorksheetsTab';
 import { useAuth } from '@/features/auth/authStore';
 import { StudentExtraTab } from '@/features/extra-slots/components/StudentExtraTab';
@@ -79,6 +83,8 @@ export function StudentDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [moving, setMoving] = useState<StudentDetailModel>();
   const [resetting, setResetting] = useState<StudentDetailModel>();
+  const [deleting, setDeleting] = useState<DeleteTarget>();
+  const navigate = useNavigate();
   const tab = (searchParams.get('tab') as TabKey | null) ?? 'by-game';
   const setTab = (key: string) => setSearchParams(new URLSearchParams({ tab: key }), { replace: true });
   const canEdit = auth.can('students.edit');
@@ -117,6 +123,15 @@ export function StudentDetailPage() {
             {auth.isAdmin && (
               <Button icon={<KeyOutlined />} onClick={() => setResetting(s)}>
                 {t.students.resetPassword}
+              </Button>
+            )}
+            {auth.isAdmin && (
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => setDeleting({ kind: 'student', id: s.id, name: s.fullName })}
+              >
+                {t.accountDelete.action}
               </Button>
             )}
           </>
@@ -191,6 +206,11 @@ export function StudentDetailPage() {
       <StudentFormDrawer open={editOpen} student={s} onClose={() => setEditOpen(false)} />
       <MoveClassModal student={moving} onClose={() => setMoving(undefined)} />
       <ResetPasswordModal student={resetting} onClose={() => setResetting(undefined)} />
+      <DeleteAccountModal
+        target={deleting}
+        onClose={() => setDeleting(undefined)}
+        onDeleted={() => void navigate(ROUTES.students, { replace: true })}
+      />
     </>
   );
 }

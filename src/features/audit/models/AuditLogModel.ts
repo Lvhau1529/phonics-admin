@@ -39,7 +39,8 @@ export class AuditLogModel {
 
   /** Đối tượng có trang chi tiết không (user cũng là học sinh); null = chỉ hiện nhãn */
   get targetKind(): AuditTargetKind | null {
-    if (!this.targetId) return null;
+    // Đối tượng đã bị xoá hẳn → không còn trang chi tiết
+    if (!this.targetId || this.action.endsWith('.delete')) return null;
     const type = this.targetType.toLowerCase();
     if (type === 'student' || type === 'user') return 'student';
     if (type === 'class' || type === 'game') return type;

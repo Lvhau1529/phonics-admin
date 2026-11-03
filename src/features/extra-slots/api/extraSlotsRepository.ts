@@ -31,7 +31,6 @@ export const extraSlotsRepository = {
     request(ENDPOINTS.extraSlots.list, { method: HttpMethod.POST, body, schema: ExtraSlot }),
   update: (id: string, body: UpdateExtraSlotBody) =>
     request(ENDPOINTS.extraSlots.detail(id), { method: HttpMethod.PATCH, body, schema: ExtraSlot }),
-  archive: (id: string) => request<void>(ENDPOINTS.extraSlots.detail(id), { method: HttpMethod.DELETE }),
   setTeachers: (id: string, teacherIds: string[]) =>
     request(ENDPOINTS.extraSlots.teachers(id), {
       method: HttpMethod.PUT,

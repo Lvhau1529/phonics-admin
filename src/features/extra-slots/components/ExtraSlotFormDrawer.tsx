@@ -37,6 +37,10 @@ interface SlotFormValues {
   capacity?: number | null;
   classId?: string;
   teacherIds?: string[];
+  /** Ngày đầu có buổi (trống = ngay) */
+  startsOn?: Dayjs | null;
+  /** Tạo: ngừng từ ngày (trống = chưa định); sửa thì dùng nút "Ngừng ca" */
+  endsOn?: Dayjs | null;
 }
 
 /** 'HH:mm' → Dayjs (ngày bất kỳ) cho TimePicker */
@@ -81,16 +85,19 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
         room: slot.room ?? undefined,
         capacity: slot.capacity,
         classId: slot.class?.id,
+        startsOn: slot.startsOn ? dayjs(slot.startsOn) : null,
       });
   }, [open, slot, form]);
 
   const handleFinish = async (raw: SlotFormValues) => {
-    const { weekdays, timeFrom, ...rest } = raw;
+    const { weekdays, timeFrom, startsOn, endsOn, ...rest } = raw;
     const values = stripEmpty({
       ...rest,
       startTime: raw.startTime.format(TIME_FORMAT),
       endTime: raw.endTime.format(TIME_FORMAT),
       capacity: raw.capacity ?? undefined,
+      startsOn: startsOn ? toIsoDate(startsOn) : undefined,
+      endsOn: endsOn ? toIsoDate(endsOn) : undefined,
     });
     try {
       if (slot) {
@@ -103,6 +110,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
             room: slot.room,
             capacity: slot.capacity,
             classId: slot.class?.id ?? null,
+            startsOn: slot.startsOn,
           },
           {
             name: values.name,
@@ -112,6 +120,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
             room: values.room ?? null,
             capacity: values.capacity ?? null,
             classId: values.classId ?? null,
+            startsOn: values.startsOn ?? null,
           },
         );
         // Đổi một trong hai giờ thì gửi cả hai (schema yêu cầu đi cùng nhau)
@@ -242,6 +251,18 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
             <InputNumber<number> min={1} max={200} precision={0} style={{ width: '100%' }} />
           </Form.Item>
         </Flex>
+        <Form.Item name="startsOn" label={t.extraSlots.startsOn} extra={t.extraSlots.startsOnHint}>
+          <DatePicker format={t.format.date} style={{ width: '100%' }} />
+        </Form.Item>
+        {!slot && (
+          <Form.Item name="endsOn" label={t.extraSlots.endsOn} extra={t.extraSlots.endsOnHint}>
+            <DatePicker
+              format={t.format.date}
+              disabledDate={(d) => !d.isAfter(dayjs(), 'day')}
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
+        )}
         <Form.Item name="classId" label={t.extraSlots.mainClass}>
           <ClassSelect style={{ width: '100%' }} />
         </Form.Item>

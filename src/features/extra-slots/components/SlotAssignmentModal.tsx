@@ -1,4 +1,4 @@
-import { App, DatePicker, Form, Input, InputNumber, Modal } from 'antd';
+import { App, DatePicker, Form, Input, Modal } from 'antd';
 import {
   CreateSlotAssignmentBody,
   MoveSlotAssignmentBody,
@@ -9,19 +9,14 @@ import { useEffect } from 'react';
 import { useAuth } from '@/features/auth/authStore';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import { ExtraSlotSelect } from '@/features/extra-slots/components/ExtraSlotSelect';
+import { PriceInput } from '@/features/extra-slots/components/PriceInput';
 import { StudentPickSelect } from '@/features/extra-slots/components/StudentPickSelect';
 import { useAffectedPrompt } from '@/features/extra-slots/components/useAffectedPrompt';
 import type { SlotAssignmentModel } from '@/features/extra-slots/models/ExtraSlotModel';
 import { errorMessage, isApiError } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
-import {
-  formatMoney,
-  formatNumber,
-  formatPriceInput,
-  parsePriceInput,
-  toIsoDate,
-} from '@/shared/utils/format';
+import { formatMoney, formatNumber, toIsoDate } from '@/shared/utils/format';
 import { applyFieldErrors, applyServerErrors, diffValues, parseForm, zodRule } from '@/shared/utils/zodForm';
 
 /**
@@ -229,15 +224,7 @@ export function SlotAssignmentModal({
             )}
             rules={[zodRule(PricePerSession)]}
           >
-            <InputNumber<number>
-              min={0}
-              step={10_000}
-              style={{ width: '100%' }}
-              placeholder={action.slotPrice ? formatNumber(action.slotPrice) : undefined}
-              addonAfter={t.format.currency}
-              formatter={formatPriceInput}
-              parser={parsePriceInput}
-            />
+            <PriceInput placeholder={action.slotPrice ? formatNumber(action.slotPrice) : undefined} />
           </Form.Item>
         )}
         {mode !== 'leave' && (

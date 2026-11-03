@@ -12,6 +12,8 @@ interface TypedConfirmModalProps {
   phrase: string;
   okText: string;
   danger?: boolean;
+  /** Khoá nút xác nhận dù đã gõ đúng (vd đang tải dữ liệu cần xem trước) */
+  disabled?: boolean;
   loading?: boolean;
   onOk: () => void;
   onCancel: () => void;
@@ -27,6 +29,7 @@ export function TypedConfirmModal({
   phrase,
   okText,
   danger,
+  disabled,
   loading,
   onOk,
   onCancel,
@@ -43,7 +46,7 @@ export function TypedConfirmModal({
       onOk={onOk}
       okText={okText}
       cancelText={t.common.cancel}
-      okButtonProps={{ danger, disabled: !matched }}
+      okButtonProps={{ danger, disabled: disabled || !matched }}
       confirmLoading={loading}
       afterClose={() => setTyped('')}
       destroyOnHidden
@@ -54,7 +57,7 @@ export function TypedConfirmModal({
       <Input
         value={typed}
         onChange={(e) => setTyped(e.target.value)}
-        onPressEnter={() => matched && onOk()}
+        onPressEnter={() => matched && !disabled && onOk()}
         placeholder={phrase}
         autoComplete="off"
         aria-label={t.common.typeToConfirm(phrase)}

@@ -2,6 +2,7 @@ import type { ExtraRate, ExtraSlot, SlotAssignment } from '@phonics/contracts';
 import { describe, expect, it } from 'vitest';
 import {
   appliedRateText,
+  lastSessionBefore,
   ExtraRateModel,
   ExtraSlotModel,
   isActiveOn,
@@ -9,7 +10,7 @@ import {
   SlotAssignmentModel,
 } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
-import { formatMoney } from '@/shared/utils/format';
+import { formatDate, formatMoney } from '@/shared/utils/format';
 
 const slotDto: ExtraSlot = {
   id: 'x1',
@@ -17,6 +18,8 @@ const slotDto: ExtraSlot = {
   weekday: 2,
   startTime: '18:00',
   endTime: '19:30',
+  startsOn: null,
+  endsOn: null,
   archivedAt: null,
   room: null,
   capacity: 2,
@@ -24,6 +27,7 @@ const slotDto: ExtraSlot = {
   teachers: [],
   studentCount: 2,
   defaultPrice: null,
+  nextSessionDate: '2026-11-03',
   createdAt: '2026-09-01T00:00:00.000Z',
   updatedAt: '2026-09-01T00:00:00.000Z',
 };
@@ -101,8 +105,35 @@ describe('ExtraRateModel', () => {
 
   it('chưa có giá → nhãn cảnh báo thay vì 0đ', () => {
     expect(appliedRateText({ pricePerSession: 0, source: 'NONE', rateId: null })).toBe(t.rateSource.NONE);
+    // Giá 0đ đã đặt = miễn phí, khác "chưa có giá"
+    expect(appliedRateText({ pricePerSession: 0, source: 'STUDENT', rateId: 'r3' })).toBe(t.extraSlots.free);
     expect(appliedRateText({ pricePerSession: 120_000, source: 'STUDENT', rateId: 'r2' })).toBe(
       formatMoney(120_000),
     );
+  });
+});
+
+describe('ngày ngừng ca', () => {
+  it('buổi cuối là cùng thứ ngay trước ngày ngừng; không còn buổi thì null', () => {
+    // Ca Thứ Ba, ngừng từ Thứ Ba 01/12/2026 → buổi cuối 24/11
+    expect(lastSessionBefore({ weekday: 2, startsOn: null }, '2026-12-01', '2026-11-03')).toBe('2026-11-24');
+    // Ngừng từ Thứ Tư 02/12 → buổi cuối Thứ Ba 01/12
+    expect(lastSessionBefore({ weekday: 2, startsOn: null }, '2026-12-02', '2026-11-03')).toBe('2026-12-01');
+    expect(lastSessionBefore({ weekday: 2, startsOn: null }, '2026-11-04', '2026-11-04')).toBeNull();
+  });
+
+  it('getter: hẹn ngừng, buổi tới, giá 0 trên thẻ', () => {
+    const slot = new ExtraSlotModel({ ...slotDto, endsOn: '2026-12-01', defaultPrice: 0 });
+    expect(slot.isStopping).toBe(true);
+    expect(slot.stopsText).toBe(t.extraSlots.stopsFrom(formatDate('2026-12-01')));
+    expect(slot.nextSessionText).toBe(`${t.weekdayShort[2]} ${formatDate('2026-11-03')}`);
+    expect(slot.defaultPriceText).toBe(t.extraSlots.free);
+    const ended = new ExtraSlotModel({
+      ...slotDto,
+      archivedAt: '2026-11-03T00:00:00.000Z',
+      nextSessionDate: null,
+    });
+    expect(ended.isStopping).toBe(false);
+    expect(ended.nextSessionText).toBe(t.extraSlots.noNextSession);
   });
 });

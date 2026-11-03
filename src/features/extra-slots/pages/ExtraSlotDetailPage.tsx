@@ -2,18 +2,17 @@ import {
   DeleteOutlined,
   DollarOutlined,
   EditOutlined,
+  PauseCircleOutlined,
   PlusOutlined,
   TeamOutlined,
   UserAddOutlined,
 } from '@ant-design/icons';
 import {
-  App,
   Button,
   Card,
   DatePicker,
   Descriptions,
   Flex,
-  Popconfirm,
   Skeleton,
   Space,
   Statistic,
@@ -23,7 +22,7 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { RecentSessionsCard } from '@/features/attendance/components/RecentSessionsCard';
 import { useAuth } from '@/features/auth/authStore';
@@ -42,20 +41,21 @@ import {
   type SlotAssignmentAction,
 } from '@/features/extra-slots/components/SlotAssignmentModal';
 import { SlotTeachersModal } from '@/features/extra-slots/components/SlotTeachersModal';
-import type {
-  ExtraRateModel,
-  ExtraSlotModel,
-  SlotStudentModel,
+import { StopSlotModal } from '@/features/extra-slots/components/StopSlotModal';
+import {
+  type ExtraRateModel,
+  type ExtraSlotModel,
+  priceText,
+  type SlotStudentModel,
 } from '@/features/extra-slots/models/ExtraSlotModel';
 import { CreateStudentsDrawer } from '@/features/students/components/CreateStudentsDrawer';
-import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { dayjs } from '@/shared/utils/dayjs';
-import { formatDate, formatMoney, toIsoDate } from '@/shared/utils/format';
+import { formatDate, toIsoDate } from '@/shared/utils/format';
 
 function buildStudentColumns(
   showRate: boolean,
@@ -142,8 +142,8 @@ function SlotPriceCard({ slot }: { slot: ExtraSlotModel }) {
     >
       <ErrorAlert error={rates.error} onRetry={() => void rates.refetch()} />
       <Statistic
-        value={slot.defaultPrice === null ? t.extraSlots.noPrice : formatMoney(slot.defaultPrice)}
-        suffix={slot.defaultPrice === null ? undefined : t.extraSlots.perSession}
+        value={slot.defaultPrice === null ? t.extraSlots.noPrice : priceText(slot.defaultPrice)}
+        suffix={slot.defaultPrice ? t.extraSlots.perSession : undefined}
         valueStyle={{ fontSize: 20 }}
       />
       <Typography.Paragraph type="secondary">{t.extraSlots.defaultPriceHint}</Typography.Paragraph>
@@ -171,12 +171,9 @@ function SlotPriceCard({ slot }: { slot: ExtraSlotModel }) {
 export function ExtraSlotDetailPage() {
   const { id = '' } = useParams<{ id: string }>();
   const { can, isAdmin } = useAuth();
-  const { message } = App.useApp();
-  const navigate = useNavigate();
   const detail = ExtraSlotsService.useDetail(id);
   const [date, setDate] = useState(() => toIsoDate(dayjs()));
   const students = ExtraSlotsService.useStudents(id, date);
-  const archive = ExtraSlotsService.useArchive();
   const createStudentRate = ExtraSlotsService.useCreateStudentRate();
   const [pricing, setPricing] = useState<SlotStudentModel>();
   const [editing, setEditing] = useState(false);
@@ -184,21 +181,13 @@ export function ExtraSlotDetailPage() {
   const [assigning, setAssigning] = useState<SlotAssignmentAction>();
   const [creatingStudents, setCreatingStudents] = useState(false);
   const [removing, setRemoving] = useState<RemoveAssignmentTarget>();
+  const [stopping, setStopping] = useState<ExtraSlotModel>();
 
   const slot = detail.data;
   if (detail.error) return <ErrorAlert error={detail.error} onRetry={() => void detail.refetch()} />;
   if (!slot) return <Skeleton active />;
 
   const manage = can('extra.manageSlots') && !slot.isArchived;
-  const handleArchive = async () => {
-    try {
-      await archive.mutateAsync(slot.id);
-      message.success(t.extraSlots.archivedDone);
-      void navigate(ROUTES.extraSlots);
-    } catch (error) {
-      message.error(errorMessage(error));
-    }
-  };
 
   return (
     <>
@@ -218,16 +207,9 @@ export function ExtraSlotDetailPage() {
                   {t.extraSlots.setTeachers}
                 </Button>
               )}
-              <Popconfirm
-                title={t.extraSlots.archiveConfirm}
-                okText={t.extraSlots.archive}
-                cancelText={t.common.cancel}
-                onConfirm={() => void handleArchive()}
-              >
-                <Button danger icon={<DeleteOutlined />} loading={archive.isPending}>
-                  {t.extraSlots.archive}
-                </Button>
-              </Popconfirm>
+              <Button danger icon={<PauseCircleOutlined />} onClick={() => setStopping(slot)}>
+                {t.extraSlots.archive}
+              </Button>
             </Space>
           )
         }
@@ -247,9 +229,22 @@ export function ExtraSlotDetailPage() {
                 t.common.none
               )}
             </Descriptions.Item>
+            {!slot.isArchived && (
+              <Descriptions.Item label={t.extraSlots.nextSession}>{slot.nextSessionText}</Descriptions.Item>
+            )}
+            {slot.startsOn && (
+              <Descriptions.Item label={t.extraSlots.startsOn}>{formatDate(slot.startsOn)}</Descriptions.Item>
+            )}
+            {slot.isStopping && slot.endsOn && (
+              <Descriptions.Item label={t.extraSlots.stopFrom}>
+                <Tag color="orange">{formatDate(slot.endsOn)}</Tag>
+              </Descriptions.Item>
+            )}
             {slot.isArchived && (
               <Descriptions.Item label={t.common.status}>
-                <Tag>{t.extraSlots.archived}</Tag>
+                <Tooltip title={t.extraSlots.archivedHint}>
+                  <Tag>{t.extraSlots.archived}</Tag>
+                </Tooltip>
               </Descriptions.Item>
             )}
           </Descriptions>
@@ -323,6 +318,7 @@ export function ExtraSlotDetailPage() {
       {manage && isAdmin && <SlotTeachersModal slot={teachersOf} onClose={() => setTeachersOf(undefined)} />}
       <SlotAssignmentModal action={assigning} onClose={() => setAssigning(undefined)} />
       <RemoveAssignmentModal target={removing} onClose={() => setRemoving(undefined)} />
+      <StopSlotModal slot={stopping} onClose={() => setStopping(undefined)} />
       <SetRateModal
         open={!!pricing}
         title={pricing ? t.extraSlots.studentPriceTitle(pricing.fullName) : ''}

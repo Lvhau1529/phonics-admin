@@ -1,18 +1,5 @@
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import {
-  Alert,
-  App,
-  Button,
-  Card,
-  DatePicker,
-  Divider,
-  Drawer,
-  Flex,
-  Form,
-  Input,
-  InputNumber,
-  Tooltip,
-} from 'antd';
+import { Alert, App, Button, Card, DatePicker, Divider, Drawer, Flex, Form, Input, Tooltip } from 'antd';
 import {
   CreateStudentsBody,
   Email,
@@ -25,12 +12,13 @@ import { useEffect } from 'react';
 import { useAuth } from '@/features/auth/authStore';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
 import { ExtraSlotSelect } from '@/features/extra-slots/components/ExtraSlotSelect';
+import { PriceInput } from '@/features/extra-slots/components/PriceInput';
 import { useAffectedPrompt } from '@/features/extra-slots/components/useAffectedPrompt';
 import { StudentsService } from '@/features/students/api/studentsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
-import { formatPriceInput, parsePriceInput, toIsoDate } from '@/shared/utils/format';
+import { toIsoDate } from '@/shared/utils/format';
 import { applyFieldErrors, applyServerErrors, parseForm, stripEmpty, zodRule } from '@/shared/utils/zodForm';
 
 /** Tối đa số bé một lần (khớp `CreateStudentsBody`) */
@@ -182,14 +170,7 @@ export function CreateStudentsDrawer({ open, onClose, classId, slotId }: CreateS
                         rules={[zodRule(PricePerSession)]}
                         style={{ flex: 1 }}
                       >
-                        <InputNumber<number>
-                          min={0}
-                          step={10_000}
-                          style={{ width: '100%' }}
-                          addonAfter={t.format.currency}
-                          formatter={formatPriceInput}
-                          parser={parsePriceInput}
-                        />
+                        <PriceInput />
                       </Form.Item>
                     )}
                   </Flex>

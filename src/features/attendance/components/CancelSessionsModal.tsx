@@ -1,7 +1,8 @@
-import { App, DatePicker, Form, Input, Modal, Radio, Typography } from 'antd';
+import { App, DatePicker, Flex, Form, Input, Modal, Radio, Typography } from 'antd';
 import { CancelAttendanceSessionsBody } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { AttendanceService } from '@/features/attendance/api/attendanceService';
+import { ExtraSlotSelect } from '@/features/extra-slots/components/ExtraSlotSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { type Dayjs } from '@/shared/utils/dayjs';
@@ -13,6 +14,10 @@ type CancelMode = 'selected' | 'date';
 interface CancelFormValues {
   mode: CancelMode;
   date?: Dayjs;
+  /** Nghỉ nhiều ngày: đến ngày (trống = một ngày) */
+  dateTo?: Dayjs | null;
+  /** Chỉ các ca này (trống = mọi ca) */
+  slotIds?: string[];
   reason: string;
 }
 
@@ -41,7 +46,11 @@ export function CancelSessionsModal({ open, selectedIds, onClose }: CancelSessio
       reason: values.reason,
       ...(values.mode === 'selected'
         ? { sessionIds: selectedIds }
-        : { date: values.date ? toIsoDate(values.date) : undefined }),
+        : {
+            date: values.date ? toIsoDate(values.date) : undefined,
+            dateTo: values.dateTo ? toIsoDate(values.dateTo) : undefined,
+            slotIds: values.slotIds?.length ? values.slotIds : undefined,
+          }),
     });
     if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
     try {
@@ -80,13 +89,26 @@ export function CancelSessionsModal({ open, selectedIds, onClose }: CancelSessio
           />
         </Form.Item>
         {mode === 'date' && (
-          <Form.Item
-            name="date"
-            label={t.attendance.date}
-            rules={[{ required: true, message: t.common.requiredField }]}
-          >
-            <DatePicker format={t.format.date} style={{ width: '100%' }} />
-          </Form.Item>
+          <>
+            <Form.Item
+              label={t.attendance.cancelDates}
+              extra={t.attendance.cancelDatesHint}
+              style={{ marginBottom: 12 }}
+            >
+              <Flex gap={8} align="center">
+                <Form.Item name="date" noStyle rules={[{ required: true, message: t.common.requiredField }]}>
+                  <DatePicker format={t.format.date} placeholder={t.common.from} style={{ flex: 1 }} />
+                </Form.Item>
+                –
+                <Form.Item name="dateTo" noStyle>
+                  <DatePicker format={t.format.date} placeholder={t.common.to} style={{ flex: 1 }} />
+                </Form.Item>
+              </Flex>
+            </Form.Item>
+            <Form.Item name="slotIds" label={t.attendance.cancelSlots}>
+              <ExtraSlotSelect mode="multiple" allowClear placeholder={t.attendance.cancelSlotsPlaceholder} />
+            </Form.Item>
+          </>
         )}
         <Form.Item
           name="reason"
