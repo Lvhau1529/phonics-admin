@@ -223,7 +223,7 @@ export function ExtraSlotDetailPage() {
     <>
       <PageHeader
         title={slot.name}
-        subtitle={`${slot.weekdayLabel} · ${slot.timeRange}`}
+        subtitle={`${slot.kindLabel} · ${slot.weekdayLabel} · ${slot.timeRange}`}
         backTo={ROUTES.extraSlots}
         extra={
           manage && (

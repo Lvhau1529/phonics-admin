@@ -35,6 +35,7 @@ export function SlotCard({ slot }: { slot: ExtraSlotModel }) {
             </Typography.Text>
           )}
           <Flex gap={4} wrap>
+            {slot.isTutoring && <Tag color="purple">{slot.kindLabel}</Tag>}
             <Tag color={slot.isFull ? 'warning' : undefined} icon={<TeamOutlined />}>
               {slot.studentCountText}
             </Tag>

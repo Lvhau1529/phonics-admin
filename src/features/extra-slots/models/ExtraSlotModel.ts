@@ -6,6 +6,7 @@ import {
   type AvatarKey,
   type ExtraRate,
   type ExtraSlot,
+  type ExtraSlotKind,
   type ExtraSlotRef,
   type RateSource,
   type SlotAssignment,
@@ -70,6 +71,7 @@ export function lastSessionBefore(
 export class ExtraSlotModel {
   readonly id: string;
   readonly name: string;
+  readonly kind: ExtraSlotKind;
   readonly weekday: IsoWeekday;
   readonly startTime: string;
   readonly endTime: string;
@@ -89,6 +91,7 @@ export class ExtraSlotModel {
   constructor(data: ExtraSlot) {
     this.id = data.id;
     this.name = data.name;
+    this.kind = data.kind;
     this.weekday = isoWeekday(data.weekday);
     this.startTime = data.startTime;
     this.endTime = data.endTime;
@@ -104,6 +107,14 @@ export class ExtraSlotModel {
     this.nextSessionDate = data.nextSessionDate;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
+  }
+
+  get isTutoring(): boolean {
+    return this.kind === 'TUTORING';
+  }
+
+  get kindLabel(): string {
+    return t.extraSlots.kindLabel[this.kind];
   }
 
   get isArchived(): boolean {

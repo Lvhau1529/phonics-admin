@@ -37,6 +37,7 @@ const sessionDto: AttendanceSessionDetail = {
   slot: {
     id: 'x1',
     name: 'Phonics T3',
+    kind: 'EXTRA_CLASS',
     weekday: 2,
     startTime: '18:00',
     endTime: '19:30',
@@ -44,6 +45,7 @@ const sessionDto: AttendanceSessionDetail = {
     endsOn: null,
     archivedAt: null,
   },
+  kind: 'EXTRA_CLASS',
   date: '2026-11-03',
   startTime: '18:00',
   endTime: '19:30',

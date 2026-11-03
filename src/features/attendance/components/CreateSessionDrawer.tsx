@@ -1,5 +1,5 @@
-import { App, Button, DatePicker, Drawer, Flex, Form, Input, TimePicker } from 'antd';
-import { CreateAttendanceSessionBody } from '@phonics/contracts';
+import { App, Button, DatePicker, Drawer, Flex, Form, Input, Radio, TimePicker } from 'antd';
+import { CreateAttendanceSessionBody, ExtraSlotKind } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
@@ -19,6 +19,7 @@ interface SessionFormValues {
   startTime: Dayjs;
   endTime: Dayjs;
   teacherIds: string[];
+  kind: ExtraSlotKind;
   note?: string;
 }
 
@@ -93,6 +94,17 @@ export function CreateSessionDrawer({ open, onClose }: { open: boolean; onClose:
             <TeacherSelect mode="multiple" style={{ width: '100%' }} />
           </Form.Item>
         )}
+        <Form.Item
+          name="kind"
+          label={t.extraSlots.kind}
+          extra={t.extraSlots.kindHint}
+          initialValue="EXTRA_CLASS"
+        >
+          <Radio.Group
+            optionType="button"
+            options={ExtraSlotKind.options.map((value) => ({ value, label: t.extraSlots.kindLabel[value] }))}
+          />
+        </Form.Item>
         <Form.Item name="note" label={t.common.note} extra={t.attendance.makeUpHint}>
           <Input.TextArea maxLength={500} autoSize={{ minRows: 2 }} />
         </Form.Item>

@@ -587,6 +587,11 @@ export const en = {
     edit: 'Edit slot',
     name: 'Slot name',
     namePlaceholder: 'Advanced phonics — Tue 18:00',
+    kind: 'Slot type',
+    kindLabel: { EXTRA_CLASS: 'Extra class', TUTORING: 'After-class tutoring' },
+    kindHint:
+      'After-class tutoring: the tuition statement lists only attended sessions, without an attendance column.',
+    kindFrom: 'Apply the new type to sessions created from',
     weekday: 'Day',
     weekdaysHint: 'Pick several days to create one slot per day (same name, time, teachers)',
     createdSlots: (n: number) => `Created ${n} slots`,
@@ -818,6 +823,43 @@ export const en = {
     pendingWarning: (n) => `${n} session(s) unconfirmed — the awaiting part may still change.`,
     viewPending: 'View unconfirmed',
     zeroPriceWarning: (n) => `${n} charged attendance(s) have no price set yet (counted as 0).`,
+    statement: 'Export tuition statement',
+    statementMonth: 'Statement month',
+    statementHint: 'PDF for parents: groups siblings billed to the same parent, with bank transfer details.',
+  },
+
+  tuitionSettings: {
+    title: 'Tuition statement settings',
+    open: 'Statement settings',
+    subtitle: 'Details printed on the tuition statement sent to parents (PDF).',
+    contactSection: 'Contact & note',
+    extraSection: 'More options',
+    extraSectionHint: 'Center name and address, due date, class slot column — printed only when filled / on',
+    showSlot: 'Show the "Slot" column',
+    showSlotHint: 'Adds the slot name to the session table on the statement.',
+    orgName: 'Center name',
+    orgAddress: 'Address',
+    orgPhone: 'Phone',
+    dueDay: 'Payment due (day of the next month)',
+    dueDayHint: 'E.g. 10 → the October statement is due on 10 November.',
+    note: 'Footer note',
+    noteHint: 'E.g. a thank-you note, a support phone number…',
+    bankSection: 'Bank transfer details',
+    pickBank: 'Quick pick a bank',
+    pickBankPlaceholder: 'Search banks…',
+    bankName: 'Bank name',
+    bankBin: 'BIN',
+    bankBinHint:
+      "The bank's 6-digit NAPAS code, needed for the VietQR code. Picking a bank above fills it in.",
+    accountNo: 'Account number',
+    accountName: 'Account holder',
+    transferContent: 'Transfer description template',
+    transferContentHint: (vars) =>
+      `Variables: ${vars} (month, children's names, parent phone). Printed without accents, upper case, up to 50 characters.`,
+    qrHint: 'The statement shows a VietQR code only once a BIN and an account number are saved.',
+    qrReady:
+      'The statement has a VietQR code — parents scan it in their banking app to prefill the amount and description.',
+    emptyHint: 'Empty fields are not printed on the statement.',
   },
 
   studentExtra: {
@@ -1013,6 +1055,7 @@ export const en = {
       'attendance.cancelSession': 'Cancel extra-class session',
       'attendance.createSession': 'Create make-up session',
       'attendance.resendDigest': 'Resend attendance confirmation email',
+      'settings.updateTuition': 'Update tuition statement settings',
     } satisfies Record<AuditAction, string>,
   },
 
