@@ -590,8 +590,7 @@ export const en = {
     kind: 'Slot type',
     kindLabel: { EXTRA_CLASS: 'Extra class', TUTORING: 'After-class tutoring' },
     kindHint:
-      'After-class tutoring: the tuition statement lists only attended sessions, without an attendance column.',
-    kindFrom: 'Apply the new type to sessions created from',
+      'After-class tutoring: the tuition statement lists only attended sessions, without times or attendance. Changing the type applies to every session of the slot.',
     weekday: 'Day',
     weekdaysHint: 'Pick several days to create one slot per day (same name, time, teachers)',
     createdSlots: (n: number) => `Created ${n} slots`,

@@ -590,8 +590,8 @@ export const vi = {
     namePlaceholder: 'Phonics nâng cao — T3 18:00',
     kind: 'Loại ca',
     kindLabel: { EXTRA_CLASS: 'Học thêm', TUTORING: 'Kèm cuối buổi' },
-    kindHint: 'Kèm cuối buổi: phiếu học phí chỉ liệt kê buổi bé có học, không in cột điểm danh.',
-    kindFrom: 'Áp loại ca mới cho buổi đã tạo từ ngày',
+    kindHint:
+      'Kèm cuối buổi: phiếu học phí chỉ liệt kê buổi bé có học, không in giờ học và điểm danh. Đổi loại ca áp cho mọi buổi của ca.',
     weekday: 'Thứ',
     weekdaysHint: 'Chọn nhiều thứ để tạo mỗi thứ một ca (cùng tên, giờ, giáo viên)',
     createdSlots: (n: number) => `Đã tạo ${n} ca`,

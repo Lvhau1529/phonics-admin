@@ -85,8 +85,6 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
   const update = ExtraSlotsService.useUpdate();
   const startTime = Form.useWatch('startTime', form);
   const endTime = Form.useWatch('endTime', form);
-  const kind = Form.useWatch('kind', form);
-  const kindChanged = !!slot && !!kind && kind !== slot.kind;
   const timeChanged =
     !!slot &&
     !!startTime &&
@@ -155,9 +153,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
         if (Object.keys(diff).length === 0) return void message.info(t.common.noChanges);
         const parsed = parseForm(UpdateExtraSlotBody, {
           ...diff,
-          ...((diff.startTime !== undefined || diff.kind !== undefined) && timeFrom
-            ? { timeFrom: toIsoDate(timeFrom) }
-            : {}),
+          ...(diff.startTime !== undefined && timeFrom ? { timeFrom: toIsoDate(timeFrom) } : {}),
         });
         if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
         await update.mutateAsync({ id: slot.id, body: parsed.data });
@@ -270,10 +266,10 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
             <TimePicker format={TIME_FORMAT} minuteStep={5} needConfirm={false} style={{ width: '100%' }} />
           </Form.Item>
         </Flex>
-        {(timeChanged || kindChanged) && (
+        {timeChanged && (
           <Form.Item
             name="timeFrom"
-            label={timeChanged ? t.extraSlots.timeFrom : t.extraSlots.kindFrom}
+            label={t.extraSlots.timeFrom}
             extra={t.extraSlots.timeFromHint}
             rules={[{ required: true, message: t.common.requiredField }]}
           >
