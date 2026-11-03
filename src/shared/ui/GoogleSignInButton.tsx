@@ -1,6 +1,7 @@
 /**
  * Nút Google chính thức (Google Identity Services): nạp script khi nút hiện, trả ID token qua `onCredential`.
- * Không có VITE_GOOGLE_CLIENT_ID thì không hiện gì. Vẽ lại khi đổi ngôn ngữ / giao diện sáng tối.
+ * Không có VITE_GOOGLE_CLIENT_ID thì không hiện gì. Vẽ lại khi đổi ngôn ngữ / giao diện sáng tối (giữ nút cũ tới khi
+ * nút mới tải xong).
  */
 import { Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
@@ -38,6 +39,7 @@ export function GoogleSignInButton({
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return undefined;
     let active = true;
+    let fallback: number | undefined;
     loadGis()
       .then(() => {
         if (!active || !host.current) return;
@@ -47,8 +49,12 @@ export function GoogleSignInButton({
           ux_mode: 'popup',
           itp_support: true,
         });
-        host.current.replaceChildren();
-        google.accounts.id.renderButton(host.current, {
+        // Vẽ nút mới vào lớp ẩn chồng lên nút cũ, đợi iframe tải xong mới đổi → không bị khoảng trống / nháy
+        const hostEl = host.current;
+        const layer = document.createElement('div');
+        layer.style.cssText = 'position:absolute;inset:0;display:flex;justify-content:center;opacity:0;pointer-events:none';
+        hostEl.append(layer);
+        google.accounts.id.renderButton(layer, {
           type: 'standard',
           theme: mode === ThemeMode.DARK ? 'filled_black' : 'outline',
           size: 'large',
@@ -57,10 +63,23 @@ export function GoogleSignInButton({
           width,
           locale: lang,
         });
+        const reveal = () => {
+          if (!active || !layer.isConnected) return;
+          layer.style.cssText = 'display:flex;justify-content:center';
+          for (const child of [...hostEl.children]) if (child !== layer) child.remove();
+        };
+        const iframe = layer.querySelector('iframe');
+        if (iframe) {
+          iframe.addEventListener('load', reveal, { once: true });
+          fallback = window.setTimeout(reveal, 1500);
+        } else {
+          reveal();
+        }
       })
       .catch(() => active && setFailed(true));
     return () => {
       active = false;
+      window.clearTimeout(fallback);
     };
   }, [lang, mode, text, width]);
 
@@ -70,7 +89,14 @@ export function GoogleSignInButton({
     <div
       ref={host}
       inert={disabled ? true : undefined}
-      style={{ minHeight: 40, display: 'flex', justifyContent: 'center', opacity: disabled ? 0.6 : 1 }}
+      style={{
+        position: 'relative',
+        minHeight: 40,
+        opacity: disabled ? 0.6 : 1,
+        // iframe GIS luôn là light: nếu trang đang dark mà để lệch color-scheme, Chrome tô nền iframe trắng đục
+        // → viền trắng quanh nút bo góc. Đồng bộ 'light' để nền iframe trong suốt.
+        colorScheme: 'light',
+      }}
     />
   );
 }

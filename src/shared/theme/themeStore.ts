@@ -40,10 +40,23 @@ function applyDom(mode: ThemeMode): void {
 
 export const getThemeMode = (): ThemeMode => current;
 
+/**
+ * Tắt mọi CSS transition trong lúc đổi theme: component antd mỗi cái có `transition` riêng nên nếu để nguyên, màu
+ * đổi lệch nhịp nhau → nháy. Bật lại sau hai frame (React đã commit + trình duyệt đã vẽ màu mới).
+ */
+function suppressTransitions(): void {
+  if (typeof document === 'undefined' || typeof requestAnimationFrame === 'undefined') return;
+  const style = document.createElement('style');
+  style.textContent = '*,*::before,*::after{transition:none!important;animation-duration:0s!important}';
+  document.head.append(style);
+  requestAnimationFrame(() => requestAnimationFrame(() => style.remove()));
+}
+
 export function setThemeMode(next: ThemeMode): void {
   if (next === current) return;
   current = next;
   writeStorage(next);
+  suppressTransitions();
   applyDom(next);
   for (const listener of listeners) listener();
 }
