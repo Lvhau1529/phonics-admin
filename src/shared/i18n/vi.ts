@@ -289,6 +289,9 @@ export const vi = {
     studentNotAllowed: 'Tài khoản này không có quyền truy cập trang quản trị',
     sessionExpired: 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại',
     checking: 'Đang kiểm tra phiên đăng nhập…',
+    or: 'hoặc',
+    googleUnavailable: 'Không tải được đăng nhập Google',
+    googleHint: 'Email Google chưa có tài khoản sẽ tạo yêu cầu tài khoản giáo viên, chờ quản trị viên duyệt.',
   },
 
   /** Lỗi do client tự tạo (mạng, upload, file sai...). Lỗi của API hiện thẳng `message` server trả về (ADR 0025) */
@@ -347,6 +350,15 @@ export const vi = {
     groupsHint: 'Quyền của nhóm được cộng thêm vào quyền mặc định của giáo viên',
     filterStatus: 'Trạng thái',
     filterClass: 'Lớp',
+    pendingRequests: (n: number) => `${n} yêu cầu tài khoản giáo viên đang chờ duyệt`,
+    showPending: 'Xem yêu cầu',
+    approve: 'Duyệt',
+    reject: 'Từ chối',
+    confirmApprove: (name: string) =>
+      `Duyệt tài khoản ${name}? Giáo viên đăng nhập được ngay; nhớ gán lớp và nhóm quyền.`,
+    confirmReject: (name: string) => `Từ chối yêu cầu của ${name}? Tài khoản sẽ không đăng nhập được.`,
+    approved: 'Đã duyệt tài khoản',
+    rejected: 'Đã từ chối yêu cầu',
   },
 
   classes: {
@@ -887,6 +899,9 @@ export const vi = {
       'teacher.create': 'Tạo giáo viên',
       'teacher.update': 'Sửa giáo viên',
       'teacher.setClasses': 'Gán lớp giáo viên',
+      'teacher.request': 'Yêu cầu tài khoản giáo viên (Google)',
+      'user.linkGoogle': 'Liên kết Google',
+      'user.unlinkGoogle': 'Gỡ liên kết Google',
       'class.create': 'Tạo lớp',
       'class.update': 'Sửa lớp',
       'class.setTeachers': 'Gán giáo viên lớp',
@@ -970,6 +985,18 @@ export const vi = {
     signOutThis: 'Đăng xuất thiết bị này',
     signOutAll: 'Đăng xuất mọi thiết bị',
     confirmSignOutAll: 'Đăng xuất khỏi mọi thiết bị? Mọi phiên khác sẽ bị thu hồi.',
+    loginMethods: 'Cách đăng nhập',
+    methodPassword: 'Mật khẩu',
+    methodGoogle: 'Google',
+    methodOn: 'Đang dùng',
+    methodOff: 'Chưa có',
+    noPasswordHint: 'Chưa có mật khẩu — đặt ở mục Đổi mật khẩu (bỏ trống mật khẩu hiện tại).',
+    linkGoogleHint: 'Liên kết tài khoản Google để đăng nhập bằng Google hoặc mật khẩu.',
+    googleLinked: 'Đã liên kết Google',
+    unlinkGoogle: 'Gỡ liên kết Google',
+    confirmUnlinkGoogle: 'Gỡ liên kết Google? Sau đó chỉ đăng nhập được bằng mật khẩu.',
+    googleUnlinked: 'Đã gỡ liên kết Google',
+    unlinkNeedsPassword: 'Đặt mật khẩu trước khi gỡ Google',
   },
 
   // ---------- Phiếu bài tập ----------

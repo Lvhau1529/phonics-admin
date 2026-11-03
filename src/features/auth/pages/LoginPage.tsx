@@ -1,15 +1,17 @@
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Flex, Form, Input, Typography } from 'antd';
+import { Alert, Button, Card, Divider, Flex, Form, Input, Typography } from 'antd';
 import { Email, LoginBody } from '@phonics/contracts';
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { ROUTES } from '@/app/routes';
-import { AuthStatus, login, useAuth } from '@/features/auth/authStore';
-import { errorMessage } from '@/shared/api/errors';
+import { AuthStatus, login, loginWithGoogle, useAuth } from '@/features/auth/authStore';
+import { errorMessage, isApiError } from '@/shared/api/errors';
+import { GOOGLE_CLIENT_ID } from '@/shared/config';
 import { t } from '@/shared/i18n';
 import { THEME_COLORS } from '@/shared/theme/theme';
 import { useThemeMode } from '@/shared/theme/themeStore';
 import { BrandMark } from '@/shared/ui/BrandMark';
+import { GoogleSignInButton } from '@/shared/ui/GoogleSignInButton';
 import { LangSwitch } from '@/shared/ui/LangSwitch';
 import { ThemeSwitch } from '@/shared/ui/ThemeSwitch';
 import { applyFieldErrors, applyServerErrors, parseForm, zodRule } from '@/shared/utils/zodForm';
@@ -26,6 +28,8 @@ export function LoginPage() {
   const [form] = Form.useForm<LoginValues>();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Yêu cầu tài khoản đang chờ duyệt (403 ACCOUNT_PENDING) — báo dạng thông tin, không phải lỗi */
+  const [pending, setPending] = useState<string | null>(null);
   const mode = useThemeMode();
   const colors = THEME_COLORS[mode];
 
@@ -38,8 +42,29 @@ export function LoginPage() {
     return <Navigate to={from} replace />;
   }
 
+  const goBack = () => {
+    const from = (location.state as { from?: string } | null)?.from ?? ROUTES.dashboard;
+    navigate(from, { replace: true });
+  };
+
+  const handleGoogle = async (idToken: string) => {
+    setError(null);
+    setPending(null);
+    setSubmitting(true);
+    try {
+      await loginWithGoogle(idToken);
+      goBack();
+    } catch (err) {
+      if (isApiError(err) && err.code === 'ACCOUNT_PENDING') setPending(errorMessage(err));
+      else setError(errorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleFinish = async (values: LoginValues) => {
     setError(null);
+    setPending(null);
     const parsed = parseForm(LoginBody, values);
     if (!parsed.success) {
       applyFieldErrors(form, parsed.fieldErrors);
@@ -48,8 +73,7 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       await login(parsed.data);
-      const from = (location.state as { from?: string } | null)?.from ?? ROUTES.dashboard;
-      navigate(from, { replace: true });
+      goBack();
     } catch (err) {
       if (!applyServerErrors(form, err)) setError(errorMessage(err));
     } finally {
@@ -82,6 +106,7 @@ export function LoginPage() {
           <Typography.Text type="secondary">{t.auth.loginSubtitle}</Typography.Text>
         </Flex>
         {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
+        {pending && <Alert type="info" showIcon message={pending} style={{ marginBottom: 16 }} />}
         <Form<LoginValues> form={form} layout="vertical" onFinish={handleFinish} requiredMark={false}>
           <Form.Item
             name="email"
@@ -101,6 +126,20 @@ export function LoginPage() {
             {t.auth.submit}
           </Button>
         </Form>
+        {GOOGLE_CLIENT_ID && (
+          <>
+            <Divider plain>{t.auth.or}</Divider>
+            <Flex vertical align="center" gap={8}>
+              <GoogleSignInButton
+                onCredential={(idToken) => void handleGoogle(idToken)}
+                disabled={submitting}
+              />
+              <Typography.Text type="secondary" style={{ fontSize: 12, textAlign: 'center' }}>
+                {t.auth.googleHint}
+              </Typography.Text>
+            </Flex>
+          </>
+        )}
       </Card>
     </Flex>
   );

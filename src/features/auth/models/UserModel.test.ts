@@ -24,6 +24,19 @@ describe('UserModel', () => {
     expect(new UserModel({ ...dto, role: 'STUDENT' }).isStudent).toBe(true);
   });
 
+  it('cách đăng nhập: theo loginMethods, API cũ thì suy theo provider', () => {
+    const both = new UserModel({ ...dto, loginMethods: { password: true, google: true } });
+    expect([both.hasPassword, both.hasGoogle]).toEqual([true, true]);
+    const googleOnly = new UserModel({
+      ...dto,
+      provider: 'GOOGLE',
+      loginMethods: { password: false, google: true },
+    });
+    expect([googleOnly.hasPassword, googleOnly.hasGoogle]).toEqual([false, true]);
+    const legacy = new UserModel(dto);
+    expect([legacy.hasPassword, legacy.hasGoogle]).toEqual([true, false]);
+  });
+
   it('toJSON → localStorage → parse schema → model: không mất dữ liệu, không lẫn getter', () => {
     const stored = JSON.parse(JSON.stringify({ user: new UserModel(dto) })) as { user: unknown };
     expect(stored.user).toEqual(dto);

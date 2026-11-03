@@ -1,5 +1,13 @@
-import { EditOutlined, LockOutlined, PlusOutlined, ReadOutlined, UnlockOutlined } from '@ant-design/icons';
-import { App, Button, Flex, Input, Popconfirm, Select, Space, Tag, Tooltip, Typography } from 'antd';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  EditOutlined,
+  LockOutlined,
+  PlusOutlined,
+  ReadOutlined,
+  UnlockOutlined,
+} from '@ant-design/icons';
+import { Alert, App, Button, Flex, Input, Popconfirm, Select, Space, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { UserStatus } from '@phonics/contracts';
 import { useState } from 'react';
@@ -18,8 +26,15 @@ import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { StatusTag } from '@/shared/ui/RoleTag';
-import { EDITABLE_STATUSES } from '@/shared/utils/status';
 import { formatDateTime } from '@/shared/utils/format';
+
+/** Lọc theo trạng thái: thêm chờ duyệt / từ chối (yêu cầu tài khoản qua Google) */
+const TEACHER_STATUSES = [
+  'ACTIVE',
+  'DISABLED',
+  'PENDING',
+  'REJECTED',
+] as const satisfies readonly UserStatus[];
 
 export function TeachersPage() {
   const { message } = App.useApp();
@@ -28,12 +43,12 @@ export function TeachersPage() {
   const update = TeachersService.useUpdate();
   const [drawer, setDrawer] = useState<{ open: boolean; teacher?: TeacherModel }>({ open: false });
   const [classesFor, setClassesFor] = useState<TeacherModel>();
+  const pendingCount = TeachersService.usePendingCount().data ?? 0;
 
-  const toggleStatus = async (teacher: TeacherModel) => {
-    const status: UserStatus = teacher.isActive ? 'DISABLED' : 'ACTIVE';
+  const setStatus = async (teacher: TeacherModel, status: UserStatus, done = t.common.updated) => {
     try {
       await update.mutateAsync({ id: teacher.id, body: { status } });
-      message.success(t.common.updated);
+      message.success(done);
     } catch (error) {
       message.error(errorMessage(error));
     }
@@ -104,24 +119,49 @@ export function TeachersPage() {
           <Tooltip title={t.teachers.setClasses}>
             <Button type="text" icon={<ReadOutlined />} onClick={() => setClassesFor(tc)} />
           </Tooltip>
-          <Popconfirm
-            title={
-              tc.isActive
-                ? t.teachers.confirmDisable(tc.displayName)
-                : t.teachers.confirmEnable(tc.displayName)
-            }
-            onConfirm={() => toggleStatus(tc)}
-            okText={t.common.confirm}
-            cancelText={t.common.cancel}
-          >
-            <Tooltip title={tc.isActive ? t.teachers.disable : t.teachers.enable}>
-              <Button
-                type="text"
-                danger={tc.isActive}
-                icon={tc.isActive ? <LockOutlined /> : <UnlockOutlined />}
-              />
-            </Tooltip>
-          </Popconfirm>
+          {tc.isPending ? (
+            <>
+              <Popconfirm
+                title={t.teachers.confirmApprove(tc.displayName)}
+                onConfirm={() => setStatus(tc, 'ACTIVE', t.teachers.approved)}
+                okText={t.common.confirm}
+                cancelText={t.common.cancel}
+              >
+                <Tooltip title={t.teachers.approve}>
+                  <Button type="text" icon={<CheckOutlined />} />
+                </Tooltip>
+              </Popconfirm>
+              <Popconfirm
+                title={t.teachers.confirmReject(tc.displayName)}
+                onConfirm={() => setStatus(tc, 'REJECTED', t.teachers.rejected)}
+                okText={t.common.confirm}
+                cancelText={t.common.cancel}
+              >
+                <Tooltip title={t.teachers.reject}>
+                  <Button type="text" danger icon={<CloseOutlined />} />
+                </Tooltip>
+              </Popconfirm>
+            </>
+          ) : (
+            <Popconfirm
+              title={
+                tc.isActive
+                  ? t.teachers.confirmDisable(tc.displayName)
+                  : t.teachers.confirmEnable(tc.displayName)
+              }
+              onConfirm={() => setStatus(tc, tc.isActive ? 'DISABLED' : 'ACTIVE')}
+              okText={t.common.confirm}
+              cancelText={t.common.cancel}
+            >
+              <Tooltip title={tc.isActive ? t.teachers.disable : t.teachers.enable}>
+                <Button
+                  type="text"
+                  danger={tc.isActive}
+                  icon={tc.isActive ? <LockOutlined /> : <UnlockOutlined />}
+                />
+              </Tooltip>
+            </Popconfirm>
+          )}
         </Space>
       ),
     },
@@ -150,7 +190,7 @@ export function TeachersPage() {
             placeholder={t.teachers.filterStatus}
             value={table.filters.status as UserStatus | undefined}
             onChange={(v) => table.setFilter('status', v)}
-            options={EDITABLE_STATUSES.map((s) => ({ value: s, label: t.userStatus[s] }))}
+            options={TEACHER_STATUSES.map((s) => ({ value: s, label: t.userStatus[s] }))}
             style={{ width: 150 }}
           />
           <ClassSelect
@@ -160,6 +200,19 @@ export function TeachersPage() {
           />
         </Flex>
       </PageHeader>
+      {pendingCount > 0 && table.filters.status !== 'PENDING' && (
+        <Alert
+          type="info"
+          showIcon
+          message={t.teachers.pendingRequests(pendingCount)}
+          action={
+            <Button size="small" onClick={() => table.setFilter('status', 'PENDING')}>
+              {t.teachers.showPending}
+            </Button>
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <ErrorAlert error={list.error} onRetry={() => void list.refetch()} />
       <DataTable<TeacherModel>
         columns={columns}

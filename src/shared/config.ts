@@ -13,6 +13,9 @@ export const GAME_PREVIEW_URL = `${GAME_URL}/#/preview`;
 /** Origin app học sinh: chỉ nhận message xem trước từ đây */
 export const GAME_ORIGIN = new URL(GAME_URL).origin;
 
+/** OAuth Web Client ID của Google Identity Services (trùng một giá trị trong GOOGLE_CLIENT_IDS của API); rỗng = ẩn nút Google */
+export const GOOGLE_CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '').trim();
+
 /** Khoá localStorage lưu phiên đăng nhập `{ user, refreshToken }` */
 export const AUTH_STORAGE_KEY = 'phonics-admin:auth';
 

@@ -8,6 +8,8 @@ import {
   MeResponse,
   User,
   type ChangePasswordBody,
+  type GoogleBody,
+  type LinkGoogleBody,
   type LoginBody,
   type LogoutBody,
   type UpdateProfileBody,
@@ -18,6 +20,15 @@ export const authRepository = {
   /** Đăng nhập email / mật khẩu (header body-transport do client tự gắn cho /auth/*) */
   login: (body: LoginBody) =>
     request(ENDPOINTS.auth.login, { method: HttpMethod.POST, body, schema: AuthResponse, auth: false }),
+
+  /** Đăng nhập Google (`app: 'admin'`: email lạ → yêu cầu tài khoản giáo viên, 403 ACCOUNT_PENDING) */
+  google: (body: GoogleBody) =>
+    request(ENDPOINTS.auth.google, { method: HttpMethod.POST, body, schema: AuthResponse, auth: false }),
+
+  /** Liên kết / gỡ Google của tài khoản đang đăng nhập → user mới */
+  linkGoogle: (body: LinkGoogleBody) =>
+    request(ENDPOINTS.auth.googleLink, { method: HttpMethod.POST, body, schema: User }),
+  unlinkGoogle: () => request(ENDPOINTS.auth.googleLink, { method: HttpMethod.DELETE, schema: User }),
 
   /** Thu hồi refresh token hiện tại (all = mọi thiết bị) */
   logout: (body: LogoutBody) =>

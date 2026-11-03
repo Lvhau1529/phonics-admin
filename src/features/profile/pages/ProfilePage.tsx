@@ -1,5 +1,19 @@
-import { LogoutOutlined } from '@ant-design/icons';
-import { App, Button, Card, Col, Descriptions, Flex, Form, Input, Popconfirm, Row } from 'antd';
+import { DisconnectOutlined, LogoutOutlined } from '@ant-design/icons';
+import {
+  App,
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Flex,
+  Form,
+  Input,
+  Popconfirm,
+  Row,
+  Tag,
+  Tooltip,
+  Typography,
+} from 'antd';
 import {
   ChangePasswordBody,
   DisplayName,
@@ -11,9 +25,11 @@ import { useEffect } from 'react';
 import { signOut, useAuth } from '@/features/auth/authStore';
 import { AuthService } from '@/features/auth/api/authService';
 import { errorMessage } from '@/shared/api/errors';
+import { GOOGLE_CLIENT_ID } from '@/shared/config';
 import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
 import { AvatarSelect } from '@/shared/ui/AvatarSelect';
+import { GoogleSignInButton } from '@/shared/ui/GoogleSignInButton';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { RoleTag } from '@/shared/ui/RoleTag';
 import {
@@ -50,6 +66,30 @@ export function ProfilePage() {
 
   const updateProfile = AuthService.useUpdateProfile();
   const changePassword = AuthService.useChangePassword();
+  const linkGoogle = AuthService.useLinkGoogle();
+  const unlinkGoogle = AuthService.useUnlinkGoogle();
+
+  const handleLinkGoogle = async (idToken: string) => {
+    try {
+      await linkGoogle.mutateAsync(idToken);
+      message.success(t.profile.googleLinked);
+    } catch (error) {
+      message.error(errorMessage(error));
+    }
+  };
+
+  const handleUnlinkGoogle = async () => {
+    try {
+      await unlinkGoogle.mutateAsync();
+      message.success(t.profile.googleUnlinked);
+    } catch (error) {
+      message.error(errorMessage(error));
+    }
+  };
+
+  const methodTag = (on: boolean) => (
+    <Tag color={on ? 'success' : 'default'}>{on ? t.profile.methodOn : t.profile.methodOff}</Tag>
+  );
 
   const handleProfile = async (raw: ProfileValues) => {
     const diff = diffValues(
@@ -149,6 +189,56 @@ export function ProfilePage() {
                 {t.profile.changePassword}
               </Button>
             </Form>
+          </Card>
+          <Card title={t.profile.loginMethods} style={{ marginBottom: 16 }}>
+            <Descriptions size="small" column={1}>
+              <Descriptions.Item label={t.profile.methodPassword}>
+                <Flex vertical gap={4}>
+                  <span>{methodTag(user.hasPassword)}</span>
+                  {!user.hasPassword && (
+                    <Typography.Text type="secondary">{t.profile.noPasswordHint}</Typography.Text>
+                  )}
+                </Flex>
+              </Descriptions.Item>
+              <Descriptions.Item label={t.profile.methodGoogle}>
+                <Flex vertical gap={8} align="flex-start">
+                  <Flex gap={8} align="center" wrap>
+                    {methodTag(user.hasGoogle)}
+                    {user.hasGoogle && (
+                      <Popconfirm
+                        title={t.profile.confirmUnlinkGoogle}
+                        onConfirm={() => void handleUnlinkGoogle()}
+                        okText={t.common.confirm}
+                        cancelText={t.common.cancel}
+                        disabled={!user.hasPassword}
+                      >
+                        <Tooltip title={user.hasPassword ? undefined : t.profile.unlinkNeedsPassword}>
+                          <Button
+                            size="small"
+                            icon={<DisconnectOutlined />}
+                            disabled={!user.hasPassword}
+                            loading={unlinkGoogle.isPending}
+                          >
+                            {t.profile.unlinkGoogle}
+                          </Button>
+                        </Tooltip>
+                      </Popconfirm>
+                    )}
+                  </Flex>
+                  {!user.hasGoogle && GOOGLE_CLIENT_ID && (
+                    <>
+                      <Typography.Text type="secondary">{t.profile.linkGoogleHint}</Typography.Text>
+                      <GoogleSignInButton
+                        text="continue_with"
+                        width={280}
+                        onCredential={(idToken) => void handleLinkGoogle(idToken)}
+                        disabled={linkGoogle.isPending}
+                      />
+                    </>
+                  )}
+                </Flex>
+              </Descriptions.Item>
+            </Descriptions>
           </Card>
           <Card title={t.profile.sessions}>
             <Flex gap={8} wrap>

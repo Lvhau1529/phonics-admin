@@ -31,6 +31,11 @@ export class TeacherModel {
     return this.status === 'ACTIVE';
   }
 
+  /** Tự xin tài khoản bằng Google ở trang đăng nhập admin, chờ duyệt */
+  get isPending(): boolean {
+    return this.status === 'PENDING';
+  }
+
   /** Nhãn trong ô chọn: "Cô Lan · lan@school.vn" */
   get optionLabel(): string {
     return `${this.displayName} · ${this.email}`;

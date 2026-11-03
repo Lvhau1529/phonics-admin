@@ -8,7 +8,7 @@
 import { User, type LoginBody, type Permission, type Role } from '@phonics/contracts';
 import { useMemo, useSyncExternalStore } from 'react';
 import { z } from 'zod';
-import { AuthService } from '@/features/auth/api/authService';
+import { AuthService, type LoginResult } from '@/features/auth/api/authService';
 import { UserModel } from '@/features/auth/models/UserModel';
 import {
   clearSession,
@@ -129,7 +129,18 @@ export class StudentNotAllowedError extends Error {
 
 /** Đăng nhập; học sinh bị từ chối (thu hồi phiên vừa cấp) */
 export async function login(body: LoginBody): Promise<void> {
-  const auth = await AuthService.login(body);
+  await startSession(await AuthService.login(body));
+}
+
+/**
+ * Đăng nhập Google: email đã có tài khoản → liên kết + vào luôn; email lạ → server tạo yêu cầu tài khoản giáo viên
+ * và ném 403 ACCOUNT_PENDING (message server trả về để hiện cho người dùng).
+ */
+export async function loginWithGoogle(idToken: string): Promise<void> {
+  await startSession(await AuthService.google(idToken));
+}
+
+async function startSession(auth: LoginResult): Promise<void> {
   if (auth.user.isStudent) {
     if (auth.refreshToken)
       await AuthService.logout({ refreshToken: auth.refreshToken }).catch(() => undefined);

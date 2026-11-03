@@ -30,6 +30,7 @@ Sao chép `.env.example` → `.env`:
 | --------------- | ----------------------- | --------------------------------------------------------------------- |
 | `VITE_API_URL`  | `http://localhost:3000` | Gốc API (admin gọi `${VITE_API_URL}/api/v1/...`)                         |
 | `VITE_GAME_URL` | `http://localhost:5173` | Gốc app game — ảnh avatar preset lấy từ `${VITE_GAME_URL}/assets/...` |
+| `VITE_GOOGLE_CLIENT_ID` | (rỗng) | OAuth Web Client ID cho nút đăng nhập Google (trùng `GOOGLE_CLIENT_IDS` của API); rỗng = ẩn nút |
 
 API phải cho phép origin của admin trong `CORS_ORIGINS` và expose header `Content-Disposition` (đã có sẵn).
 
@@ -66,7 +67,7 @@ src/
     ├── i18n/                vi.ts (từ điển nguồn), en.ts (`satisfies Dict`), langStore.ts, index.ts (`t` Proxy)
     ├── theme/theme.ts       buildTheme(mode) + THEME_COLORS (light / dark) + GAME_COLORS
     ├── theme/themeStore.ts  'light' | 'dark', mặc định dark (localStorage `phonics-admin:theme`, data-theme trên html)
-    └── config.ts            VITE_API_URL, VITE_GAME_URL, khoá localStorage
+    └── config.ts            VITE_API_URL, VITE_GAME_URL, VITE_GOOGLE_CLIENT_ID, khoá localStorage
 ```
 
 ## Theme (giữ kiểu antd, màu vàng + xám trung tính, mặc định tối)

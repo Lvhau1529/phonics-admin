@@ -39,6 +39,16 @@ export const TeachersService = {
   useList: (params: QueryParams) =>
     useQuery({ queryKey: qk.teachers.list(params), queryFn: () => api.list(params) }),
 
+  /** Số yêu cầu tài khoản giáo viên đang chờ duyệt (banner trang Giáo viên) */
+  usePendingCount() {
+    const params: QueryParams = { status: 'PENDING', page: 1, pageSize: 1 };
+    return useQuery({
+      queryKey: qk.teachers.list(params),
+      queryFn: () => api.list(params),
+      select: (page) => page.total,
+    });
+  },
+
   /** Giáo viên đang hoạt động (≤100) cho ô chọn / tìm kiếm */
   useOptions(q?: string) {
     const params: QueryParams = {

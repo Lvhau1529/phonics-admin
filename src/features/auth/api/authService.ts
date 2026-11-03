@@ -4,6 +4,7 @@
  */
 import { useMutation } from '@tanstack/react-query';
 import type {
+  AuthResponse,
   ChangePasswordBody,
   LoginBody,
   LogoutBody,
@@ -27,15 +28,18 @@ export interface CurrentUser {
   permissions: Permission[];
 }
 
+const toLoginResult = (auth: AuthResponse): LoginResult => ({
+  accessToken: auth.accessToken,
+  refreshToken: auth.refreshToken ?? null,
+  user: new UserModel(auth.user),
+});
+
 const api = {
-  login: async (body: LoginBody): Promise<LoginResult> => {
-    const auth = await authRepository.login(body);
-    return {
-      accessToken: auth.accessToken,
-      refreshToken: auth.refreshToken ?? null,
-      user: new UserModel(auth.user),
-    };
-  },
+  login: async (body: LoginBody): Promise<LoginResult> => toLoginResult(await authRepository.login(body)),
+  google: async (idToken: string): Promise<LoginResult> =>
+    toLoginResult(await authRepository.google({ idToken, app: 'admin' })),
+  linkGoogle: async (idToken: string) => new UserModel(await authRepository.linkGoogle({ idToken })),
+  unlinkGoogle: async () => new UserModel(await authRepository.unlinkGoogle()),
   logout: (body: LogoutBody) => authRepository.logout(body),
   me: async (): Promise<CurrentUser> => {
     const me = await authRepository.me();
@@ -54,6 +58,11 @@ export const AuthService = {
       mutationFn: (body: UpdateProfileBody) => api.updateProfile(body),
       onSuccess: setCurrentUser,
     }),
+
+  /** Liên kết Google (ID token từ nút Google); xong thì cập nhật user trong authStore */
+  useLinkGoogle: () => useMutation({ mutationFn: api.linkGoogle, onSuccess: setCurrentUser }),
+
+  useUnlinkGoogle: () => useMutation({ mutationFn: api.unlinkGoogle, onSuccess: setCurrentUser }),
 
   useChangePassword: () =>
     useMutation({ mutationFn: (body: ChangePasswordBody) => api.changePassword(body) }),

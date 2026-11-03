@@ -283,6 +283,10 @@ export const en = {
     studentNotAllowed: 'This account cannot access the admin console',
     sessionExpired: 'Your session has expired, please sign in again',
     checking: 'Checking your session…',
+    or: 'or',
+    googleUnavailable: 'Google sign-in could not be loaded',
+    googleHint:
+      'A Google email without an account creates a teacher account request for an admin to approve.',
   },
 
   errors: {
@@ -341,6 +345,16 @@ export const en = {
     filterClass: 'Class',
     groups: 'Permission groups',
     groupsHint: "Group permissions are added on top of the teacher's default permissions",
+    pendingRequests: (n: number) => `${n} teacher account request${n === 1 ? '' : 's'} waiting for approval`,
+    showPending: 'Show requests',
+    approve: 'Approve',
+    reject: 'Reject',
+    confirmApprove: (name: string) =>
+      `Approve ${name}? They can sign in right away — remember to assign classes and permission groups.`,
+    confirmReject: (name: string) =>
+      `Reject the request from ${name}? The account will not be able to sign in.`,
+    approved: 'Account approved',
+    rejected: 'Request rejected',
   },
 
   classes: {
@@ -885,6 +899,9 @@ export const en = {
       'teacher.create': 'Create teacher',
       'teacher.update': 'Edit teacher',
       'teacher.setClasses': 'Assign teacher classes',
+      'teacher.request': 'Teacher account request (Google)',
+      'user.linkGoogle': 'Link Google',
+      'user.unlinkGoogle': 'Unlink Google',
       'class.create': 'Create class',
       'class.update': 'Edit class',
       'class.setTeachers': 'Assign class teachers',
@@ -968,6 +985,18 @@ export const en = {
     signOutThis: 'Sign out this device',
     signOutAll: 'Sign out all devices',
     confirmSignOutAll: 'Sign out from every device? All other sessions will be revoked.',
+    loginMethods: 'Sign-in methods',
+    methodPassword: 'Password',
+    methodGoogle: 'Google',
+    methodOn: 'In use',
+    methodOff: 'Not set',
+    noPasswordHint: 'No password yet — set one under Change password (leave the current password empty).',
+    linkGoogleHint: 'Link your Google account to sign in with either Google or your password.',
+    googleLinked: 'Google account linked',
+    unlinkGoogle: 'Unlink Google',
+    confirmUnlinkGoogle: 'Unlink Google? You will only be able to sign in with your password.',
+    googleUnlinked: 'Google account unlinked',
+    unlinkNeedsPassword: 'Set a password before unlinking Google',
   },
 
   // ---------- Worksheets ----------

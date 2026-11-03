@@ -2,6 +2,7 @@ import {
   Role,
   type AuthProvider,
   type AvatarKey,
+  type LoginMethods,
   type LoginMode,
   type StudentClassRef,
   type User,
@@ -22,6 +23,8 @@ export class UserModel {
   readonly class: StudentClassRef | null;
   readonly createdAt: string;
   readonly loginMode: LoginMode | undefined;
+  /** API < 1.14 không trả → suy theo `provider` */
+  readonly loginMethods: LoginMethods | undefined;
 
   constructor(data: User) {
     this.id = data.id;
@@ -34,6 +37,7 @@ export class UserModel {
     this.class = data.class;
     this.createdAt = data.createdAt;
     this.loginMode = data.loginMode;
+    this.loginMethods = data.loginMethods;
   }
 
   get isAdmin(): boolean {
@@ -42,6 +46,16 @@ export class UserModel {
 
   get isStudent(): boolean {
     return this.role === Role.enum.STUDENT;
+  }
+
+  /** Có mật khẩu (đăng nhập email) */
+  get hasPassword(): boolean {
+    return this.loginMethods?.password ?? this.provider === 'LOCAL';
+  }
+
+  /** Đã liên kết Google */
+  get hasGoogle(): boolean {
+    return this.loginMethods?.google ?? this.provider === 'GOOGLE';
   }
 
   /** "Google" / "Email" theo ngôn ngữ hiện tại */
@@ -62,6 +76,7 @@ export class UserModel {
       class: this.class,
       createdAt: this.createdAt,
       loginMode: this.loginMode,
+      loginMethods: this.loginMethods,
     };
   }
 }
