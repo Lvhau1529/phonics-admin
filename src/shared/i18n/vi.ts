@@ -799,6 +799,38 @@ export const vi = {
     pendingWarning: (n: number) => `${n} buổi chưa xác nhận — phần chờ xác nhận có thể còn thay đổi.`,
     viewPending: 'Xem buổi chờ',
     zeroPriceWarning: (n: number) => `${n} lượt tính phí chưa đặt đơn giá (đang tính 0 ₫).`,
+    statement: 'Xuất phiếu học phí',
+    statementMonth: 'Tháng của phiếu',
+    statementHint:
+      'Phiếu PDF gửi phụ huynh: gộp các bé cùng phụ huynh nhận học phí, kèm thông tin chuyển khoản.',
+  },
+
+  tuitionSettings: {
+    title: 'Cài đặt phiếu học phí',
+    open: 'Cài đặt phiếu',
+    subtitle: 'Thông tin in trên phiếu báo học phí gửi phụ huynh (PDF).',
+    orgSection: 'Trung tâm',
+    orgName: 'Tên trung tâm',
+    orgAddress: 'Địa chỉ',
+    orgPhone: 'Số điện thoại',
+    dueDay: 'Hạn thanh toán (ngày của tháng sau)',
+    dueDayHint: 'Vd 10 → phiếu tháng 10 hạn ngày 10/11.',
+    note: 'Ghi chú cuối phiếu',
+    noteHint: 'Vd lời cảm ơn, số điện thoại hỗ trợ…',
+    bankSection: 'Thông tin chuyển khoản',
+    pickBank: 'Chọn nhanh ngân hàng',
+    pickBankPlaceholder: 'Tìm ngân hàng…',
+    bankName: 'Tên ngân hàng',
+    bankBin: 'Mã BIN',
+    bankBinHint: 'Mã 6 số của ngân hàng (NAPAS), cần để tạo mã VietQR. Chọn ngân hàng ở trên sẽ tự điền.',
+    accountNo: 'Số tài khoản',
+    accountName: 'Chủ tài khoản',
+    transferContent: 'Mẫu nội dung chuyển khoản',
+    transferContentHint: (vars: string) =>
+      `Biến: ${vars} (tháng, tên các bé, SĐT phụ huynh). Khi in sẽ bỏ dấu, viết hoa, tối đa 50 ký tự.`,
+    qrHint: 'Phiếu chỉ có mã VietQR khi đã lưu mã BIN và số tài khoản.',
+    qrReady: 'Phiếu có mã VietQR — phụ huynh quét bằng app ngân hàng là điền sẵn số tiền và nội dung.',
+    emptyHint: 'Ô nào để trống sẽ không in lên phiếu.',
   },
 
   studentExtra: {
@@ -993,6 +1025,7 @@ export const vi = {
       'attendance.cancelSession': 'Huỷ buổi học thêm',
       'attendance.createSession': 'Tạo buổi bù',
       'attendance.resendDigest': 'Gửi lại mail xác nhận điểm danh',
+      'settings.updateTuition': 'Sửa cài đặt phiếu học phí',
     } satisfies Record<AuditAction, string>,
   },
 

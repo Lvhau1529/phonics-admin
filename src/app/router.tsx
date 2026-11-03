@@ -111,6 +111,10 @@ export const routes: RouteObject[] = [
             { path: 'permissions', lazy: page(() => import('@/features/permissions/pages/PermissionsPage')) },
             { path: 'audit', lazy: page(() => import('@/features/audit/pages/AuditPage')) },
             { path: 'tuition', lazy: page(() => import('@/features/tuition/pages/TuitionPage')) },
+            {
+              path: 'tuition/settings',
+              lazy: page(() => import('@/features/tuition/pages/TuitionSettingsPage')),
+            },
             withPermission('guardians.manage', [
               { path: 'guardians', lazy: page(() => import('@/features/guardians/pages/GuardiansPage')) },
             ]),

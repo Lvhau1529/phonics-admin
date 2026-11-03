@@ -1,3 +1,4 @@
+import { SettingOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Flex, Row, Typography } from 'antd';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
@@ -31,7 +32,14 @@ export function TuitionPage() {
       <PageHeader
         title={t.tuition.title}
         subtitle={t.tuition.estimateHint}
-        extra={<MonthRangePicker value={range} onChange={setRange} />}
+        extra={
+          <Flex gap={8} wrap>
+            <MonthRangePicker value={range} onChange={setRange} />
+            <Link to={ROUTES.tuitionSettings}>
+              <Button icon={<SettingOutlined />}>{t.tuitionSettings.open}</Button>
+            </Link>
+          </Flex>
+        }
       />
       <ErrorAlert error={overview.error} onRetry={() => void overview.refetch()} />
       <Flex vertical gap={16}>
