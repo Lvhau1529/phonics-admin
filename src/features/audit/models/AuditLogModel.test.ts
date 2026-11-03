@@ -21,6 +21,7 @@ describe('AuditLogModel', () => {
     expect(new AuditLogModel({ ...dto, targetType: 'class' }).targetKind).toBe('class');
     expect(new AuditLogModel({ ...dto, targetType: 'permissionGroup' }).targetKind).toBeNull();
     expect(new AuditLogModel({ ...dto, targetId: null }).targetKind).toBeNull();
+    expect(new AuditLogModel({ ...dto, action: 'student.delete' }).targetKind).toBeNull();
   });
 
   it('targetLabel rút gọn id 8 ký tự', () => {

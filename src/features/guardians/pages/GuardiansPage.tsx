@@ -1,9 +1,14 @@
-import { EditOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Select, Space, Tag, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
+import {
+  DeleteAccountModal,
+  type DeleteTarget,
+} from '@/features/account-delete/components/DeleteAccountModal';
+import { useAuth } from '@/features/auth/authStore';
 import { GuardiansService } from '@/features/guardians/api/guardiansService';
 import { GuardianAccountTag } from '@/features/guardians/components/GuardianAccountTag';
 import { GuardianDetailDrawer } from '@/features/guardians/components/GuardianDetailDrawer';
@@ -21,6 +26,8 @@ export function GuardiansPage() {
   const list = GuardiansService.useList(table.params);
   const [drawer, setDrawer] = useState<{ open: boolean; guardian?: GuardianModel }>({ open: false });
   const [viewingId, setViewingId] = useState<string>();
+  const [deleting, setDeleting] = useState<DeleteTarget>();
+  const { isAdmin } = useAuth();
 
   const columns: ColumnsType<GuardianModel> = [
     {
@@ -75,6 +82,16 @@ export function GuardiansPage() {
               onClick={() => setDrawer({ open: true, guardian: g })}
             />
           </Tooltip>
+          {isAdmin && (
+            <Tooltip title={t.accountDelete.action}>
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => setDeleting({ kind: 'guardian', id: g.id, name: g.fullName })}
+              />
+            </Tooltip>
+          )}
         </Space>
       ),
     },
@@ -128,6 +145,7 @@ export function GuardiansPage() {
         onClose={() => setDrawer({ open: false })}
       />
       <GuardianDetailDrawer guardianId={viewingId} onClose={() => setViewingId(undefined)} />
+      <DeleteAccountModal target={deleting} onClose={() => setDeleting(undefined)} />
     </>
   );
 }

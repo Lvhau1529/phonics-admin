@@ -43,6 +43,9 @@ export const qk = {
     gameResults: (id: string, params: QueryParams) => ['students', 'detail', id, 'results', params] as const,
     games: (id: string) => ['students', 'detail', id, 'games'] as const,
   },
+  accountDelete: {
+    preview: (kind: string, id: string) => ['account-delete', kind, id] as const,
+  },
   guardians: {
     all: ['guardians'] as const,
     list: (params: QueryParams) => ['guardians', 'list', params] as const,
