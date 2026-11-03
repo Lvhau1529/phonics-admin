@@ -4,8 +4,8 @@ import {
   EditOutlined,
   PauseCircleOutlined,
   PlusOutlined,
+  StopOutlined,
   TeamOutlined,
-  UserAddOutlined,
 } from '@ant-design/icons';
 import {
   Button,
@@ -28,6 +28,7 @@ import { RecentSessionsCard } from '@/features/attendance/components/RecentSessi
 import { useAuth } from '@/features/auth/authStore';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import { EditRateModal } from '@/features/extra-slots/components/EditRateModal';
+import { EndRateModal, type EndRateTarget } from '@/features/extra-slots/components/EndRateModal';
 import { ExtraSlotFormDrawer } from '@/features/extra-slots/components/ExtraSlotFormDrawer';
 import { RateHistoryTable } from '@/features/extra-slots/components/RateHistoryTable';
 import { RateSourceTag } from '@/features/extra-slots/components/RateSourceTag';
@@ -48,7 +49,6 @@ import {
   priceText,
   type SlotStudentModel,
 } from '@/features/extra-slots/models/ExtraSlotModel';
-import { CreateStudentsDrawer } from '@/features/students/components/CreateStudentsDrawer';
 import { t } from '@/shared/i18n';
 import { AvatarImg } from '@/shared/ui/AvatarImg';
 import { DataTable } from '@/shared/ui/DataTable';
@@ -60,6 +60,7 @@ import { formatDate, toIsoDate } from '@/shared/utils/format';
 function buildStudentColumns(
   showRate: boolean,
   onSetPrice?: (student: SlotStudentModel) => void,
+  onEndPrice?: (student: SlotStudentModel) => void,
   onRemove?: (student: SlotStudentModel) => void,
 ): ColumnsType<SlotStudentModel> {
   const columns: ColumnsType<SlotStudentModel> = [
@@ -87,13 +88,14 @@ function buildStudentColumns(
       key: 'rate',
       render: (_, s) =>
         s.rate && (
-          <Space>
+          <Space size={4} wrap>
             <span>{s.rateText}</span>
             <RateSourceTag source={s.rate.source} />
+            {s.rateEndsText && <Tag color="orange">{s.rateEndsText}</Tag>}
           </Space>
         ),
     });
-  if (onSetPrice || onRemove)
+  if (onSetPrice || onEndPrice || onRemove)
     columns.push({
       title: t.common.actions,
       key: 'actions',
@@ -106,6 +108,16 @@ function buildStudentColumns(
                 icon={<DollarOutlined />}
                 aria-label={t.extraSlots.studentPrice}
                 onClick={() => onSetPrice(s)}
+              />
+            </Tooltip>
+          )}
+          {onEndPrice && s.rate?.source === 'STUDENT_SLOT' && (
+            <Tooltip title={t.extraSlots.endRate}>
+              <Button
+                size="small"
+                icon={<StopOutlined />}
+                aria-label={t.extraSlots.endRate}
+                onClick={() => onEndPrice(s)}
               />
             </Tooltip>
           )}
@@ -126,8 +138,25 @@ function buildStudentColumns(
   return columns;
 }
 
+/** Học sinh có giá riêng (không đổi theo giá ca) — cảnh báo khi đặt giá ca mới */
+function OwnPriceNotice({ students }: { students: SlotStudentModel[] }) {
+  return (
+    <>
+      {t.extraSlots.ownPriceNotice(students.length)}
+      <ul style={{ margin: '4px 0 0', paddingInlineStart: 18 }}>
+        {students.map((s) => (
+          <li key={s.assignmentId}>
+            {s.fullName}: {s.rateText}
+            {s.rateEndsText && ` (${s.rateEndsText})`}
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
 /** Giá mặc định của ca: giá hiện tại + lịch sử + đặt giá mới */
-function SlotPriceCard({ slot }: { slot: ExtraSlotModel }) {
+function SlotPriceCard({ slot, ownPriced }: { slot: ExtraSlotModel; ownPriced: SlotStudentModel[] }) {
   const { can } = useAuth();
   const rates = ExtraSlotsService.useSlotRates(slot.id, true);
   const createRate = ExtraSlotsService.useCreateSlotRate();
@@ -159,6 +188,7 @@ function SlotPriceCard({ slot }: { slot: ExtraSlotModel }) {
         title={`${t.extraSlots.setPrice} · ${slot.name}`}
         hint={t.extraSlots.defaultPriceHint}
         currentPrice={slot.defaultPrice}
+        notice={ownPriced.length > 0 && <OwnPriceNotice students={ownPriced} />}
         loading={createRate.isPending}
         onSubmit={(body) => createRate.mutateAsync({ id: slot.id, body })}
         onClose={() => setOpen(false)}
@@ -179,9 +209,9 @@ export function ExtraSlotDetailPage() {
   const [editing, setEditing] = useState(false);
   const [teachersOf, setTeachersOf] = useState<ExtraSlotModel>();
   const [assigning, setAssigning] = useState<SlotAssignmentAction>();
-  const [creatingStudents, setCreatingStudents] = useState(false);
   const [removing, setRemoving] = useState<RemoveAssignmentTarget>();
   const [stopping, setStopping] = useState<ExtraSlotModel>();
+  const [endingPrice, setEndingPrice] = useState<EndRateTarget>();
 
   const slot = detail.data;
   if (detail.error) return <ErrorAlert error={detail.error} onRetry={() => void detail.refetch()} />;
@@ -250,30 +280,22 @@ export function ExtraSlotDetailPage() {
           </Descriptions>
         </Card>
 
-        {can('extra.viewPricing') && <SlotPriceCard slot={slot} />}
+        {can('extra.viewPricing') && (
+          <SlotPriceCard slot={slot} ownPriced={(students.data ?? []).filter((s) => s.hasOwnRate)} />
+        )}
 
         <Card
           title={t.extraSlots.students}
           extra={
-            !slot.isArchived && (
-              <Space wrap>
-                {can('students.create') && (
-                  <Button icon={<UserAddOutlined />} onClick={() => setCreatingStudents(true)}>
-                    {t.students.addNew}
-                  </Button>
-                )}
-                {can('extra.manageSchedule') && (
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() =>
-                      setAssigning({ mode: 'add', slotId: slot.id, slotPrice: slot.defaultPrice })
-                    }
-                  >
-                    {t.extraSlots.addStudent}
-                  </Button>
-                )}
-              </Space>
+            !slot.isArchived &&
+            can('extra.manageSchedule') && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setAssigning({ mode: 'add', slotId: slot.id, slotPrice: slot.defaultPrice })}
+              >
+                {t.extraSlots.addStudent}
+              </Button>
             )
           }
         >
@@ -293,6 +315,16 @@ export function ExtraSlotDetailPage() {
             columns={buildStudentColumns(
               can('extra.viewPricing'),
               can('extra.managePricing') && !slot.isArchived ? setPricing : undefined,
+              can('extra.managePricing')
+                ? (s) =>
+                    s.rate?.rateId &&
+                    setEndingPrice({
+                      rateId: s.rate.rateId,
+                      name: s.fullName,
+                      priceText: s.rateText ?? '',
+                      effectiveTo: s.rate.effectiveTo ?? null,
+                    })
+                : undefined,
               can('extra.manageSchedule')
                 ? (s) =>
                     setRemoving({
@@ -327,6 +359,7 @@ export function ExtraSlotDetailPage() {
         currentPrice={
           pricing?.rate && pricing.rate.source !== 'NONE' ? pricing.rate.pricePerSession : slot.defaultPrice
         }
+        withEnd
         loading={createStudentRate.isPending}
         onSubmit={(body) =>
           createStudentRate.mutateAsync({
@@ -336,11 +369,7 @@ export function ExtraSlotDetailPage() {
         }
         onClose={() => setPricing(undefined)}
       />
-      <CreateStudentsDrawer
-        open={creatingStudents}
-        slotId={slot.id}
-        onClose={() => setCreatingStudents(false)}
-      />
+      <EndRateModal target={endingPrice} onClose={() => setEndingPrice(undefined)} />
     </>
   );
 }

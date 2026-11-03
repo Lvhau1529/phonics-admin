@@ -7,6 +7,7 @@ import { ROUTES } from '@/app/routes';
 import { StudentAttendanceCard } from '@/features/attendance/components/StudentAttendanceCard';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import { EditRateModal } from '@/features/extra-slots/components/EditRateModal';
+import { EndRateModal, type EndRateTarget } from '@/features/extra-slots/components/EndRateModal';
 import { RateHistoryTable } from '@/features/extra-slots/components/RateHistoryTable';
 import { RateSourceTag } from '@/features/extra-slots/components/RateSourceTag';
 import {
@@ -28,7 +29,7 @@ import { t } from '@/shared/i18n';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { dayjs } from '@/shared/utils/dayjs';
-import { toIsoDate } from '@/shared/utils/format';
+import { formatDate, toIsoDate } from '@/shared/utils/format';
 
 const STATUS_COLOR = { active: 'green', upcoming: 'blue', ended: undefined } as const;
 
@@ -121,6 +122,7 @@ export function StudentExtraTab({ studentId, studentName }: { studentId: string;
   const [settingPrice, setSettingPrice] = useState(false);
   const [removing, setRemoving] = useState<RemoveAssignmentTarget>();
   const [editingRate, setEditingRate] = useState<ExtraRateModel>();
+  const [ending, setEnding] = useState<EndRateTarget>();
   const today = toIsoDate(dayjs());
   const data = extra.data;
   const currentOwnPrice = data?.rates?.find((r) => r.state === 'current' && !r.slotId)?.pricePerSession;
@@ -189,6 +191,11 @@ export function StudentExtraTab({ studentId, studentName }: { studentId: string;
                       <>
                         <Typography.Text strong>{appliedRateText(applied)}</Typography.Text>
                         <RateSourceTag source={applied.source} />
+                        {applied.effectiveTo && applied.source !== 'SLOT' && (
+                          <Tag color="orange">
+                            {t.extraSlots.rateEndsFrom(formatDate(applied.effectiveTo))}
+                          </Tag>
+                        )}
                       </>
                     )}
                   </Flex>
@@ -202,6 +209,18 @@ export function StudentExtraTab({ studentId, studentName }: { studentId: string;
             loading={extra.isFetching}
             emptyText={t.studentExtra.noStudentRates}
             onEdit={data.canManagePricing ? setEditingRate : undefined}
+            onEnd={
+              data.canManagePricing
+                ? (r) =>
+                    setEnding({
+                      rateId: r.id,
+                      name: studentName,
+                      priceText: r.priceText,
+                      effectiveFrom: r.effectiveFrom,
+                      effectiveTo: r.effectiveTo,
+                    })
+                : undefined
+            }
           />
         </Card>
       )}
@@ -211,11 +230,13 @@ export function StudentExtraTab({ studentId, studentName }: { studentId: string;
       <SlotAssignmentModal action={action} onClose={() => setAction(undefined)} />
       <RemoveAssignmentModal target={removing} onClose={() => setRemoving(undefined)} />
       <EditRateModal rate={editingRate} onClose={() => setEditingRate(undefined)} />
+      <EndRateModal target={ending} onClose={() => setEnding(undefined)} />
       <SetRateModal
         open={settingPrice}
         title={t.studentExtra.setStudentPrice}
         hint={t.studentExtra.studentPriceHint}
         currentPrice={currentOwnPrice}
+        withEnd
         loading={createRate.isPending}
         onSubmit={(body) => createRate.mutateAsync({ studentId, body })}
         onClose={() => setSettingPrice(false)}

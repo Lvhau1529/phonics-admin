@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StudentsService } from '@/features/students/api/studentsService';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { t } from '@/shared/i18n';
+import { selectLoading } from '@/shared/ui/selectLoading';
 
 export interface StudentOption {
   value: string;
@@ -44,7 +45,7 @@ export function StudentSearchSelect({ initialOptions = [], onChange, ...props }:
         setKnown(options.filter((o) => ids.includes(o.value)));
         onChange?.(ids, option);
       }}
-      loading={isFetching}
+      {...selectLoading(isFetching, found.length > 0)}
       options={options}
     />
   );

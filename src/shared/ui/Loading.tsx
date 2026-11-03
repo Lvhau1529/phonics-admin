@@ -86,3 +86,22 @@ export function BlockSkeleton({ height = 240 }: { height?: number | string }) {
     </div>
   );
 }
+
+/** Vài dòng xám nhấp nháy trong dropdown ô chọn khi chưa có kết quả (thay chữ "Không có dữ liệu" lúc đang tải) */
+export function SelectOptionsSkeleton({ rows = 4 }: { rows?: number }) {
+  return (
+    <Flex
+      vertical
+      gap={12}
+      role="status"
+      aria-label={t.common.loadingAlt}
+      style={{ padding: '8px 4px', width: '100%' }}
+    >
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} style={{ width: `${90 - i * 15}%` }}>
+          <Skeleton.Input active size="small" block style={{ height: 14 }} />
+        </div>
+      ))}
+    </Flex>
+  );
+}
