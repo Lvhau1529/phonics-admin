@@ -1,4 +1,18 @@
-import { Alert, App, Button, Card, Col, Form, Input, InputNumber, Row, Select, Typography } from 'antd';
+import {
+  Alert,
+  App,
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Form,
+  Input,
+  InputNumber,
+  Row,
+  Select,
+  Switch,
+  Typography,
+} from 'antd';
 import {
   BankAccountNo,
   BankBin,
@@ -8,7 +22,7 @@ import {
   UpdateTuitionSettings,
   VN_BANKS,
 } from '@phonics/contracts';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ROUTES } from '@/app/routes';
 import { TuitionService } from '@/features/tuition/api/tuitionService';
 import { errorMessage } from '@/shared/api/errors';
@@ -29,17 +43,25 @@ interface SettingsFormValues {
   transferContent?: string;
   dueDay?: number | null;
   note?: string;
+  showSlot?: boolean;
 }
 
 const BANK_OPTIONS = VN_BANKS.map((b) => ({ value: b.bin, label: `${b.name} (${b.bin})` }));
+const EXTRA_PANEL = 'extra';
 
-/** Cài đặt in trên phiếu báo học phí (ADMIN). Ô để trống = không in lên phiếu */
+/**
+ * Cài đặt in trên phiếu báo học phí (ADMIN). Ô để trống = không in lên phiếu. Tên / địa chỉ trung tâm, hạn đóng và
+ * cột "Ca học" nằm trong "Tuỳ chọn thêm" (thu gọn khi chưa dùng).
+ */
 export function TuitionSettingsPage() {
   const { message } = App.useApp();
   const [form] = Form.useForm<SettingsFormValues>();
   const settings = TuitionService.useSettings();
   const update = TuitionService.useUpdateSettings();
   const data = settings.data;
+  // null = chưa bấm: mở sẵn khi đang dùng tuỳ chọn thêm
+  const [extraToggled, setExtraOpen] = useState<boolean | null>(null);
+  const extraOpen = extraToggled ?? !!data?.usesExtraOptions;
 
   useEffect(() => {
     if (!data) return;
@@ -55,6 +77,7 @@ export function TuitionSettingsPage() {
       transferContent: data.transferContent ?? (data.updatedAt ? undefined : SUGGESTED_TRANSFER_CONTENT),
       dueDay: data.dueDay,
       note: data.note ?? undefined,
+      showSlot: data.showSlot,
     });
   }, [data, form]);
 
@@ -67,7 +90,11 @@ export function TuitionSettingsPage() {
   const handleFinish = async (raw: SettingsFormValues) => {
     const values = stripEmpty({ ...raw, dueDay: raw.dueDay ?? undefined });
     const parsed = parseForm(UpdateTuitionSettings, values);
-    if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
+    if (!parsed.success) {
+      // Lỗi nằm trong phần đang thu gọn → mở ra cho thấy
+      if (['orgName', 'orgAddress', 'dueDay'].some((key) => key in parsed.fieldErrors)) setExtraOpen(true);
+      return applyFieldErrors(form, parsed.fieldErrors);
+    }
     try {
       await update.mutateAsync(parsed.data);
       message.success(t.common.saved);
@@ -91,26 +118,7 @@ export function TuitionSettingsPage() {
       <ErrorAlert error={settings.error} onRetry={() => void settings.refetch()} />
       <Form<SettingsFormValues> form={form} layout="vertical" onFinish={handleFinish} disabled={!data}>
         <Row gutter={[16, 16]}>
-          <Col xs={24} lg={12}>
-            <Card title={t.tuitionSettings.orgSection}>
-              <Form.Item name="orgName" label={t.tuitionSettings.orgName}>
-                <Input maxLength={100} />
-              </Form.Item>
-              <Form.Item name="orgAddress" label={t.tuitionSettings.orgAddress}>
-                <Input maxLength={200} />
-              </Form.Item>
-              <Form.Item name="orgPhone" label={t.tuitionSettings.orgPhone} rules={[zodRule(Phone)]}>
-                <Input />
-              </Form.Item>
-              <Form.Item name="dueDay" label={t.tuitionSettings.dueDay} extra={t.tuitionSettings.dueDayHint}>
-                <InputNumber min={1} max={28} precision={0} style={{ width: 160 }} />
-              </Form.Item>
-              <Form.Item name="note" label={t.tuitionSettings.note} extra={t.tuitionSettings.noteHint}>
-                <Input.TextArea rows={3} maxLength={500} />
-              </Form.Item>
-            </Card>
-          </Col>
-          <Col xs={24} lg={12}>
+          <Col xs={24} lg={14}>
             <Card title={t.tuitionSettings.bankSection}>
               <Form.Item label={t.tuitionSettings.pickBank}>
                 <Select
@@ -162,6 +170,66 @@ export function TuitionSettingsPage() {
                 message={data?.qrReady ? t.tuitionSettings.qrReady : t.tuitionSettings.qrHint}
               />
             </Card>
+          </Col>
+          <Col xs={24} lg={10}>
+            <Card title={t.tuitionSettings.contactSection}>
+              <Form.Item name="orgPhone" label={t.tuitionSettings.orgPhone} rules={[zodRule(Phone)]}>
+                <Input />
+              </Form.Item>
+              <Form.Item name="note" label={t.tuitionSettings.note} extra={t.tuitionSettings.noteHint}>
+                <Input.TextArea rows={3} maxLength={500} />
+              </Form.Item>
+            </Card>
+          </Col>
+          <Col span={24}>
+            <Collapse
+              activeKey={extraOpen ? [EXTRA_PANEL] : []}
+              onChange={(keys) => setExtraOpen(keys.includes(EXTRA_PANEL))}
+              items={[
+                {
+                  key: EXTRA_PANEL,
+                  label: t.tuitionSettings.extraSection,
+                  extra: (
+                    <Typography.Text type="secondary">{t.tuitionSettings.extraSectionHint}</Typography.Text>
+                  ),
+                  // Ô trong panel đóng vẫn phải đăng ký với Form để không mất giá trị khi lưu
+                  forceRender: true,
+                  children: (
+                    <Row gutter={16}>
+                      <Col xs={24} md={12}>
+                        <Form.Item name="orgName" label={t.tuitionSettings.orgName}>
+                          <Input maxLength={100} />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <Form.Item name="orgAddress" label={t.tuitionSettings.orgAddress}>
+                          <Input maxLength={200} />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          name="dueDay"
+                          label={t.tuitionSettings.dueDay}
+                          extra={t.tuitionSettings.dueDayHint}
+                        >
+                          <InputNumber min={1} max={28} precision={0} style={{ width: 160 }} />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          name="showSlot"
+                          label={t.tuitionSettings.showSlot}
+                          extra={t.tuitionSettings.showSlotHint}
+                          valuePropName="checked"
+                        >
+                          <Switch />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  ),
+                },
+              ]}
+            />
           </Col>
         </Row>
       </Form>

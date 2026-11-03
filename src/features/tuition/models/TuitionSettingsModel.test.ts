@@ -12,6 +12,7 @@ const empty = {
   transferContent: null,
   dueDay: null,
   note: null,
+  showSlot: false,
   updatedAt: null,
 };
 
@@ -22,5 +23,13 @@ describe('TuitionSettingsModel', () => {
     expect(new TuitionSettingsModel({ ...empty, accountNo: '0123456789', bankBin: '970436' }).qrReady).toBe(
       true,
     );
+  });
+
+  it('usesExtraOptions khi có tên / địa chỉ trung tâm, hạn đóng hoặc bật cột ca', () => {
+    expect(new TuitionSettingsModel({ ...empty, accountNo: '0123456789', note: 'x' }).usesExtraOptions).toBe(
+      false,
+    );
+    expect(new TuitionSettingsModel({ ...empty, dueDay: 10 }).usesExtraOptions).toBe(true);
+    expect(new TuitionSettingsModel({ ...empty, showSlot: true }).usesExtraOptions).toBe(true);
   });
 });

@@ -12,6 +12,7 @@ export class TuitionSettingsModel {
   readonly transferContent: string | null;
   readonly dueDay: number | null;
   readonly note: string | null;
+  readonly showSlot: boolean;
   readonly updatedAt: string | null;
 
   constructor(data: TuitionSettings) {
@@ -25,11 +26,17 @@ export class TuitionSettingsModel {
     this.transferContent = data.transferContent;
     this.dueDay = data.dueDay;
     this.note = data.note;
+    this.showSlot = data.showSlot;
     this.updatedAt = data.updatedAt;
   }
 
   /** Phiếu có in mã VietQR không (cần mã BIN + số tài khoản) */
   get qrReady(): boolean {
     return !!(this.bankBin && this.accountNo);
+  }
+
+  /** Đang dùng phần "Tuỳ chọn thêm" (tên / địa chỉ trung tâm, hạn đóng, cột ca) → mở sẵn khi vào trang */
+  get usesExtraOptions(): boolean {
+    return !!(this.orgName || this.orgAddress || this.dueDay || this.showSlot);
   }
 }
