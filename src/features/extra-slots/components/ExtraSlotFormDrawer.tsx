@@ -1,5 +1,23 @@
-import { App, Button, DatePicker, Drawer, Flex, Form, Input, InputNumber, Select, TimePicker } from 'antd';
-import { CreateExtraSlotBody, SlotName, UpdateExtraSlotBody, Weekday } from '@phonics/contracts';
+import {
+  App,
+  Button,
+  DatePicker,
+  Drawer,
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  Radio,
+  Select,
+  TimePicker,
+} from 'antd';
+import {
+  CreateExtraSlotBody,
+  ExtraSlotKind,
+  SlotName,
+  UpdateExtraSlotBody,
+  Weekday,
+} from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useAuth } from '@/features/auth/authStore';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
@@ -25,6 +43,7 @@ const WEEKDAYS: readonly IsoWeekday[] = [1, 2, 3, 4, 5, 6, 7];
 
 interface SlotFormValues {
   name: string;
+  kind: ExtraSlotKind;
   /** Sửa: một thứ */
   weekday: number;
   /** Tạo: nhiều thứ → mỗi thứ một ca */
@@ -66,6 +85,8 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
   const update = ExtraSlotsService.useUpdate();
   const startTime = Form.useWatch('startTime', form);
   const endTime = Form.useWatch('endTime', form);
+  const kind = Form.useWatch('kind', form);
+  const kindChanged = !!slot && !!kind && kind !== slot.kind;
   const timeChanged =
     !!slot &&
     !!startTime &&
@@ -78,6 +99,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
     if (slot)
       form.setFieldsValue({
         name: slot.name,
+        kind: slot.kind,
         weekday: slot.weekday,
         startTime: timeValue(slot.startTime),
         endTime: timeValue(slot.endTime),
@@ -104,6 +126,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
         const diff = diffValues(
           {
             name: slot.name,
+            kind: slot.kind,
             weekday: slot.weekday,
             startTime: slot.startTime,
             endTime: slot.endTime,
@@ -114,6 +137,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
           },
           {
             name: values.name,
+            kind: values.kind,
             weekday: values.weekday,
             startTime: values.startTime,
             endTime: values.endTime,
@@ -131,7 +155,9 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
         if (Object.keys(diff).length === 0) return void message.info(t.common.noChanges);
         const parsed = parseForm(UpdateExtraSlotBody, {
           ...diff,
-          ...(diff.startTime !== undefined && timeFrom ? { timeFrom: toIsoDate(timeFrom) } : {}),
+          ...((diff.startTime !== undefined || diff.kind !== undefined) && timeFrom
+            ? { timeFrom: toIsoDate(timeFrom) }
+            : {}),
         });
         if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
         await update.mutateAsync({ id: slot.id, body: parsed.data });
@@ -197,6 +223,17 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
         >
           <Input maxLength={80} placeholder={t.extraSlots.namePlaceholder} />
         </Form.Item>
+        <Form.Item
+          name="kind"
+          label={t.extraSlots.kind}
+          extra={t.extraSlots.kindHint}
+          initialValue="EXTRA_CLASS"
+        >
+          <Radio.Group
+            optionType="button"
+            options={ExtraSlotKind.options.map((value) => ({ value, label: t.extraSlots.kindLabel[value] }))}
+          />
+        </Form.Item>
         {slot ? (
           <Form.Item
             name="weekday"
@@ -233,10 +270,10 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
             <TimePicker format={TIME_FORMAT} minuteStep={5} needConfirm={false} style={{ width: '100%' }} />
           </Form.Item>
         </Flex>
-        {timeChanged && (
+        {(timeChanged || kindChanged) && (
           <Form.Item
             name="timeFrom"
-            label={t.extraSlots.timeFrom}
+            label={timeChanged ? t.extraSlots.timeFrom : t.extraSlots.kindFrom}
             extra={t.extraSlots.timeFromHint}
             rules={[{ required: true, message: t.common.requiredField }]}
           >

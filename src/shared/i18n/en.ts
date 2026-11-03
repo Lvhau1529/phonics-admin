@@ -585,6 +585,11 @@ export const en = {
     edit: 'Edit slot',
     name: 'Slot name',
     namePlaceholder: 'Advanced phonics — Tue 18:00',
+    kind: 'Slot type',
+    kindLabel: { EXTRA_CLASS: 'Extra class', TUTORING: 'After-class tutoring' },
+    kindHint:
+      'After-class tutoring: the tuition statement lists only attended sessions, without an attendance column.',
+    kindFrom: 'Apply the new type to sessions created from',
     weekday: 'Day',
     weekdaysHint: 'Pick several days to create one slot per day (same name, time, teachers)',
     createdSlots: (n: number) => `Created ${n} slots`,

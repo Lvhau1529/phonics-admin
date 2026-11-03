@@ -10,6 +10,7 @@ import {
   type AvatarKey,
   type ConfirmedVia,
   type DigestSession,
+  type ExtraSlotKind,
   type ExtraSlotRef,
   type StudentAttendanceItem,
   type TeacherRef,
@@ -40,6 +41,7 @@ export function signedMoney(n: number): string {
 export class AttendanceSessionModel {
   readonly id: string;
   readonly slot: ExtraSlotRef | null;
+  readonly kind: ExtraSlotKind;
   readonly date: string;
   readonly startTime: string;
   readonly endTime: string;
@@ -60,6 +62,7 @@ export class AttendanceSessionModel {
   constructor(data: AttendanceSessionSummary) {
     this.id = data.id;
     this.slot = data.slot;
+    this.kind = data.kind;
     this.date = data.date;
     this.startTime = data.startTime;
     this.endTime = data.endTime;
