@@ -21,8 +21,8 @@ interface DeleteAccountModalProps {
 }
 
 /**
- * Xoá hẳn học sinh / giáo viên / phụ huynh tạo nhầm (admin): hiện dữ liệu sẽ mất theo, gõ lại tên để xác nhận.
- * Tài khoản có dữ liệu cần giữ (học phí đã xác nhận, nội dung đã soạn) → chỉ báo lý do, gợi ý khoá tài khoản.
+ * Xoá (mềm) học sinh / giáo viên / phụ huynh (admin): ẩn khỏi hệ thống, khoá đăng nhập, gỡ liên kết đang có; dữ liệu
+ * cũ giữ trong DB. Hiện liên kết sẽ gỡ, gõ lại tên để xác nhận. API cũ còn chặn xoá → nhánh `blockers` báo lý do.
  */
 export function DeleteAccountModal({ target, onClose, onDeleted }: DeleteAccountModalProps) {
   const { message } = App.useApp();
@@ -88,6 +88,7 @@ export function DeleteAccountModal({ target, onClose, onDeleted }: DeleteAccount
       {!data && !preview.error && <Skeleton active paragraph={{ rows: 2 }} title={false} />}
       {data && (
         <div style={{ marginBottom: 16 }}>
+          <Alert type="info" showIcon message={t.accountDelete.keptNote} style={{ marginBottom: 12 }} />
           <Typography.Text type="secondary">
             {data.impact.length ? t.accountDelete.impactTitle : t.accountDelete.noImpact}
           </Typography.Text>
