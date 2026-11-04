@@ -124,6 +124,10 @@ describe('DigestSessionModel', () => {
     expect(new DigestSessionModel(dto).canConfirm).toBe(true);
     expect(new DigestSessionModel({ ...dto, changed: true }).canConfirm).toBe(false);
     expect(new DigestSessionModel({ ...dto, status: 'CONFIRMED' }).canConfirm).toBe(false);
+    // Báo nghỉ: mọi buổi còn chờ, kể cả danh sách đã đổi
+    expect(new DigestSessionModel({ ...dto, changed: true }).canReportOff).toBe(true);
+    expect(new DigestSessionModel({ ...dto, status: 'CONFIRMED' }).canReportOff).toBe(false);
+    expect(new DigestSessionModel({ ...dto, status: 'CANCELLED' }).canReportOff).toBe(false);
     expect(new DigestSessionModel(dto).title).toBe(t.attendance.makeUp);
     expect(new DigestSessionModel(dto).countText).toBe(t.attendance.countText(8, 7));
     expect(new DigestSessionModel(dto).confirmedText).toBeNull();

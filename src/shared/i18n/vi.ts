@@ -744,6 +744,20 @@ export const vi = {
     cancelReason: 'Lý do huỷ',
     cancelReasonPlaceholder: 'Nghỉ lễ Quốc khánh',
     cancelledCount: (n: number) => `Đã huỷ ${n} buổi`,
+    reportOff: 'Báo nghỉ',
+    reportOffTitle: 'Báo nghỉ buổi này',
+    reportOffHint:
+      'Buổi được huỷ: không tính học phí, không còn nhắc trong mail 21:00. Khôi phục lại được nếu báo nhầm.',
+    reportOffConfirmedWarning:
+      'Buổi đã xác nhận điểm danh — huỷ sẽ bỏ học phí của buổi này khỏi tạm tính tháng.',
+    reportOffReasonPlaceholder: 'Giáo viên ốm',
+    reportedOff: 'Đã báo nghỉ buổi này',
+    cancelledAlert: (reason: string) => `Buổi đã huỷ (nghỉ): ${reason}`,
+    restore: 'Khôi phục buổi',
+    restoreConfirm: 'Khôi phục buổi về chờ xác nhận?',
+    restoreConfirmHint:
+      'Buổi chưa có học sinh sẽ lấy danh sách từ lịch hiện tại (mặc định có mặt). Giáo viên được nhắc lại trong mail 21:00.',
+    restored: 'Đã khôi phục buổi',
     monthly: 'Điểm danh theo tháng',
     monthFormat: 'MM/YYYY',
     noSessionsInMonth: 'Không có buổi nào trong tháng',
@@ -796,6 +810,17 @@ export const vi = {
     invalid: 'Link không dùng được',
     editHint: 'Có học sinh vắng hoặc cần thêm học sinh?',
     signInToEdit: 'Đăng nhập để sửa',
+    reportOff: 'Nghỉ',
+    reportOffTitle: (name: string) => `Báo nghỉ: ${name}`,
+    reportOffHint: 'Buổi được huỷ, không tính học phí. Báo nhầm thì đăng nhập để khôi phục.',
+    cancelOutcome: (cancelled: number, already: number, rejected: number) =>
+      [
+        cancelled ? `Đã báo nghỉ ${cancelled} buổi` : null,
+        already ? `${already} buổi đã huỷ trước đó` : null,
+        rejected ? `${rejected} buổi không huỷ được (đã xác nhận) — đăng nhập để huỷ` : null,
+      ]
+        .filter(Boolean)
+        .join('. '),
   },
 
   tuition: {
@@ -1052,6 +1077,7 @@ export const vi = {
       'attendance.updateRecords': 'Sửa điểm danh',
       'attendance.confirm': 'Xác nhận buổi học thêm',
       'attendance.cancelSession': 'Huỷ buổi học thêm',
+      'attendance.restoreSession': 'Khôi phục buổi học thêm',
       'attendance.createSession': 'Tạo buổi bù',
       'attendance.resendDigest': 'Gửi lại mail xác nhận điểm danh',
       'settings.updateTuition': 'Sửa cài đặt phiếu học phí',

@@ -2,8 +2,10 @@ import {
   CheckOutlined,
   DeleteOutlined,
   PlusOutlined,
+  RollbackOutlined,
   ScheduleOutlined,
   SaveOutlined,
+  StopOutlined,
 } from '@ant-design/icons';
 import {
   Alert,
@@ -27,6 +29,7 @@ import {
 import {
   AttendanceMark,
   BILLING_POLICY,
+  CancelAttendanceSessionsBody,
   type AttendanceRecordChange,
   type UpdateAttendanceRecordsBody,
 } from '@phonics/contracts';
@@ -36,6 +39,7 @@ import { Link, useParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { AttendanceService } from '@/features/attendance/api/attendanceService';
 import { AttendanceMarkTag, AttendanceStatusTag } from '@/features/attendance/components/AttendanceStatusTag';
+import { ReportOffModal } from '@/features/attendance/components/ReportOffModal';
 import { ResendDigestButton } from '@/features/attendance/components/ResendDigestButton';
 import type {
   AttendanceRecordModel,
@@ -241,10 +245,13 @@ function AddStudentModal({
 export function AttendanceSessionPage() {
   const { id = '' } = useParams<{ id: string }>();
   const { message } = App.useApp();
-  const { isAdmin } = useAuth();
+  const { isAdmin, can } = useAuth();
   const detail = AttendanceService.useDetail(id);
   const update = AttendanceService.useUpdateRecords();
   const confirm = AttendanceService.useConfirm();
+  const cancel = AttendanceService.useCancel();
+  const restore = AttendanceService.useRestore();
+  const [reportingOff, setReportingOff] = useState(false);
   const [edits, setEdits] = useState<Record<string, RecordEdit>>({});
   const [sessionNote, setSessionNote] = useState<string | null>();
   const [adding, setAdding] = useState(false);
@@ -308,6 +315,17 @@ export function AttendanceSessionPage() {
     }
   };
 
+  const handleRestore = async () => {
+    try {
+      await restore.mutateAsync(session.id);
+      message.success(t.attendance.restored);
+    } catch (error) {
+      message.error(errorMessage(error));
+    }
+  };
+
+  // Huỷ / khôi phục: quyền extra.manageSlots (server kiểm tra GV phụ trách buổi)
+  const manage = can('extra.manageSlots');
   const chargedTotal = session.chargedTotal;
   return (
     <>
@@ -316,9 +334,27 @@ export function AttendanceSessionPage() {
         subtitle={`${session.dateText} · ${session.timeRange}`}
         backTo={ROUTES.attendance}
         extra={
-          (session.editable || (isAdmin && session.isPending)) && (
+          (session.editable || manage || (isAdmin && session.isPending)) && (
             <Space wrap>
               {isAdmin && session.isPending && <ResendDigestButton sessionIds={[session.id]} />}
+              {manage && !session.isCancelled && (
+                <Button danger icon={<StopOutlined />} onClick={() => setReportingOff(true)}>
+                  {t.attendance.reportOff}
+                </Button>
+              )}
+              {manage && session.isCancelled && (
+                <Popconfirm
+                  title={t.attendance.restoreConfirm}
+                  description={t.attendance.restoreConfirmHint}
+                  okText={t.attendance.restore}
+                  cancelText={t.common.cancel}
+                  onConfirm={() => handleRestore()}
+                >
+                  <Button icon={<RollbackOutlined />} loading={restore.isPending}>
+                    {t.attendance.restore}
+                  </Button>
+                </Popconfirm>
+              )}
               {session.editable && (
                 <>
                   <Button icon={<PlusOutlined />} onClick={() => setAdding(true)}>
@@ -347,6 +383,13 @@ export function AttendanceSessionPage() {
         }
       />
       <Flex vertical gap={16}>
+        {session.isCancelled && (
+          <Alert
+            type="warning"
+            showIcon
+            message={t.attendance.cancelledAlert(session.cancelReason ?? t.common.none)}
+          />
+        )}
         {session.missingRateCount > 0 && (
           <Alert type="warning" showIcon message={t.attendance.missingRate(session.missingRateCount)} />
         )}
@@ -367,9 +410,6 @@ export function AttendanceSessionPage() {
             )}
             {session.confirmedText && (
               <Descriptions.Item label={t.attendance.confirmed}>{session.confirmedText}</Descriptions.Item>
-            )}
-            {session.cancelReason && (
-              <Descriptions.Item label={t.attendance.cancelReason}>{session.cancelReason}</Descriptions.Item>
             )}
             {chargedTotal !== null && (
               <Descriptions.Item label={t.attendance.chargedTotal}>
@@ -404,6 +444,23 @@ export function AttendanceSessionPage() {
           />
         </Card>
       </Flex>
+      <ReportOffModal
+        open={reportingOff}
+        title={t.attendance.reportOffTitle}
+        hint={t.attendance.reportOffHint}
+        warning={session.status === 'CONFIRMED' ? t.attendance.reportOffConfirmedWarning : undefined}
+        loading={cancel.isPending}
+        schema={CancelAttendanceSessionsBody}
+        toBody={(reason) => ({ sessionIds: [session.id], reason })}
+        onSubmit={async (body) => {
+          await cancel.mutateAsync(body);
+          setReportingOff(false);
+          setEdits({});
+          setSessionNote(undefined);
+          message.success(t.attendance.reportedOff);
+        }}
+        onClose={() => setReportingOff(false)}
+      />
       <AddStudentModal
         open={adding}
         loading={update.isPending}

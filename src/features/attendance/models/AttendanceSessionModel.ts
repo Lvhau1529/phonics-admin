@@ -260,6 +260,11 @@ export class DigestSessionModel {
     return this.status === 'PENDING' && !this.changed;
   }
 
+  /** Báo nghỉ được qua link: buổi còn chờ (kể cả danh sách đã đổi — huỷ không phụ thuộc điểm danh) */
+  get canReportOff(): boolean {
+    return this.status === 'PENDING';
+  }
+
   /** "Đã xác nhận bởi Cô Lan lúc 03/11/2026 21:05" */
   get confirmedText(): string | null {
     if (this.status !== 'CONFIRMED') return null;

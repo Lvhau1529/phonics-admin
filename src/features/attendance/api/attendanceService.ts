@@ -43,6 +43,7 @@ const api = {
   create: async (body: CreateAttendanceSessionBody) =>
     new AttendanceSessionDetailModel(await attendanceRepository.create(body)),
   cancel: (body: CancelAttendanceSessionsBody) => attendanceRepository.cancel(body),
+  restore: async (id: string) => new AttendanceSessionDetailModel(await attendanceRepository.restore(id)),
   resendDigest: (sessionIds: string[]) => attendanceRepository.resendDigest({ sessionIds }),
   studentAttendance: async (studentId: string, month: string) => {
     const res = await attendanceRepository.studentAttendance(studentId, month);
@@ -58,6 +59,15 @@ const api = {
     return {
       confirmed: res.confirmed,
       alreadyConfirmed: res.alreadyConfirmed,
+      rejected: res.rejected,
+      digest: digestOf(res.digest),
+    };
+  },
+  cancelDigest: async (token: string, sessionIds: string[], reason: string) => {
+    const res = await attendanceRepository.cancelDigest(token, { sessionIds, reason });
+    return {
+      cancelled: res.cancelled,
+      alreadyCancelled: res.alreadyCancelled,
       rejected: res.rejected,
       digest: digestOf(res.digest),
     };
@@ -121,6 +131,11 @@ export const AttendanceService = {
     return useMutation({ mutationFn: api.cancel, onSuccess: invalidate });
   },
 
+  useRestore() {
+    const invalidate = useInvalidateAttendance();
+    return useMutation({ mutationFn: api.restore, onSuccess: invalidate });
+  },
+
   /** ADMIN: gửi lại mail xác nhận — không đổi dữ liệu buổi nên không cần invalidate */
   useResendDigest: () => useMutation({ mutationFn: api.resendDigest }),
 
@@ -128,6 +143,14 @@ export const AttendanceService = {
     const qc = useQueryClient();
     return useMutation({
       mutationFn: (sessionIds: string[]) => api.confirmDigest(token, sessionIds),
+      onSuccess: (res) => qc.setQueryData(qk.attendance.digest(token), res.digest),
+    });
+  },
+  useCancelDigest(token: string) {
+    const qc = useQueryClient();
+    return useMutation({
+      mutationFn: ({ sessionIds, reason }: { sessionIds: string[]; reason: string }) =>
+        api.cancelDigest(token, sessionIds, reason),
       onSuccess: (res) => qc.setQueryData(qk.attendance.digest(token), res.digest),
     });
   },

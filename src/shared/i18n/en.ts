@@ -742,7 +742,21 @@ export const en = {
     cancelSlotsPlaceholder: 'Leave empty for all slots',
     cancelReason: 'Reason',
     cancelReasonPlaceholder: 'National holiday',
-    cancelledCount: (n) => `Cancelled ${n} session(s)`,
+    cancelledCount: (n: number) => `Cancelled ${n} session(s)`,
+    reportOff: 'Mark as off',
+    reportOffTitle: 'Mark this session as off',
+    reportOffHint:
+      'The session is cancelled: not charged and no longer in the 9 PM email. You can restore it if this was a mistake.',
+    reportOffConfirmedWarning:
+      'Attendance was already confirmed — cancelling removes this session from the monthly tuition estimate.',
+    reportOffReasonPlaceholder: 'Teacher is sick',
+    reportedOff: 'Session marked as off',
+    cancelledAlert: (reason: string) => `Session cancelled (off): ${reason}`,
+    restore: 'Restore session',
+    restoreConfirm: 'Restore the session to pending?',
+    restoreConfirmHint:
+      'A session without students takes the roster from the current schedule (all present). The teacher is reminded again in the 9 PM email.',
+    restored: 'Session restored',
     monthly: 'Monthly attendance',
     monthFormat: 'MM/YYYY',
     noSessionsInMonth: 'No sessions this month',
@@ -795,6 +809,19 @@ export const en = {
     invalid: 'This link cannot be used',
     editHint: 'A student was absent or needs to be added?',
     signInToEdit: 'Sign in to edit',
+    reportOff: 'Off',
+    reportOffTitle: (name: string) => `Mark as off: ${name}`,
+    reportOffHint: 'The session is cancelled and not charged. If this was a mistake, sign in to restore it.',
+    cancelOutcome: (cancelled: number, already: number, rejected: number) =>
+      [
+        cancelled ? `Marked ${cancelled} session(s) as off` : null,
+        already ? `${already} session(s) were already cancelled` : null,
+        rejected
+          ? `${rejected} session(s) could not be cancelled (already confirmed) — sign in to cancel`
+          : null,
+      ]
+        .filter(Boolean)
+        .join('. '),
   },
 
   tuition: {
@@ -1052,6 +1079,7 @@ export const en = {
       'attendance.updateRecords': 'Edit attendance',
       'attendance.confirm': 'Confirm extra-class session',
       'attendance.cancelSession': 'Cancel extra-class session',
+      'attendance.restoreSession': 'Restore extra-class session',
       'attendance.createSession': 'Create make-up session',
       'attendance.resendDigest': 'Resend attendance confirmation email',
       'settings.updateTuition': 'Update tuition statement settings',
