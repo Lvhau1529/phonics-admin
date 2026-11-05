@@ -3,7 +3,6 @@ import {
   type AuthProvider,
   type AvatarKey,
   type LoginMethods,
-  type LoginMode,
   type StudentClassRef,
   type User,
   type UserStatus,
@@ -22,7 +21,6 @@ export class UserModel {
   readonly avatarKey: AvatarKey;
   readonly class: StudentClassRef | null;
   readonly createdAt: string;
-  readonly loginMode: LoginMode | undefined;
   /** API < 1.14 không trả → suy theo `provider` */
   readonly loginMethods: LoginMethods | undefined;
 
@@ -36,12 +34,16 @@ export class UserModel {
     this.avatarKey = data.avatarKey;
     this.class = data.class;
     this.createdAt = data.createdAt;
-    this.loginMode = data.loginMode;
     this.loginMethods = data.loginMethods;
   }
 
   get isAdmin(): boolean {
     return this.role === Role.enum.ADMIN;
+  }
+
+  /** Chỉ admin / giáo viên vào được trang quản trị (học sinh, phụ huynh dùng game) */
+  get isStaff(): boolean {
+    return this.role === 'ADMIN' || this.role === 'TEACHER';
   }
 
   get isStudent(): boolean {
@@ -75,7 +77,6 @@ export class UserModel {
       avatarKey: this.avatarKey,
       class: this.class,
       createdAt: this.createdAt,
-      loginMode: this.loginMode,
       loginMethods: this.loginMethods,
     };
   }

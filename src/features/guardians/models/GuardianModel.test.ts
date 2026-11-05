@@ -20,7 +20,6 @@ const dto: GuardianSummary = {
       englishName: 'Andy',
       avatarKey: 'tiger',
       status: 'ACTIVE',
-      loginMode: 'OWN',
       class: null,
       relation: 'MOTHER',
       isBillingContact: true,
@@ -34,7 +33,6 @@ const dto: GuardianSummary = {
       englishName: null,
       avatarKey: 'cat',
       status: 'PENDING',
-      loginMode: 'MANAGED',
       class: null,
       relation: 'MOTHER',
       isBillingContact: true,
@@ -69,10 +67,11 @@ describe('GuardianModel', () => {
     expect(new GuardianModel({ ...dto, account }).canCreateAccount).toBe(false);
   });
 
-  it('label bỏ phần trống; ownLoginChildren chỉ các bé tự đăng nhập', () => {
-    const g = new GuardianModel({ ...dto, phone: null });
-    expect(g.label).toBe('Trần Thị Mai · mai@example.vn');
-    expect(g.ownLoginChildren.map((c) => c.studentId)).toEqual(['s1']);
+  it('label bỏ phần trống; SĐT hiển thị dạng trong nước', () => {
+    expect(new GuardianModel({ ...dto, phone: null }).label).toBe('Trần Thị Mai · mai@example.vn');
+    const g = new GuardianModel({ ...dto, phone: '+84912345678' });
+    expect(g.phoneText).toBe('0912 345 678');
+    expect(g.label).toBe('Trần Thị Mai · mai@example.vn · 0912 345 678');
   });
 
   it('con: fullName + nhãn cờ liên kết đang bật', () => {

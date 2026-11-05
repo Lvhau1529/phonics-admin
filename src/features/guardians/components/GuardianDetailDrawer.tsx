@@ -1,8 +1,7 @@
-import { EditOutlined, SwapOutlined, UserAddOutlined } from '@ant-design/icons';
+import { EditOutlined, UserAddOutlined } from '@ant-design/icons';
 import { App, Button, Descriptions, Drawer, Flex, Popconfirm, Skeleton, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
 import { GuardiansService } from '@/features/guardians/api/guardiansService';
-import { ConvertFamilyModal } from '@/features/guardians/components/ConvertFamilyModal';
 import { GuardianAccountTag } from '@/features/guardians/components/GuardianAccountTag';
 import { GuardianChildrenTable } from '@/features/guardians/components/GuardianChildrenTable';
 import { GuardianFormDrawer } from '@/features/guardians/components/GuardianFormDrawer';
@@ -22,7 +21,6 @@ export function GuardianDetailDrawer({ guardianId, onClose }: GuardianDetailDraw
   const detail = GuardiansService.useDetail(guardianId);
   const createAccount = GuardiansService.useCreateFamilyAccount();
   const [editing, setEditing] = useState(false);
-  const [converting, setConverting] = useState(false);
   const g = detail.data;
 
   const handleCreateAccount = async () => {
@@ -69,9 +67,6 @@ export function GuardianDetailDrawer({ guardianId, onClose }: GuardianDetailDraw
                 </Tooltip>
               </Popconfirm>
             )}
-            <Button type="primary" icon={<SwapOutlined />} onClick={() => setConverting(true)}>
-              {t.guardians.convert}
-            </Button>
           </Flex>
         )
       }
@@ -101,7 +96,6 @@ export function GuardianDetailDrawer({ guardianId, onClose }: GuardianDetailDraw
         </Flex>
       )}
       <GuardianFormDrawer open={editing} guardian={g} onClose={() => setEditing(false)} />
-      {converting && g && <ConvertFamilyModal key={g.id} guardian={g} onClose={() => setConverting(false)} />}
     </Drawer>
   );
 }

@@ -1,8 +1,6 @@
-import { App, Button, Divider, Drawer, Flex, Form, Input, Select, Typography } from 'antd';
+import { App, Button, Drawer, Flex, Form, Input, Select, Typography } from 'antd';
 import {
   EnglishName,
-  Email,
-  ParentContact,
   UpdateStudentBody,
   VietnameseName,
   type UserStatus,
@@ -25,19 +23,11 @@ import {
   zodRule,
 } from '@/shared/utils/zodForm';
 
-interface ParentValues {
-  name?: string;
-  email?: string;
-  phone?: string;
-}
-
 interface StudentFormValues {
   vietnameseName: string;
   englishName?: string;
   avatarKey: AvatarKey;
-  email?: string;
   status?: UserStatus;
-  parent?: ParentValues;
   notes?: string;
 }
 
@@ -47,14 +37,7 @@ interface StudentFormDrawerProps {
   onClose: () => void;
 }
 
-/** Phụ huynh: mọi trường trống → null (xoá liên hệ) */
-function normalizeParent(parent: ParentValues | undefined): ParentContact | null {
-  if (!parent) return null;
-  const cleaned = stripEmpty({ ...parent }) as ParentContact;
-  return Object.values(cleaned).some((v) => v !== undefined) ? cleaned : null;
-}
-
-/** Sửa học sinh: ADMIN mọi trường; giáo viên (students.edit) chỉ tên + avatar */
+/** Sửa học sinh: ADMIN mọi trường; giáo viên (students.edit) chỉ tên + avatar. Phụ huynh sửa ở thẻ Phụ huynh */
 export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerProps) {
   const { message } = App.useApp();
   const auth = useAuth();
@@ -69,15 +52,13 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
       vietnameseName: student.vietnameseName,
       englishName: student.englishName ?? undefined,
       avatarKey: student.avatarKey,
-      email: student.email ?? undefined,
       status: student.status,
-      parent: student.parent ?? {},
       notes: student.notes ?? undefined,
     });
   }, [open, student, form]);
 
   const handleFinish = async (raw: StudentFormValues) => {
-    const values = stripEmpty({ ...raw, parent: undefined }) as StudentFormValues;
+    const values = stripEmpty({ ...raw });
     const next: Record<string, unknown> = {
       vietnameseName: values.vietnameseName,
       // Ô trống = xoá tên tiếng Anh (null), không phải "không đổi"
@@ -90,18 +71,8 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
       avatarKey: student.avatarKey,
     };
     if (full) {
-      Object.assign(next, {
-        email: values.email,
-        status: values.status,
-        parent: normalizeParent(raw.parent),
-        notes: values.notes ?? null,
-      });
-      Object.assign(original, {
-        email: student.email,
-        status: student.status,
-        parent: student.parent,
-        notes: student.notes,
-      });
+      Object.assign(next, { status: values.status, notes: values.notes ?? null });
+      Object.assign(original, { status: student.status, notes: student.notes });
     }
     const diff = diffValues(original, next);
     if (Object.keys(diff).length === 0) return void message.info(t.common.noChanges);
@@ -154,18 +125,6 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
         </Form.Item>
         {full && (
           <>
-            <Form.Item
-              name="email"
-              label={t.common.email}
-              extra={student.isManaged ? t.students.emailManagedHint : undefined}
-              rules={[
-                // Bé vào qua tài khoản phụ huynh: email để trống (nhập = cho bé tự đăng nhập)
-                { required: !student.isManaged, message: t.common.requiredField },
-                zodRule(Email),
-              ]}
-            >
-              <Input />
-            </Form.Item>
             <Form.Item name="status" label={t.common.status}>
               <Select
                 // Chờ duyệt / bị từ chối: đổi qua màn Duyệt tài khoản
@@ -173,25 +132,6 @@ export function StudentFormDrawer({ open, student, onClose }: StudentFormDrawerP
                 options={EDITABLE_STATUSES.map((s) => ({ value: s, label: t.userStatus[s] }))}
               />
             </Form.Item>
-            <Divider plain>{t.students.parent}</Divider>
-            <Form.Item
-              name={['parent', 'name']}
-              label={t.students.parentName}
-              rules={[zodRule(ParentContact.shape.name)]}
-            >
-              <Input maxLength={60} />
-            </Form.Item>
-            <Form.Item name={['parent', 'email']} label={t.students.parentEmail} rules={[zodRule(Email)]}>
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name={['parent', 'phone']}
-              label={t.students.parentPhone}
-              rules={[zodRule(ParentContact.shape.phone)]}
-            >
-              <Input maxLength={20} />
-            </Form.Item>
-            <Divider plain />
             <Form.Item name="notes" label={t.students.notes}>
               <Input.TextArea rows={3} maxLength={1000} showCount />
             </Form.Item>

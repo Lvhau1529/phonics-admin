@@ -3,14 +3,11 @@
  * contracts, trả DTO đúng như BE.
  */
 import {
-  ConvertPreview,
-  ConvertResult,
   ENDPOINTS,
   FamilyAccountResponse,
   GuardianSummary,
   paginated,
   StudentGuardiansResponse,
-  type ConvertFamilyBody,
   type CreateGuardianBody,
   type SetStudentGuardiansBody,
   type UpdateGuardianBody,
@@ -31,14 +28,6 @@ export const guardiansRepository = {
       method: HttpMethod.POST,
       schema: FamilyAccountResponse,
     }),
-  convertPreview: (id: string, body: ConvertFamilyBody) =>
-    request(ENDPOINTS.guardians.convertPreview(id), {
-      method: HttpMethod.POST,
-      body,
-      schema: ConvertPreview,
-    }),
-  convert: (id: string, body: ConvertFamilyBody) =>
-    request(ENDPOINTS.guardians.convert(id), { method: HttpMethod.POST, body, schema: ConvertResult }),
   setStudentGuardians: (studentId: string, body: SetStudentGuardiansBody) =>
     request(ENDPOINTS.students.guardians(studentId), {
       method: HttpMethod.PUT,

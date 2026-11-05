@@ -18,7 +18,7 @@ type StudentSearchSelectProps = Omit<
   initialOptions?: StudentOption[];
 };
 
-/** Chọn nhiều học sinh ở mọi lớp, tìm phía server (tên / email); giữ nhãn các học sinh đã chọn khi đổi từ khoá */
+/** Chọn nhiều học sinh ở mọi lớp, tìm phía server (tên); giữ nhãn các học sinh đã chọn khi đổi từ khoá */
 export function StudentSearchSelect({ initialOptions = [], onChange, ...props }: StudentSearchSelectProps) {
   const [search, setSearch] = useState('');
   const q = useDebouncedValue(search.trim());
@@ -27,7 +27,7 @@ export function StudentSearchSelect({ initialOptions = [], onChange, ...props }:
 
   const found: StudentOption[] = (data ?? []).map((s) => ({
     value: s.id,
-    label: s.email ? `${s.fullName} · ${s.email}` : s.fullName,
+    label: s.fullName,
   }));
   const options = [...found, ...known.filter((k) => !found.some((f) => f.value === k.value))];
 

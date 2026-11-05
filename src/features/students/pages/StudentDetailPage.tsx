@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, KeyOutlined, SwapOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Card, Descriptions, Flex, Select, Skeleton, Space, Statistic, Tabs, Typography } from 'antd';
 import { PointKind, type GameId } from '@phonics/contracts';
 import { useState } from 'react';
@@ -15,7 +15,6 @@ import { GameSelect } from '@/features/games/components/GameSelect';
 import { StudentGuardiansCard } from '@/features/guardians/components/StudentGuardiansCard';
 import { PointsTable } from '@/features/points/components/PointsTable';
 import { MoveClassModal } from '@/features/students/components/MoveClassModal';
-import { ResetPasswordModal } from '@/features/students/components/ResetPasswordModal';
 import { StudentFormDrawer } from '@/features/students/components/StudentFormDrawer';
 import { StudentGamesTab } from '@/features/students/components/StudentGamesTab';
 import { StudentPointsByGame } from '@/features/students/components/StudentPointsByGame';
@@ -82,7 +81,6 @@ export function StudentDetailPage() {
   const student = StudentsService.useDetail(id);
   const [editOpen, setEditOpen] = useState(false);
   const [moving, setMoving] = useState<StudentDetailModel>();
-  const [resetting, setResetting] = useState<StudentDetailModel>();
   const [deleting, setDeleting] = useState<DeleteTarget>();
   const navigate = useNavigate();
   const tab = (searchParams.get('tab') as TabKey | null) ?? 'by-game';
@@ -107,7 +105,7 @@ export function StudentDetailPage() {
         }
         documentTitle={`${t.students.title}: ${s.fullName}`}
         backTo={ROUTES.students}
-        subtitle={s.email ?? s.loginModeLabel}
+        subtitle={s.classLabel ?? t.students.noClass}
         extra={
           <>
             {canEdit && (
@@ -118,11 +116,6 @@ export function StudentDetailPage() {
             {canMove && (
               <Button icon={<SwapOutlined />} onClick={() => setMoving(s)}>
                 {t.students.moveClass}
-              </Button>
-            )}
-            {auth.isAdmin && (
-              <Button icon={<KeyOutlined />} onClick={() => setResetting(s)}>
-                {t.students.resetPassword}
               </Button>
             )}
             {auth.isAdmin && (
@@ -158,14 +151,8 @@ export function StudentDetailPage() {
           <Descriptions.Item label={t.students.joinedAt}>
             {formatDateTime(s.class?.joinedAt)}
           </Descriptions.Item>
-          <Descriptions.Item label={t.common.lastLogin}>{s.lastLoginText}</Descriptions.Item>
+          <Descriptions.Item label={t.students.lastOpened}>{s.lastLoginText}</Descriptions.Item>
           <Descriptions.Item label={t.common.createdAt}>{formatDateTime(s.createdAt)}</Descriptions.Item>
-          {/* Có danh sách phụ huynh thì thẻ Phụ huynh bên dưới thay cho dòng liên hệ dạng cũ */}
-          {s.parent && !s.guardians && (
-            <Descriptions.Item label={t.students.parent}>
-              {s.parentContactText || t.common.none}
-            </Descriptions.Item>
-          )}
           {auth.isAdmin && (
             <Descriptions.Item label={t.students.notes} span={3}>
               <Typography.Text type={s.notes ? undefined : 'secondary'}>
@@ -205,7 +192,6 @@ export function StudentDetailPage() {
 
       <StudentFormDrawer open={editOpen} student={s} onClose={() => setEditOpen(false)} />
       <MoveClassModal student={moving} onClose={() => setMoving(undefined)} />
-      <ResetPasswordModal student={resetting} onClose={() => setResetting(undefined)} />
       <DeleteAccountModal
         target={deleting}
         onClose={() => setDeleting(undefined)}

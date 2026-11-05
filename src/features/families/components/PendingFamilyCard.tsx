@@ -94,7 +94,7 @@ export function PendingFamilyCard({ family }: { family: PendingFamilyModel }) {
       title={
         <Space wrap>
           <Typography.Text strong>{family.title}</Typography.Text>
-          {family.parent && <StatusTag status={family.parent.status} />}
+          <StatusTag status={family.parent.status} />
         </Space>
       }
       extra={<Typography.Text type="secondary">{family.createdAtText}</Typography.Text>}
