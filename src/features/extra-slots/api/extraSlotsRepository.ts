@@ -10,6 +10,7 @@ import {
   ExtraRatesResponse,
   ExtraSlot,
   ExtraSlotsResponse,
+  type SetSlotTeachersBody,
   SlotAssignment,
   SlotStudentsResponse,
   StudentExtraResponse,
@@ -31,10 +32,10 @@ export const extraSlotsRepository = {
     request(ENDPOINTS.extraSlots.list, { method: HttpMethod.POST, body, schema: ExtraSlot }),
   update: (id: string, body: UpdateExtraSlotBody) =>
     request(ENDPOINTS.extraSlots.detail(id), { method: HttpMethod.PATCH, body, schema: ExtraSlot }),
-  setTeachers: (id: string, teacherIds: string[]) =>
+  setTeachers: (id: string, body: SetSlotTeachersBody) =>
     request(ENDPOINTS.extraSlots.teachers(id), {
       method: HttpMethod.PUT,
-      body: { teacherIds },
+      body,
       schema: ExtraSlot,
     }),
   students: (id: string, date: string) =>

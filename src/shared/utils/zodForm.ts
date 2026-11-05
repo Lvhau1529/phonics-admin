@@ -57,6 +57,14 @@ export function parseForm<T>(schema: ZodType<T>, values: unknown): ParseResult<T
   return { success: false, ...groupIssues(result.error) };
 }
 
+/**
+ * Câu lỗi đầu tiên của một lần parse thất bại — cho form không có ô nhập tương ứng (chọn danh sách, nút bấm…) nên
+ * báo bằng `message.error` thay vì `applyFieldErrors`.
+ */
+export function firstParseError(result: { fieldErrors: FieldErrors; formErrors: string[] }): string {
+  return result.formErrors[0] ?? Object.values(result.fieldErrors).flat()[0] ?? t.common.invalidValue;
+}
+
 /** `entries.0.points` → ['entries', 0, 'points'] (Form.List dùng chỉ số số) */
 const toNamePath = (path: string): (string | number)[] =>
   path.split('.').map((seg) => (/^\d+$/.test(seg) ? Number(seg) : seg));

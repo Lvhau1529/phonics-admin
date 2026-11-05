@@ -5,7 +5,7 @@
  */
 import { useSyncExternalStore } from 'react';
 import { THEME_STORAGE_KEY } from '@/shared/config';
-import { ThemeMode } from '@/shared/theme/theme';
+import { THEME_COLORS, ThemeMode } from '@/shared/theme/theme';
 
 export const DEFAULT_THEME: ThemeMode = ThemeMode.DARK;
 
@@ -34,8 +34,13 @@ let current: ThemeMode = readStorage();
 
 function applyDom(mode: ThemeMode): void {
   if (typeof document === 'undefined') return;
-  document.documentElement.dataset.theme = mode;
-  document.documentElement.style.colorScheme = mode;
+  const root = document.documentElement;
+  const bg = THEME_COLORS[mode].bgLayout;
+  root.dataset.theme = mode;
+  root.style.colorScheme = mode;
+  // Nền <html> (đoạn script đầu index.html đặt lúc tải) + thanh trình duyệt mobile theo theme
+  root.style.background = bg;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
 }
 
 export const getThemeMode = (): ThemeMode => current;

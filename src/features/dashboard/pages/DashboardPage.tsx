@@ -45,25 +45,21 @@ export function DashboardPage() {
       <OverviewCards data={overview.data} loading={overview.isLoading} />
       {auth.can('worksheets.viewStats') && <DashboardWorksheetCards />}
 
-      <Card
-        style={{ marginTop: 16 }}
-        title={t.dashboard.classSection}
-        extra={
-          <Flex gap={8} wrap>
-            <ClassSelect value={classId} onChange={setClassId} allowClear={false} size="small" />
-            <RangePicker value={range} onChange={setRange} size="small" />
-            <Segmented<Bucket>
-              size="small"
-              value={bucket}
-              onChange={setBucket}
-              options={[
-                { value: 'day', label: t.common.bucketDay },
-                { value: 'week', label: t.common.bucketWeek },
-              ]}
-            />
-          </Flex>
-        }
-      >
+      <Card style={{ marginTop: 16 }} title={t.dashboard.classSection}>
+        {/* Bộ lọc nằm trong thân thẻ: `extra` của Card không xuống dòng → tràn / che tiêu đề trên mobile */}
+        <Flex gap={8} wrap style={{ marginBottom: 16 }}>
+          <ClassSelect value={classId} onChange={setClassId} allowClear={false} size="small" />
+          <RangePicker value={range} onChange={setRange} size="small" />
+          <Segmented<Bucket>
+            size="small"
+            value={bucket}
+            onChange={setBucket}
+            options={[
+              { value: 'day', label: t.common.bucketDay },
+              { value: 'week', label: t.common.bucketWeek },
+            ]}
+          />
+        </Flex>
         {!classId ? (
           <Typography.Text type="secondary">{t.common.selectClassFirst}</Typography.Text>
         ) : (

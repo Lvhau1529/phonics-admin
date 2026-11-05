@@ -137,12 +137,12 @@ export function CreateStudentsDrawer({ open, onClose, classId, slotId }: CreateS
                     )
                   }
                 >
-                  <Flex gap={12}>
+                  <Flex gap={12} wrap>
                     <Form.Item
                       name={[field.name, 'vietnameseName']}
                       label={t.students.vietnameseName}
                       rules={[{ required: true, message: t.common.requiredField }, zodRule(VietnameseName)]}
-                      style={{ flex: 1 }}
+                      style={{ flex: '1 1 200px' }}
                     >
                       <Input maxLength={30} />
                     </Form.Item>
@@ -150,7 +150,7 @@ export function CreateStudentsDrawer({ open, onClose, classId, slotId }: CreateS
                       name={[field.name, 'englishName']}
                       label={t.students.englishName}
                       rules={[zodRule(EnglishName)]}
-                      style={{ flex: 1 }}
+                      style={{ flex: '1 1 200px' }}
                     >
                       <Input maxLength={30} />
                     </Form.Item>
@@ -158,8 +158,12 @@ export function CreateStudentsDrawer({ open, onClose, classId, slotId }: CreateS
                   <Form.Item name={[field.name, 'classId']} label={t.students.mainClass}>
                     <ClassSelect style={{ width: '100%' }} />
                   </Form.Item>
-                  <Flex gap={12}>
-                    <Form.Item name={[field.name, 'slotId']} label={t.students.extraSlot} style={{ flex: 1 }}>
+                  <Flex gap={12} wrap>
+                    <Form.Item
+                      name={[field.name, 'slotId']}
+                      label={t.students.extraSlot}
+                      style={{ flex: '1 1 200px' }}
+                    >
                       <ExtraSlotSelect style={{ width: '100%' }} />
                     </Form.Item>
                     {canPrice && (
@@ -168,7 +172,7 @@ export function CreateStudentsDrawer({ open, onClose, classId, slotId }: CreateS
                         label={t.students.pricePerSession}
                         tooltip={t.students.pricePerSessionHint}
                         rules={[zodRule(PricePerSession)]}
-                        style={{ flex: 1 }}
+                        style={{ flex: '1 1 200px' }}
                       >
                         <PriceInput />
                       </Form.Item>

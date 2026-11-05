@@ -5,6 +5,7 @@ import {
   Card,
   Col,
   Collapse,
+  Flex,
   Form,
   Input,
   InputNumber,
@@ -131,12 +132,12 @@ export function TuitionSettingsPage() {
                 />
               </Form.Item>
               <Row gutter={12}>
-                <Col span={16}>
+                <Col xs={24} sm={16}>
                   <Form.Item name="bankName" label={t.tuitionSettings.bankName}>
                     <Input maxLength={60} />
                   </Form.Item>
                 </Col>
-                <Col span={8}>
+                <Col xs={24} sm={8}>
                   <Form.Item
                     name="bankBin"
                     label={t.tuitionSettings.bankBin}
@@ -188,9 +189,14 @@ export function TuitionSettingsPage() {
               items={[
                 {
                   key: EXTRA_PANEL,
-                  label: t.tuitionSettings.extraSection,
-                  extra: (
-                    <Typography.Text type="secondary">{t.tuitionSettings.extraSectionHint}</Typography.Text>
+                  // Gợi ý nằm dưới tiêu đề (không đặt ở `extra`): `extra` chung hàng với tiêu đề nên bị dồn chữ trên mobile
+                  label: (
+                    <Flex vertical gap={2}>
+                      <span>{t.tuitionSettings.extraSection}</span>
+                      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                        {t.tuitionSettings.extraSectionHint}
+                      </Typography.Text>
+                    </Flex>
                   ),
                   // Ô trong panel đóng vẫn phải đăng ký với Form để không mất giá trị khi lưu
                   forceRender: true,

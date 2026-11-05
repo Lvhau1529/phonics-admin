@@ -12,7 +12,6 @@ import {
   Typography,
   theme,
 } from 'antd';
-import { Link } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { QuestionTypeTag } from '@/features/questions/components/QuestionTypeTag';
 import type { ComposerAction, DraftItem, DraftSection } from '@/features/worksheets/composerReducer';
@@ -95,9 +94,14 @@ function ItemCard({
         />
       )}
       <Tooltip title={t.worksheets.openQuestion}>
-        <Link to={ROUTES.questionDetail(q.id)} target="_blank">
-          <Button type="text" icon={<LinkOutlined />} />
-        </Link>
+        {/* Button href (thẻ <a> duy nhất) thay vì <Button> lồng trong <Link> — tránh phần tử tương tác lồng nhau */}
+        <Button
+          type="text"
+          icon={<LinkOutlined />}
+          href={ROUTES.questionDetail(q.id)}
+          target="_blank"
+          aria-label={t.worksheets.openQuestion}
+        />
       </Tooltip>
       {!readOnly && (
         <Tooltip title={t.worksheets.removeItem}>

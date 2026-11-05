@@ -98,6 +98,9 @@ async function loadMe(): Promise<void> {
   persist(me.user);
 }
 
+/** Chờ trước mỗi lần thử lại khôi phục phiên khi gặp lỗi tạm thời */
+const BOOTSTRAP_RETRY_MS = [1000, 3000] as const;
+
 let bootstrapPromise: Promise<void> | null = null;
 
 /** Khôi phục phiên từ localStorage lúc khởi động (gọi một lần ở providers) */
@@ -110,11 +113,19 @@ export function bootstrapAuth(): Promise<void> {
       return;
     }
     setSession({ accessToken: null, refreshToken: stored.refreshToken });
-    try {
-      await refreshSession();
-      await loadMe();
-    } catch {
-      signedOut();
+    for (let attempt = 0; ; attempt++) {
+      try {
+        await refreshSession();
+        await loadMe();
+        return;
+      } catch (error) {
+        // Chỉ bỏ phiên khi server từ chối token (401 / 403). Lỗi tạm thời (mạng, 429, 5xx) → thử lại vài lần; vẫn
+        // lỗi thì về màn đăng nhập nhưng GIỮ refresh token đã lưu để lần tải trang sau tự khôi phục.
+        const rejected = isApiError(error) && (error.status === 401 || error.status === 403);
+        if (rejected) return signedOut();
+        if (attempt >= BOOTSTRAP_RETRY_MS.length) return setState(ANONYMOUS);
+        await new Promise((resolve) => setTimeout(resolve, BOOTSTRAP_RETRY_MS[attempt]));
+      }
     }
   })();
   return bootstrapPromise;
@@ -174,9 +185,6 @@ export function setCurrentUser(user: UserModel): void {
   setState({ ...state, user });
   persist(user);
 }
-
-/** Nạp lại quyền (sau khi admin đổi quyền của chính mình...) */
-export const reloadMe = loadMe;
 
 const subscribe = (listener: () => void) => {
   listeners.add(listener);

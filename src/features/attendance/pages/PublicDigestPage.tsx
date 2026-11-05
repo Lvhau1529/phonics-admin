@@ -7,10 +7,7 @@ import { ROUTES } from '@/app/routes';
 import { AttendanceService } from '@/features/attendance/api/attendanceService';
 import { AttendanceStatusTag } from '@/features/attendance/components/AttendanceStatusTag';
 import { ReportOffModal } from '@/features/attendance/components/ReportOffModal';
-import {
-  sessionDateText,
-  type DigestSessionModel,
-} from '@/features/attendance/models/AttendanceSessionModel';
+import { type DigestSessionModel } from '@/features/attendance/models/AttendanceSessionModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { THEME_COLORS } from '@/shared/theme/theme';
@@ -18,7 +15,7 @@ import { useThemeMode } from '@/shared/theme/themeStore';
 import { BrandMark } from '@/shared/ui/BrandMark';
 import { LangSwitch } from '@/shared/ui/LangSwitch';
 import { ThemeSwitch } from '@/shared/ui/ThemeSwitch';
-import { formatDateTime } from '@/shared/utils/format';
+import { formatDateTime, sessionDateText } from '@/shared/utils/format';
 
 interface Outcome {
   ok: boolean;

@@ -1,5 +1,5 @@
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Flex, Input, Select, Typography, theme } from 'antd';
+import { Button, Flex, Select, Typography, theme } from 'antd';
 import type { ReactNode } from 'react';
 import { MediaUpload } from '@/features/media/components/MediaUpload';
 import { DragHandle, SortableList } from '@/shared/ui/SortableList';
@@ -152,6 +152,7 @@ export function SortableRows<T extends { id: string }>({
                 type="text"
                 danger
                 icon={<DeleteOutlined />}
+                aria-label={t.common.delete}
                 disabled={disabled || items.length <= min}
                 onClick={() => onChange(items.filter((_, i) => i !== index))}
               />
@@ -170,5 +171,3 @@ export function SortableRows<T extends { id: string }>({
     </Flex>
   );
 }
-
-export const TextInput = Input;

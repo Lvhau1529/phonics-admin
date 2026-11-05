@@ -149,18 +149,18 @@ function BonusPointsForm({ classId, onClose, studentId, initialMode = 'single' }
             {(fields, { add, remove }) => (
               <Flex vertical gap={4}>
                 {fields.map((field, index) => (
-                  <Flex key={field.key} gap={8} align="flex-start">
+                  <Flex key={field.key} gap={8} align="flex-start" wrap>
                     <Form.Item
                       name={[field.name, 'studentId']}
                       rules={[{ required: true, message: t.common.requiredField }]}
-                      style={{ flex: 2, marginBottom: 8 }}
+                      style={{ flex: '2 1 200px', marginBottom: 8 }}
                     >
                       <StudentSelect classId={classId} style={{ width: '100%' }} />
                     </Form.Item>
                     <Form.Item
                       name={[field.name, 'points']}
                       rules={[{ required: true, message: t.common.requiredField }, pointsRule]}
-                      style={{ width: 100, marginBottom: 8 }}
+                      style={{ flex: '0 0 100px', marginBottom: 8 }}
                     >
                       <InputNumber
                         min={canRevoke ? -100 : 1}
@@ -173,17 +173,18 @@ function BonusPointsForm({ classId, onClose, studentId, initialMode = 'single' }
                     <Form.Item
                       name={[field.name, 'note']}
                       rules={[{ required: true, message: t.common.requiredField }]}
-                      style={{ flex: 2, marginBottom: 8 }}
+                      style={{ flex: '2 1 180px', marginBottom: 8 }}
                     >
                       <Input maxLength={200} placeholder={t.classes.bonusNote} />
                     </Form.Item>
-                    <Form.Item name={[field.name, 'gameId']} style={{ flex: 1, marginBottom: 8 }}>
+                    <Form.Item name={[field.name, 'gameId']} style={{ flex: '1 1 160px', marginBottom: 8 }}>
                       <GameSelect style={{ width: '100%' }} />
                     </Form.Item>
                     <Button
                       type="text"
                       danger
                       icon={<DeleteOutlined />}
+                      aria-label={t.common.delete}
                       disabled={fields.length === 1}
                       onClick={() => remove(index)}
                     />

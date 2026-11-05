@@ -66,6 +66,7 @@ export const en = {
 
   common: {
     actions: 'Actions',
+    dragToReorder: 'Drag to reorder',
     add: 'Add',
     create: 'Create',
     edit: 'Edit',

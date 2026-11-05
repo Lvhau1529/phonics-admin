@@ -7,6 +7,22 @@
     <meta name="robots" content="noindex" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Phonics Arcade — Quản trị</title>
+    <!--
+      Gắn theme trước khi JS app tải: không có đoạn này trang dark mode nhá nền trắng lúc tải lại. Khoá / màu phải
+      khớp THEME_STORAGE_KEY (shared/config.ts) và THEME_COLORS.*.bgLayout (shared/theme/theme.ts).
+    -->
+    <script>
+      (function () {
+        var mode = 'dark';
+        try {
+          if (localStorage.getItem('phonics-admin:theme') === 'light') mode = 'light';
+        } catch (e) {}
+        var root = document.documentElement;
+        root.dataset.theme = mode;
+        root.style.colorScheme = mode;
+        root.style.background = mode === 'light' ? '#f4f4f5' : '#09090b';
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

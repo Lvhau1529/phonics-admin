@@ -68,6 +68,7 @@ export const vi = {
 
   common: {
     actions: 'Thao tác',
+    dragToReorder: 'Kéo để sắp xếp',
     add: 'Thêm',
     create: 'Tạo mới',
     edit: 'Sửa',

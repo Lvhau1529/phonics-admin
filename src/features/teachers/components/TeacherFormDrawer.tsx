@@ -27,6 +27,7 @@ import {
   stripEmpty,
   zodRule,
 } from '@/shared/utils/zodForm';
+import { sameIds } from '@/shared/utils/ids';
 
 interface TeacherFormValues {
   email: string;
@@ -45,9 +46,6 @@ interface TeacherFormDrawerProps {
   teacher?: TeacherModel;
   onClose: () => void;
 }
-
-const sameIds = (a: readonly string[], b: readonly string[]): boolean =>
-  a.length === b.length && a.every((id) => b.includes(id));
 
 /**
  * Tạo / sửa giáo viên. Mật khẩu để trống = đăng nhập Google (tạo) hoặc giữ nguyên (sửa).
