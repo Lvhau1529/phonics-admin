@@ -12,11 +12,11 @@ interface StudentGuardiansCardProps {
   guardians: StudentGuardianModel[];
 }
 
-/** Thẻ Phụ huynh ở trang chi tiết học sinh; admin có `guardians.manage` sửa được liên kết */
+/** Thẻ Phụ huynh ở trang chi tiết học sinh; chỉ admin sửa được liên kết */
 export function StudentGuardiansCard({ studentId, guardians }: StudentGuardiansCardProps) {
   const auth = useAuth();
   const [editing, setEditing] = useState(false);
-  const canManage = auth.isAdmin && auth.can('guardians.manage');
+  const canManage = auth.isAdmin;
 
   return (
     <Card

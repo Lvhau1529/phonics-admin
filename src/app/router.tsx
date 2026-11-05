@@ -115,9 +115,7 @@ export const routes: RouteObject[] = [
               path: 'tuition/settings',
               lazy: page(() => import('@/features/tuition/pages/TuitionSettingsPage')),
             },
-            withPermission('guardians.manage', [
-              { path: 'guardians', lazy: page(() => import('@/features/guardians/pages/GuardiansPage')) },
-            ]),
+            { path: 'guardians', lazy: page(() => import('@/features/guardians/pages/GuardiansPage')) },
           ]),
           { path: '*', element: <NotFoundPage /> },
         ],
