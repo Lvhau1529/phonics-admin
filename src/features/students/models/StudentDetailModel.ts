@@ -1,4 +1,4 @@
-import type { ParentContact, StudentDetail } from '@phonics/contracts';
+import { formatPhone, type ParentContact, type StudentDetail } from '@phonics/contracts';
 import { StudentGuardianModel } from '@/features/guardians/models/GuardianModel';
 import { StudentModel } from '@/features/students/models/StudentModel';
 
@@ -23,6 +23,6 @@ export class StudentDetailModel extends StudentModel {
   /** "Tên · email · SĐT" (bỏ phần trống); chuỗi rỗng khi không có gì */
   get parentContactText(): string {
     if (!this.parent) return '';
-    return [this.parent.name, this.parent.email, this.parent.phone].filter(Boolean).join(' · ');
+    return [this.parent.name, this.parent.email, formatPhone(this.parent.phone)].filter(Boolean).join(' · ');
   }
 }

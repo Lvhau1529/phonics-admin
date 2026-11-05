@@ -14,7 +14,8 @@ import { PermissionsService } from '@/features/permissions/api/permissionsServic
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
-import { issueMessage } from '@/shared/i18n/zodLocale';
+import { sameIds } from '@/shared/utils/ids';
+import { firstParseError, parseForm } from '@/shared/utils/zodForm';
 import { DataTable } from '@/shared/ui/DataTable';
 import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 import { formatDateTime } from '@/shared/utils/format';
@@ -88,17 +89,12 @@ export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabP
 
   const serverGroupIds = useMemo(() => userPerms.data?.groupIds ?? [], [userPerms.data]);
   const groupIds = groupDraft ?? serverGroupIds;
-  const groupsChanged =
-    groupDraft !== null &&
-    (groupDraft.length !== serverGroupIds.length || groupDraft.some((id) => !serverGroupIds.includes(id)));
+  const groupsChanged = groupDraft !== null && !sameIds(groupDraft, serverGroupIds);
 
   const handleSaveGroups = async () => {
     if (!userId || groupDraft === null) return;
-    const parsed = SetUserPermissionGroupsBody.safeParse({ groupIds: groupDraft });
-    if (!parsed.success)
-      return void message.error(
-        parsed.error.issues[0] ? issueMessage(parsed.error.issues[0]) : t.common.invalidValue,
-      );
+    const parsed = parseForm(SetUserPermissionGroupsBody, { groupIds: groupDraft });
+    if (!parsed.success) return void message.error(firstParseError(parsed));
     try {
       await setGroups.mutateAsync({ userId, body: parsed.data });
       setGroupDraft(null);
@@ -116,11 +112,8 @@ export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabP
       reset: changed.filter((c) => draft[c] === 'default'),
       note: note.trim() || undefined,
     };
-    const parsed = UpdateUserPermissionsBody.safeParse(body);
-    if (!parsed.success)
-      return void message.error(
-        parsed.error.issues[0] ? issueMessage(parsed.error.issues[0]) : t.common.invalidValue,
-      );
+    const parsed = parseForm(UpdateUserPermissionsBody, body);
+    if (!parsed.success) return void message.error(firstParseError(parsed));
     try {
       await update.mutateAsync({ userId, body: parsed.data });
       setDraft({});
@@ -209,7 +202,7 @@ export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabP
           value={userId}
           onChange={(v) => selectUser(v as string | undefined)}
           placeholder={t.permissions.pickTeacher}
-          style={{ minWidth: 320 }}
+          style={{ width: '100%', maxWidth: 360 }}
         />
         <Typography.Text type="secondary">{t.permissions.legend}</Typography.Text>
       </Flex>
@@ -228,7 +221,7 @@ export function UserPermissionsTab({ userId, onUserChange }: UserPermissionsTabP
                 value={groupIds}
                 onChange={(ids) => setGroupDraft(ids)}
                 disabled={!userPerms.data}
-                style={{ minWidth: 320, flex: '1 1 320px', maxWidth: 560 }}
+                style={{ flex: '1 1 240px', maxWidth: 560 }}
               />
               <Button
                 type="primary"

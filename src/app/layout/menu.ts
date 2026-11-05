@@ -54,7 +54,6 @@ export const MENU: readonly MenuEntry[] = [
     labelKey: 'guardians',
     icon: 'guardian',
     roles: ['ADMIN'],
-    permission: 'guardians.manage',
   },
   { key: 'extraSlots', path: ROUTES.extraSlots, labelKey: 'extraSlots', icon: 'extra' },
   {

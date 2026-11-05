@@ -1,13 +1,10 @@
 import { App, Typography } from 'antd';
 import type { AffectedRecord, AffectedSession } from '@phonics/contracts';
-import {
-  affectedDelta,
-  sessionDateText,
-  signedMoney,
-} from '@/features/attendance/models/AttendanceSessionModel';
+import { affectedDelta } from '@/features/attendance/models/AttendanceSessionModel';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
+import { sessionDateText, signedMoney } from '@/shared/utils/format';
 
 /** Số dòng liệt kê trong hộp thoại; còn lại gom thành "và N buổi khác" */
 const LIST_LIMIT = 8;

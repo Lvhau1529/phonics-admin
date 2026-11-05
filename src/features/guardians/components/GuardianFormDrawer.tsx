@@ -4,6 +4,7 @@ import {
   Email,
   GuardianName,
   GuardianNote,
+  formatPhone,
   Phone,
   UpdateGuardianBody,
 } from '@phonics/contracts';
@@ -51,7 +52,7 @@ export function GuardianFormDrawer({ open, guardian, onClose, onSaved }: Guardia
       form.setFieldsValue({
         fullName: guardian.fullName,
         email: guardian.email ?? undefined,
-        phone: guardian.phone ?? undefined,
+        phone: guardian.phone ? formatPhone(guardian.phone) : undefined,
         note: guardian.note ?? undefined,
       });
   }, [open, guardian, form]);
@@ -62,7 +63,13 @@ export function GuardianFormDrawer({ open, guardian, onClose, onSaved }: Guardia
       let saved: GuardianModel;
       if (guardian) {
         const diff = diffValues(
-          { fullName: guardian.fullName, email: guardian.email, phone: guardian.phone, note: guardian.note },
+          {
+            fullName: guardian.fullName,
+            email: guardian.email,
+            // So với đúng dạng đang hiện trong ô (0912 345 678) để không gửi lại SĐT khi không sửa
+            phone: guardian.phone ? formatPhone(guardian.phone) : null,
+            note: guardian.note,
+          },
           {
             fullName: values.fullName,
             email: values.email ?? null,

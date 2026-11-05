@@ -12,15 +12,13 @@ import { StudentSearchSelect } from '@/features/students/components/StudentSearc
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { parseForm } from '@/shared/utils/zodForm';
+import { sameIds } from '@/shared/utils/ids';
 
 interface ConvertFamilyModalProps {
   /** Mở modal khi có phụ huynh; đặt `key` theo id để mỗi lần mở là trạng thái mới */
   guardian: GuardianModel | undefined;
   onClose: () => void;
 }
-
-const sameIds = (a: readonly string[], b: readonly string[]): boolean =>
-  a.length === b.length && a.every((id) => b.includes(id));
 
 /**
  * Chuyển học sinh đang tự đăng nhập sang tài khoản gia đình: chọn học sinh → Xem trước (chế độ tài khoản, học sinh
@@ -143,6 +141,7 @@ export function ConvertFamilyModal({ guardian, onClose }: ConvertFamilyModalProp
             ))}
             <Table<ConvertPreviewStudent>
               size="small"
+              scroll={{ x: 'max-content' }}
               rowKey="studentId"
               pagination={false}
               columns={columns}

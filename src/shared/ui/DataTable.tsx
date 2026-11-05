@@ -149,6 +149,8 @@ function StaticTable<T extends object>({
   return (
     <Table<T>
       size="middle"
+      // Cuộn ngang trên màn hẹp thay vì bóp cột (ghi đè được qua prop `scroll`)
+      scroll={{ x: 'max-content' }}
       {...rest}
       rowKey={skeleton ? 'id' : rowKey}
       loading={tableLoading}

@@ -119,6 +119,7 @@ export function PendingFamilyCard({ family }: { family: PendingFamilyModel }) {
         )}
         <Table<PendingChildModel>
           size="small"
+          scroll={{ x: 'max-content' }}
           rowKey="studentId"
           pagination={false}
           columns={columns}

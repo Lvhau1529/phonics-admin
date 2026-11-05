@@ -1,5 +1,5 @@
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Divider, Flex, Form, Input, Typography } from 'antd';
+import { Alert, Button, Card, Divider, Flex, Form, Grid, Input, Typography } from 'antd';
 import { Email, LoginBody } from '@phonics/contracts';
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
@@ -32,6 +32,9 @@ export function LoginPage() {
   const [pending, setPending] = useState<string | null>(null);
   const mode = useThemeMode();
   const colors = THEME_COLORS[mode];
+  // Mobile: thu padding thẻ để ô nhập / nút Google có đủ bề ngang (vẫn chừa lề hai bên)
+  const screens = Grid.useBreakpoint();
+  const cardPadding = screens.sm === false ? 20 : 32;
 
   useEffect(() => {
     document.title = t.app.title(t.auth.loginTitle);
@@ -97,7 +100,7 @@ export function LoginPage() {
         <LangSwitch />
         <ThemeSwitch />
       </Flex>
-      <Card style={{ width: '100%', maxWidth: 420 }} styles={{ body: { padding: 32 } }}>
+      <Card style={{ width: '100%', maxWidth: 420 }} styles={{ body: { padding: cardPadding } }}>
         <Flex vertical align="center" gap={8} style={{ marginBottom: 28 }}>
           <BrandMark size={52} />
           <Typography.Title level={3} style={{ margin: 0 }}>
@@ -129,7 +132,7 @@ export function LoginPage() {
         {GOOGLE_CLIENT_ID && (
           <>
             <Divider plain>{t.auth.or}</Divider>
-            <Flex vertical align="center" gap={8}>
+            <Flex vertical align="center" gap={8} style={{ width: '100%' }}>
               <GoogleSignInButton
                 onCredential={(idToken) => void handleGoogle(idToken)}
                 disabled={submitting}

@@ -9,12 +9,10 @@ import {
   affectedDelta,
   AttendanceSessionDetailModel,
   DigestSessionModel,
-  sessionDateText,
-  signedMoney,
 } from '@/features/attendance/models/AttendanceSessionModel';
 import { SlotAssignmentModel } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
-import { formatDate, formatDateTime, formatMoney } from '@/shared/utils/format';
+import { formatDate, formatDateTime, formatMoney, sessionDateText, signedMoney } from '@/shared/utils/format';
 
 const record = (over: Partial<AttendanceRecord>): AttendanceRecord => ({
   studentId: 's1',
@@ -37,6 +35,7 @@ const sessionDto: AttendanceSessionDetail = {
   slot: {
     id: 'x1',
     name: 'Phonics T3',
+    kind: 'EXTRA_CLASS',
     weekday: 2,
     startTime: '18:00',
     endTime: '19:30',
@@ -44,6 +43,7 @@ const sessionDto: AttendanceSessionDetail = {
     endsOn: null,
     archivedAt: null,
   },
+  kind: 'EXTRA_CLASS',
   date: '2026-11-03',
   startTime: '18:00',
   endTime: '19:30',
@@ -122,6 +122,10 @@ describe('DigestSessionModel', () => {
     expect(new DigestSessionModel(dto).canConfirm).toBe(true);
     expect(new DigestSessionModel({ ...dto, changed: true }).canConfirm).toBe(false);
     expect(new DigestSessionModel({ ...dto, status: 'CONFIRMED' }).canConfirm).toBe(false);
+    // Báo nghỉ: mọi buổi còn chờ, kể cả danh sách đã đổi
+    expect(new DigestSessionModel({ ...dto, changed: true }).canReportOff).toBe(true);
+    expect(new DigestSessionModel({ ...dto, status: 'CONFIRMED' }).canReportOff).toBe(false);
+    expect(new DigestSessionModel({ ...dto, status: 'CANCELLED' }).canReportOff).toBe(false);
     expect(new DigestSessionModel(dto).title).toBe(t.attendance.makeUp);
     expect(new DigestSessionModel(dto).countText).toBe(t.attendance.countText(8, 7));
     expect(new DigestSessionModel(dto).confirmedText).toBeNull();

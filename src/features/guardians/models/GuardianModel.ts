@@ -1,4 +1,5 @@
 import {
+  formatPhone,
   studentFullName,
   type AvatarKey,
   type Guardian,
@@ -101,7 +102,12 @@ export class GuardianModel {
 
   /** "Tên · email · SĐT" (bỏ phần trống) — nhãn ô chọn phụ huynh */
   get label(): string {
-    return [this.fullName, this.email, this.phone].filter(Boolean).join(' · ');
+    return [this.fullName, this.email, this.phoneText].filter(Boolean).join(' · ');
+  }
+
+  /** SĐT hiển thị `0912 345 678` (lưu E.164 `+84912345678`); rỗng khi chưa có */
+  get phoneText(): string {
+    return formatPhone(this.phone);
   }
 
   /** Tạo tài khoản gia đình được khi chưa có tài khoản và đã có email */

@@ -15,6 +15,7 @@ import { formatDate, formatMoney } from '@/shared/utils/format';
 const slotDto: ExtraSlot = {
   id: 'x1',
   name: 'Phonics nâng cao',
+  kind: 'EXTRA_CLASS',
   weekday: 2,
   startTime: '18:00',
   endTime: '19:30',
@@ -159,5 +160,12 @@ describe('ngày ngừng ca', () => {
     });
     expect(ended.isStopping).toBe(false);
     expect(ended.nextSessionText).toBe(t.extraSlots.noNextSession);
+  });
+
+  it('kindLabel / isTutoring theo loại ca', () => {
+    const tutoring = new ExtraSlotModel({ ...slotDto, kind: 'TUTORING' });
+    expect(tutoring.isTutoring).toBe(true);
+    expect(tutoring.kindLabel).toBe(t.extraSlots.kindLabel.TUTORING);
+    expect(new ExtraSlotModel(slotDto).isTutoring).toBe(false);
   });
 });

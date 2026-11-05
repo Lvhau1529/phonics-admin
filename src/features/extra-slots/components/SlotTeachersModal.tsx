@@ -1,10 +1,12 @@
 import { App, Form, Modal } from 'antd';
+import { SetSlotTeachersBody } from '@phonics/contracts';
 import { useEffect } from 'react';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import type { ExtraSlotModel } from '@/features/extra-slots/models/ExtraSlotModel';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
+import { firstParseError, parseForm } from '@/shared/utils/zodForm';
 
 interface TeachersFormValues {
   teacherIds?: string[];
@@ -28,8 +30,10 @@ export function SlotTeachersModal({
 
   const handleFinish = async (values: TeachersFormValues) => {
     if (!slot) return;
+    const parsed = parseForm(SetSlotTeachersBody, { teacherIds: values.teacherIds ?? [] });
+    if (!parsed.success) return void message.error(firstParseError(parsed));
     try {
-      await setTeachers.mutateAsync({ id: slot.id, teacherIds: values.teacherIds ?? [] });
+      await setTeachers.mutateAsync({ id: slot.id, body: parsed.data });
       message.success(t.common.updated);
       onClose();
     } catch (error) {

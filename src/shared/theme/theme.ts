@@ -17,19 +17,6 @@ import { type ValueOf } from '@/shared/types';
 export const ThemeMode = { LIGHT: 'light', DARK: 'dark' } as const;
 export type ThemeMode = ValueOf<typeof ThemeMode>;
 
-/** Màu game dùng lại trong admin (palette của apps/game) */
-export const GAME_COLORS = {
-  gold: '#ffd23f',
-  honey: '#ffc83d',
-  orange: '#ffa62b',
-  ink: '#2e1608',
-  cream: '#fff4dc',
-  paper: '#fffaf0',
-  wood: '#9a5a26',
-  leaf: '#4cb034',
-  purple: '#7a3bb8',
-} as const;
-
 const BRAND_YELLOW = '#ffdc58';
 
 /** Token màu theo chế độ — export để test tương phản và cho component không qua ConfigProvider (login, chart) */

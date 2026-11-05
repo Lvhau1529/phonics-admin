@@ -1,14 +1,13 @@
-import { CheckOutlined } from '@ant-design/icons';
+import { CheckOutlined, StopOutlined } from '@ant-design/icons';
 import { Alert, App, Button, Card, Checkbox, Flex, Result, Skeleton, Typography } from 'antd';
+import { CancelDigestBody } from '@phonics/contracts';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { AttendanceService } from '@/features/attendance/api/attendanceService';
 import { AttendanceStatusTag } from '@/features/attendance/components/AttendanceStatusTag';
-import {
-  sessionDateText,
-  type DigestSessionModel,
-} from '@/features/attendance/models/AttendanceSessionModel';
+import { ReportOffModal } from '@/features/attendance/components/ReportOffModal';
+import { type DigestSessionModel } from '@/features/attendance/models/AttendanceSessionModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { THEME_COLORS } from '@/shared/theme/theme';
@@ -16,22 +15,23 @@ import { useThemeMode } from '@/shared/theme/themeStore';
 import { BrandMark } from '@/shared/ui/BrandMark';
 import { LangSwitch } from '@/shared/ui/LangSwitch';
 import { ThemeSwitch } from '@/shared/ui/ThemeSwitch';
-import { formatDateTime } from '@/shared/utils/format';
+import { formatDateTime, sessionDateText } from '@/shared/utils/format';
 
-interface ConfirmOutcome {
-  confirmed: number;
-  alreadyConfirmed: number;
-  rejected: number;
+interface Outcome {
+  ok: boolean;
+  text: string;
 }
 
 function SessionRow({
   session,
   checked,
   onToggle,
+  onReportOff,
 }: {
   session: DigestSessionModel;
   checked: boolean;
   onToggle: (checked: boolean) => void;
+  onReportOff: () => void;
 }) {
   return (
     <Card size="small">
@@ -56,6 +56,11 @@ function SessionRow({
           {session.changed && session.status === 'PENDING' && (
             <Link to={ROUTES.attendanceSession(session.id)}>{t.publicDigest.changedSignIn}</Link>
           )}
+          {session.canReportOff && (
+            <Button size="small" type="text" danger icon={<StopOutlined />} onClick={onReportOff}>
+              {t.publicDigest.reportOff}
+            </Button>
+          )}
         </Flex>
       </Flex>
     </Card>
@@ -72,12 +77,18 @@ export function PublicDigestPage() {
   const { message } = App.useApp();
   const digest = AttendanceService.useDigest(token);
   const confirm = AttendanceService.useConfirmDigest(token);
+  const cancel = AttendanceService.useCancelDigest(token);
   /** Lựa chọn người dùng đã đổi; null = mặc định (buổi trong link `?session=`, không có thì mọi buổi duyệt được) */
   const [picked, setPicked] = useState<string[] | null>(null);
-  const [outcome, setOutcome] = useState<ConfirmOutcome>();
+  const [outcome, setOutcome] = useState<Outcome>();
   const colors = THEME_COLORS[useThemeMode()];
   const data = digest.data;
   const preselect = searchParams.get('session');
+  /** Buổi đang báo nghỉ — link "Nghỉ" trong mail (`?session=…&action=cancel`) mở sẵn hộp báo nghỉ */
+  const [offId, setOffId] = useState<string | null>(() =>
+    searchParams.get('action') === 'cancel' ? preselect : null,
+  );
+  const offSession = data?.sessions.find((s) => s.id === offId && s.canReportOff);
 
   useEffect(() => {
     document.title = t.app.title(t.publicDigest.title);
@@ -88,9 +99,8 @@ export function PublicDigestPage() {
     try {
       const res = await confirm.mutateAsync(sessionIds);
       setOutcome({
-        confirmed: res.confirmed.length,
-        alreadyConfirmed: res.alreadyConfirmed.length,
-        rejected: res.rejected.length,
+        ok: res.rejected.length === 0,
+        text: t.publicDigest.outcome(res.confirmed.length, res.alreadyConfirmed.length, res.rejected.length),
       });
       setPicked([]);
     } catch (error) {
@@ -120,13 +130,7 @@ export function PublicDigestPage() {
             {t.publicDigest.subtitle(sessionDateText(data.date), formatDateTime(data.expiresAt))}
           </Typography.Text>
         </div>
-        {outcome && (
-          <Alert
-            type={outcome.rejected ? 'warning' : 'success'}
-            showIcon
-            message={t.publicDigest.outcome(outcome.confirmed, outcome.alreadyConfirmed, outcome.rejected)}
-          />
-        )}
+        {outcome && <Alert type={outcome.ok ? 'success' : 'warning'} showIcon message={outcome.text} />}
         <Flex vertical gap={8}>
           {data.sessions.map((s) => (
             <SessionRow
@@ -134,6 +138,7 @@ export function PublicDigestPage() {
               session={s}
               checked={selected.includes(s.id)}
               onToggle={(checked) => toggle(s.id, checked)}
+              onReportOff={() => setOffId(s.id)}
             />
           ))}
         </Flex>
@@ -186,6 +191,29 @@ export function PublicDigestPage() {
         </Flex>
         {body}
       </Card>
+      {offSession && (
+        <ReportOffModal
+          open
+          title={t.publicDigest.reportOffTitle(offSession.title)}
+          hint={t.publicDigest.reportOffHint}
+          loading={cancel.isPending}
+          schema={CancelDigestBody}
+          toBody={(reason) => ({ sessionIds: [offSession.id], reason })}
+          onSubmit={async (body) => {
+            const res = await cancel.mutateAsync(body);
+            setOffId(null);
+            setOutcome({
+              ok: res.rejected.length === 0,
+              text: t.publicDigest.cancelOutcome(
+                res.cancelled.length,
+                res.alreadyCancelled.length,
+                res.rejected.length,
+              ),
+            });
+          }}
+          onClose={() => setOffId(null)}
+        />
+      )}
     </Flex>
   );
 }

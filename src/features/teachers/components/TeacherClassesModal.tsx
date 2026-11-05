@@ -6,7 +6,7 @@ import { TeachersService } from '@/features/teachers/api/teachersService';
 import type { TeacherModel } from '@/features/teachers/models/TeacherModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
-import { parseForm } from '@/shared/utils/zodForm';
+import { firstParseError, parseForm } from '@/shared/utils/zodForm';
 
 interface TeacherClassesModalProps {
   teacher: TeacherModel | undefined;
@@ -23,7 +23,7 @@ export function TeacherClassesModal({ teacher, onClose }: TeacherClassesModalPro
     if (!teacher) return;
     const parsed = parseForm(SetTeacherClassesBody, { classIds });
     if (!parsed.success) {
-      message.error(parsed.fieldErrors.classIds?.[0] ?? t.common.invalidValue);
+      message.error(firstParseError(parsed));
       return;
     }
     try {

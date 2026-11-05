@@ -17,6 +17,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { HolderOutlined } from '@ant-design/icons';
 import { theme } from 'antd';
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
+import { t } from '@/shared/i18n';
 
 export interface SortableHandleProps extends HTMLAttributes<HTMLElement> {
   ref: (node: HTMLElement | null) => void;
@@ -103,7 +104,7 @@ export function DragHandle({ handleProps }: { handleProps: SortableHandleProps }
     <span
       ref={ref}
       {...rest}
-      aria-label="drag"
+      aria-label={t.common.dragToReorder}
       style={{ ...rest.style, color: token.colorTextTertiary, padding: 4 }}
     >
       <HolderOutlined />

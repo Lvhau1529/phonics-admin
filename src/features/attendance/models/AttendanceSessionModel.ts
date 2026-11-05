@@ -10,36 +10,25 @@ import {
   type AvatarKey,
   type ConfirmedVia,
   type DigestSession,
+  type ExtraSlotKind,
   type ExtraSlotRef,
   type StudentAttendanceItem,
   type TeacherRef,
 } from '@phonics/contracts';
-import { isoWeekday, priceText } from '@/features/extra-slots/models/ExtraSlotModel';
+import { priceText } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
-import { dayjs } from '@/shared/utils/dayjs';
-import { formatDate, formatDateTime, formatMoney, shortList } from '@/shared/utils/format';
-
-/** "T3 03/11/2026" — thứ (theo ngày) + ngày */
-export function sessionDateText(date: string): string {
-  // dayjs().day(): 0 = Chủ nhật → ISO 7
-  const day = dayjs(date).day();
-  return `${t.weekdayShort[isoWeekday(day === 0 ? 7 : day)]} ${formatDate(date)}`;
-}
+import { formatDateTime, formatMoney, sessionDateText, shortList } from '@/shared/utils/format';
 
 /** Chênh lệch tiền khi áp giá mới cho các bản ghi đã xác nhận (chỉ tính bản ghi có tính phí) */
 export function affectedDelta(records: readonly AffectedRecord[]): number {
   return records.reduce((sum, r) => (r.charged ? sum + r.newPrice - r.oldPrice : sum), 0);
 }
 
-/** "+120.000 ₫" / "-50.000 ₫" / "0 ₫" */
-export function signedMoney(n: number): string {
-  return n > 0 ? `+${formatMoney(n)}` : formatMoney(n);
-}
-
 /** Buổi điểm danh (danh sách) */
 export class AttendanceSessionModel {
   readonly id: string;
   readonly slot: ExtraSlotRef | null;
+  readonly kind: ExtraSlotKind;
   readonly date: string;
   readonly startTime: string;
   readonly endTime: string;
@@ -60,6 +49,7 @@ export class AttendanceSessionModel {
   constructor(data: AttendanceSessionSummary) {
     this.id = data.id;
     this.slot = data.slot;
+    this.kind = data.kind;
     this.date = data.date;
     this.startTime = data.startTime;
     this.endTime = data.endTime;
@@ -255,6 +245,11 @@ export class DigestSessionModel {
   /** Duyệt được qua link: còn chờ và danh sách chưa đổi sau khi gửi mail */
   get canConfirm(): boolean {
     return this.status === 'PENDING' && !this.changed;
+  }
+
+  /** Báo nghỉ được qua link: buổi còn chờ (kể cả danh sách đã đổi — huỷ không phụ thuộc điểm danh) */
+  get canReportOff(): boolean {
+    return this.status === 'PENDING';
   }
 
   /** "Đã xác nhận bởi Cô Lan lúc 03/11/2026 21:05" */

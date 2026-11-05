@@ -1,4 +1,5 @@
 import {
+  formatPhone,
   studentFullName,
   type AvatarKey,
   type DuplicateMatch,
@@ -73,7 +74,7 @@ export class PendingFamilyModel {
   /** "email · SĐT" (bỏ phần trống) */
   get contactText(): string {
     if (!this.parent) return '';
-    return [this.parent.email, this.parent.phone].filter(Boolean).join(' · ');
+    return [this.parent.email, formatPhone(this.parent.phone)].filter(Boolean).join(' · ');
   }
 
   get createdAtText(): string {

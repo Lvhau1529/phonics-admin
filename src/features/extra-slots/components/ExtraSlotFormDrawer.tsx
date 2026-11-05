@@ -1,5 +1,23 @@
-import { App, Button, DatePicker, Drawer, Flex, Form, Input, InputNumber, Select, TimePicker } from 'antd';
-import { CreateExtraSlotBody, SlotName, UpdateExtraSlotBody, Weekday } from '@phonics/contracts';
+import {
+  App,
+  Button,
+  DatePicker,
+  Drawer,
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  Radio,
+  Select,
+  TimePicker,
+} from 'antd';
+import {
+  CreateExtraSlotBody,
+  ExtraSlotKind,
+  SlotName,
+  UpdateExtraSlotBody,
+  Weekday,
+} from '@phonics/contracts';
 import { useEffect } from 'react';
 import { useAuth } from '@/features/auth/authStore';
 import { ClassSelect } from '@/features/classes/components/ClassSelect';
@@ -25,6 +43,7 @@ const WEEKDAYS: readonly IsoWeekday[] = [1, 2, 3, 4, 5, 6, 7];
 
 interface SlotFormValues {
   name: string;
+  kind: ExtraSlotKind;
   /** Sửa: một thứ */
   weekday: number;
   /** Tạo: nhiều thứ → mỗi thứ một ca */
@@ -78,6 +97,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
     if (slot)
       form.setFieldsValue({
         name: slot.name,
+        kind: slot.kind,
         weekday: slot.weekday,
         startTime: timeValue(slot.startTime),
         endTime: timeValue(slot.endTime),
@@ -104,6 +124,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
         const diff = diffValues(
           {
             name: slot.name,
+            kind: slot.kind,
             weekday: slot.weekday,
             startTime: slot.startTime,
             endTime: slot.endTime,
@@ -114,6 +135,7 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
           },
           {
             name: values.name,
+            kind: values.kind,
             weekday: values.weekday,
             startTime: values.startTime,
             endTime: values.endTime,
@@ -196,6 +218,17 @@ export function ExtraSlotFormDrawer({ open, slot, onClose }: ExtraSlotFormDrawer
           rules={[{ required: true, message: t.common.requiredField }, zodRule(SlotName)]}
         >
           <Input maxLength={80} placeholder={t.extraSlots.namePlaceholder} />
+        </Form.Item>
+        <Form.Item
+          name="kind"
+          label={t.extraSlots.kind}
+          extra={t.extraSlots.kindHint}
+          initialValue="EXTRA_CLASS"
+        >
+          <Radio.Group
+            optionType="button"
+            options={ExtraSlotKind.options.map((value) => ({ value, label: t.extraSlots.kindLabel[value] }))}
+          />
         </Form.Item>
         {slot ? (
           <Form.Item

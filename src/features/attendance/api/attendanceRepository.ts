@@ -7,6 +7,7 @@ import {
   AttendanceSessionDetail,
   AttendanceSessionSummary,
   CancelAttendanceSessionsResponse,
+  CancelDigestResponse,
   ConfirmDigestResponse,
   ENDPOINTS,
   paginated,
@@ -14,6 +15,7 @@ import {
   ResendDigestResponse,
   StudentAttendanceResponse,
   type CancelAttendanceSessionsBody,
+  type CancelDigestBody,
   type ConfirmDigestBody,
   type CreateAttendanceSessionBody,
   type ResendDigestBody,
@@ -51,6 +53,12 @@ export const attendanceRepository = {
       body,
       schema: CancelAttendanceSessionsResponse,
     }),
+  restore: (id: string) =>
+    request(ENDPOINTS.attendance.restore(id), {
+      method: HttpMethod.POST,
+      body: {},
+      schema: AttendanceSessionDetail,
+    }),
   resendDigest: (body: ResendDigestBody) =>
     request(ENDPOINTS.attendance.resendDigest, {
       method: HttpMethod.POST,
@@ -70,5 +78,12 @@ export const attendanceRepository = {
       body,
       auth: false,
       schema: ConfirmDigestResponse,
+    }),
+  cancelDigest: (token: string, body: CancelDigestBody) =>
+    request(ENDPOINTS.attendance.cancelDigest(token), {
+      method: HttpMethod.POST,
+      body,
+      auth: false,
+      schema: CancelDigestResponse,
     }),
 };
