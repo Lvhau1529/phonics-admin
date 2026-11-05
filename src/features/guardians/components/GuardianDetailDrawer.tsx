@@ -82,7 +82,7 @@ export function GuardianDetailDrawer({ guardianId, onClose }: GuardianDetailDraw
         <Flex vertical gap={16}>
           <Descriptions size="small" column={{ xs: 1, sm: 2 }} bordered>
             <Descriptions.Item label={t.common.email}>{g.email ?? t.common.none}</Descriptions.Item>
-            <Descriptions.Item label={t.guardians.phone}>{g.phone ?? t.common.none}</Descriptions.Item>
+            <Descriptions.Item label={t.guardians.phone}>{g.phoneText || t.common.none}</Descriptions.Item>
             <Descriptions.Item label={t.guardians.account}>
               <GuardianAccountTag guardian={g} />
             </Descriptions.Item>

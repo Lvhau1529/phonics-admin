@@ -75,6 +75,9 @@ export const qk = {
       ['attendance', 'tuition', 'student', studentId, from, to] as const,
     /** Cài đặt phiếu báo học phí (ADMIN) */
     tuitionSettings: ['attendance', 'tuition', 'settings'] as const,
+    /** Soạn tin nhắn thông báo học phí (ADMIN) */
+    tuitionNotices: (month: string, classId: string | undefined) =>
+      ['attendance', 'tuition', 'notices', month, classId ?? 'all'] as const,
   },
   families: {
     all: ['families'] as const,

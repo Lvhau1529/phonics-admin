@@ -13,6 +13,7 @@ const empty = {
   dueDay: null,
   note: null,
   showSlot: false,
+  noticeTemplate: null,
   updatedAt: null,
 };
 
@@ -31,5 +32,21 @@ describe('TuitionSettingsModel', () => {
     );
     expect(new TuitionSettingsModel({ ...empty, dueDay: 10 }).usesExtraOptions).toBe(true);
     expect(new TuitionSettingsModel({ ...empty, showSlot: true }).usesExtraOptions).toBe(true);
+  });
+
+  it('toUpdateBody giữ cài đặt hiện có, bỏ trường trống, ghi đè theo patch', () => {
+    const model = new TuitionSettingsModel({
+      ...empty,
+      accountNo: '0123456789',
+      dueDay: 10,
+      noticeTemplate: 'cũ',
+    });
+    expect(model.toUpdateBody({ noticeTemplate: 'mới' })).toEqual({
+      accountNo: '0123456789',
+      dueDay: 10,
+      showSlot: false,
+      noticeTemplate: 'mới',
+    });
+    expect(model.toUpdateBody({ noticeTemplate: undefined })).not.toHaveProperty('noticeTemplate');
   });
 });

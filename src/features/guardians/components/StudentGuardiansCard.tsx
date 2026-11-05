@@ -48,7 +48,7 @@ export function StudentGuardiansCard({ studentId, guardians }: StudentGuardiansC
                 <GuardianAccountTag guardian={link.guardian} />
               </Space>
               <Typography.Text type="secondary">
-                {[link.guardian.email, link.guardian.phone].filter(Boolean).join(' · ') || t.common.none}
+                {[link.guardian.email, link.guardian.phoneText].filter(Boolean).join(' · ') || t.common.none}
               </Typography.Text>
             </Flex>
           </List.Item>
