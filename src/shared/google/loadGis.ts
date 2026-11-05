@@ -24,3 +24,23 @@ export function loadGis(): Promise<void> {
   }
   return loading;
 }
+
+/** Callback của nút đang hiện (mỗi lúc chỉ một nút Google trên trang: đăng nhập hoặc hồ sơ) */
+let onCredential: ((idToken: string) => void) | null = null;
+let initialized = false;
+
+/**
+ * `google.accounts.id.initialize` chỉ gọi một lần (gọi lại GIS cảnh báo "called multiple times"); các nút sau chỉ
+ * đổi callback nhận ID token. Gọi sau khi `loadGis()` resolve.
+ */
+export function initGis(clientId: string, callback: (idToken: string) => void): void {
+  onCredential = callback;
+  if (initialized) return;
+  initialized = true;
+  google.accounts.id.initialize({
+    client_id: clientId,
+    callback: ({ credential }) => onCredential?.(credential),
+    ux_mode: 'popup',
+    itp_support: true,
+  });
+}

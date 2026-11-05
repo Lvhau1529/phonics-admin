@@ -230,7 +230,7 @@ export function ProfilePage() {
                       <Typography.Text type="secondary">{t.profile.linkGoogleHint}</Typography.Text>
                       <GoogleSignInButton
                         text="continue_with"
-                        width={280}
+                        maxWidth={280}
                         onCredential={(idToken) => void handleLinkGoogle(idToken)}
                         disabled={linkGoogle.isPending}
                       />
