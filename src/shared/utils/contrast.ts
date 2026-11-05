@@ -36,6 +36,3 @@ export function contrastRatio(a: string, b: string): number {
   const [light, dark] = la >= lb ? [la, lb] : [lb, la];
   return (light + 0.05) / (dark + 0.05);
 }
-
-/** Đạt WCAG AA cho chữ thường (≥ 4.5) */
-export const meetsAA = (fg: string, bg: string): boolean => contrastRatio(fg, bg) >= 4.5;

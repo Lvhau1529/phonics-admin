@@ -1,4 +1,4 @@
-import { DatePicker, Flex, Select, Tag, Typography } from 'antd';
+import { DatePicker, Flex, Select, Tag, Typography, theme } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { AuditAction } from '@phonics/contracts';
 import dayjs from 'dayjs';
@@ -32,6 +32,7 @@ function targetLink(log: AuditLogModel) {
 
 /** JSON trước / sau của một dòng nhật ký */
 function JsonBlock({ label, value }: { label: string; value: unknown }) {
+  const { token } = theme.useToken();
   return (
     <div style={{ flex: 1, minWidth: 240 }}>
       <Typography.Text strong>{label}</Typography.Text>
@@ -39,8 +40,8 @@ function JsonBlock({ label, value }: { label: string; value: unknown }) {
         style={{
           margin: '4px 0 0',
           padding: 8,
-          background: '#fafafa',
-          borderRadius: 6,
+          background: token.colorFillTertiary,
+          borderRadius: token.borderRadius,
           fontSize: 12,
           overflow: 'auto',
           maxHeight: 320,

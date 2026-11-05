@@ -30,8 +30,6 @@ const digestOf = (view: Awaited<ReturnType<typeof attendanceRepository.digest>>)
   sessions: view.sessions.map((s) => new DigestSessionModel(s)),
 });
 
-export type DigestModel = ReturnType<typeof digestOf>;
-
 const api = {
   list: async (query: QueryParams) =>
     mapPage(await attendanceRepository.list(query), (s) => new AttendanceSessionModel(s)),

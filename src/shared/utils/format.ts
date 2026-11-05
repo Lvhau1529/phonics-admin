@@ -1,5 +1,5 @@
 import type { GameId } from '@phonics/contracts';
-import { t } from '@/shared/i18n';
+import { t, type IsoWeekday } from '@/shared/i18n';
 import { dayjs, type ConfigType } from '@/shared/utils/dayjs';
 
 // Intl.NumberFormat theo ngôn ngữ hiện tại (cache theo locale vì tạo formatter khá tốn)
@@ -68,6 +68,16 @@ export function formatCompact(n: number): string {
   }
   return fmt.format(n);
 }
+
+/** Tiền có dấu: "+120.000 ₫" / "-50.000 ₫" / "0 ₫" */
+export const signedMoney = (n: number): string => (n > 0 ? `+${formatMoney(n)}` : formatMoney(n));
+
+/** Contracts để weekday là number (1..7) → khoá từ điển thứ */
+export const isoWeekday = (n: number): IsoWeekday => Math.min(7, Math.max(1, Math.trunc(n))) as IsoWeekday;
+
+/** "T3 18/11/2026" — thứ (theo ngày) + ngày; dayjs().day() 0 = Chủ nhật → ISO 7 */
+export const sessionDateText = (date: string): string =>
+  `${t.weekdayShort[isoWeekday(dayjs(date).day() || 7)]} ${formatDate(date)}`;
 
 /** Điểm có dấu: +5 / -3 */
 export const formatSigned = (n: number): string =>

@@ -2,7 +2,15 @@ import { CreateTeacherBody, Email, UpdateStudentBody } from '@phonics/contracts'
 import type { FormInstance } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '@/shared/api/errors';
-import { applyServerErrors, diffValues, parseForm, stripEmpty, zodRule } from '@/shared/utils/zodForm';
+import { sameIds } from '@/shared/utils/ids';
+import {
+  applyServerErrors,
+  diffValues,
+  firstParseError,
+  parseForm,
+  stripEmpty,
+  zodRule,
+} from '@/shared/utils/zodForm';
 
 describe('zodRule', () => {
   it('bỏ qua giá trị trống (để required lo), từ chối giá trị sai', async () => {
@@ -81,5 +89,21 @@ describe('stripEmpty / diffValues', () => {
   it('chỉ giữ field khác bản gốc', () => {
     expect(diffValues({ a: 1, b: 'x', c: null }, { a: 1, b: 'y', c: null })).toEqual({ b: 'y' });
     expect(diffValues({ a: 1 }, { a: 1 })).toEqual({});
+  });
+});
+
+describe('firstParseError', () => {
+  it('ưu tiên lỗi cả form, rồi lỗi field đầu tiên, cuối cùng là câu chung', () => {
+    expect(firstParseError({ formErrors: ['form'], fieldErrors: { a: ['field'] } })).toBe('form');
+    expect(firstParseError({ formErrors: [], fieldErrors: { a: ['field'], b: ['other'] } })).toBe('field');
+    expect(firstParseError({ formErrors: [], fieldErrors: {} })).toBeTruthy();
+  });
+});
+
+describe('sameIds', () => {
+  it('so tập id, không xét thứ tự', () => {
+    expect(sameIds(['a', 'b'], ['b', 'a'])).toBe(true);
+    expect(sameIds(['a'], ['a', 'b'])).toBe(false);
+    expect(sameIds(['a', 'b'], ['a', 'c'])).toBe(false);
   });
 });

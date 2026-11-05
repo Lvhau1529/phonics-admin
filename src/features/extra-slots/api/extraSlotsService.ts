@@ -9,6 +9,7 @@ import type {
   CreateSlotRateBody,
   CreateStudentRateBody,
   MoveSlotAssignmentBody,
+  SetSlotTeachersBody,
   UpdateExtraRateBody,
   UpdateExtraSlotBody,
   UpdateSlotAssignmentBody,
@@ -31,8 +32,8 @@ const api = {
   create: async (body: CreateExtraSlotBody) => new ExtraSlotModel(await extraSlotsRepository.create(body)),
   update: async (id: string, body: UpdateExtraSlotBody) =>
     new ExtraSlotModel(await extraSlotsRepository.update(id, body)),
-  setTeachers: async (id: string, teacherIds: string[]) =>
-    new ExtraSlotModel(await extraSlotsRepository.setTeachers(id, teacherIds)),
+  setTeachers: async (id: string, body: SetSlotTeachersBody) =>
+    new ExtraSlotModel(await extraSlotsRepository.setTeachers(id, body)),
   students: async (id: string, date: string) =>
     (await extraSlotsRepository.students(id, date)).items.map((s) => new SlotStudentModel(s)),
   slotRates: async (id: string) =>
@@ -119,8 +120,7 @@ export const ExtraSlotsService = {
   useSetTeachers() {
     const invalidate = useInvalidateExtra();
     return useMutation({
-      mutationFn: ({ id, teacherIds }: { id: string; teacherIds: string[] }) =>
-        api.setTeachers(id, teacherIds),
+      mutationFn: ({ id, body }: { id: string; body: SetSlotTeachersBody }) => api.setTeachers(id, body),
       onSuccess: invalidate,
     });
   },

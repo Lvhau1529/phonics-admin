@@ -2,16 +2,12 @@ import { Alert, App, Button, DatePicker, Flex, Modal, Typography } from 'antd';
 import { UpdateExtraSlotBody } from '@phonics/contracts';
 import { useState } from 'react';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
-import {
-  type ExtraSlotModel,
-  lastSessionBefore,
-  sessionDateText,
-} from '@/features/extra-slots/models/ExtraSlotModel';
+import { type ExtraSlotModel, lastSessionBefore } from '@/features/extra-slots/models/ExtraSlotModel';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
 import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
-import { formatDate, toIsoDate } from '@/shared/utils/format';
-import { parseForm } from '@/shared/utils/zodForm';
+import { formatDate, sessionDateText, toIsoDate } from '@/shared/utils/format';
+import { firstParseError, parseForm } from '@/shared/utils/zodForm';
 
 interface StopSlotModalProps {
   slot: ExtraSlotModel | undefined;
@@ -39,7 +35,7 @@ export function StopSlotModal({ slot, onClose }: StopSlotModalProps) {
   const save = async (next: string | null) => {
     if (!slot) return;
     const parsed = parseForm(UpdateExtraSlotBody, { endsOn: next });
-    if (!parsed.success) return void message.error(Object.values(parsed.fieldErrors).flat()[0]);
+    if (!parsed.success) return void message.error(firstParseError(parsed));
     try {
       await update.mutateAsync({ id: slot.id, body: parsed.data });
       if (next === null) message.success(t.extraSlots.stopCleared);

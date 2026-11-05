@@ -44,6 +44,7 @@ export function GuardianChildrenTable({ items }: { items: GuardianChildModel[] }
   return (
     <Table<GuardianChildModel>
       size="small"
+      scroll={{ x: 'max-content' }}
       rowKey="studentId"
       pagination={false}
       columns={columns}

@@ -69,6 +69,8 @@ export function AppShell() {
   const screens = Grid.useBreakpoint();
   const [collapsed, setCollapsed] = useState(false);
   const isMobile = screens.lg === false;
+  // Mobile luôn thu sider (menu chuyển vào Dropdown ở header) — dùng một biến cho cả Sider lẫn hàng logo
+  const siderCollapsed = isMobile || collapsed;
   const mode = useThemeMode();
   const colors = THEME_COLORS[mode];
   const { token } = theme.useToken();
@@ -119,7 +121,7 @@ export function AppShell() {
     <Layout style={{ minHeight: '100vh' }}>
       <Layout.Sider
         collapsible
-        collapsed={isMobile ? true : collapsed}
+        collapsed={siderCollapsed}
         trigger={null}
         breakpoint="lg"
         width={232}
@@ -134,16 +136,16 @@ export function AppShell() {
       >
         <Flex
           align="center"
-          justify={collapsed ? 'center' : 'flex-start'}
+          justify={siderCollapsed ? 'center' : 'flex-start'}
           gap={10}
           style={{
             height: 64,
-            padding: collapsed ? 0 : '0 16px',
+            padding: siderCollapsed ? 0 : '0 16px',
             borderBottom: `1px solid ${colors.headerBorder}`,
           }}
         >
           <BrandMark size={32} />
-          {!collapsed && (
+          {!siderCollapsed && (
             <Typography.Text
               strong
               style={{
@@ -170,6 +172,8 @@ export function AppShell() {
             alignItems: 'center',
             justifyContent: 'space-between',
             height: 64,
+            // Thẳng lề với nội dung (16 px mobile, theme mặc định 24 px)
+            paddingInline: isMobile ? 16 : 24,
             borderBottom: `1px solid ${colors.headerBorder}`,
             position: 'sticky',
             top: 0,
@@ -197,11 +201,18 @@ export function AppShell() {
             <ThemeSwitch />
             {auth.user && (
               <Dropdown menu={{ items: userMenu }} trigger={['click']} placement="bottomRight">
-                <Flex align="center" gap={8} style={{ cursor: 'pointer' }}>
-                  <AvatarImg avatarKey={auth.user.avatarKey} name={auth.user.displayName} size="small" />
-                  {!isMobile && <Typography.Text>{auth.user.displayName}</Typography.Text>}
-                  {!isMobile && <RoleTag role={auth.user.role} />}
-                </Flex>
+                {/* Button (không phải div) để mở được bằng bàn phím / trình đọc màn hình */}
+                <Button
+                  type="text"
+                  aria-label={auth.user.displayName}
+                  style={{ height: 'auto', paddingBlock: 4, paddingInline: isMobile ? 4 : 8 }}
+                >
+                  <Flex align="center" gap={8}>
+                    <AvatarImg avatarKey={auth.user.avatarKey} name={auth.user.displayName} size="small" />
+                    {!isMobile && <Typography.Text>{auth.user.displayName}</Typography.Text>}
+                    {!isMobile && <RoleTag role={auth.user.role} />}
+                  </Flex>
+                </Button>
               </Dropdown>
             )}
           </Flex>

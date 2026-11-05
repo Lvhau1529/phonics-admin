@@ -15,26 +15,13 @@ import {
   type StudentAttendanceItem,
   type TeacherRef,
 } from '@phonics/contracts';
-import { isoWeekday, priceText } from '@/features/extra-slots/models/ExtraSlotModel';
+import { priceText } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
-import { dayjs } from '@/shared/utils/dayjs';
-import { formatDate, formatDateTime, formatMoney, shortList } from '@/shared/utils/format';
-
-/** "T3 03/11/2026" — thứ (theo ngày) + ngày */
-export function sessionDateText(date: string): string {
-  // dayjs().day(): 0 = Chủ nhật → ISO 7
-  const day = dayjs(date).day();
-  return `${t.weekdayShort[isoWeekday(day === 0 ? 7 : day)]} ${formatDate(date)}`;
-}
+import { formatDateTime, formatMoney, sessionDateText, shortList } from '@/shared/utils/format';
 
 /** Chênh lệch tiền khi áp giá mới cho các bản ghi đã xác nhận (chỉ tính bản ghi có tính phí) */
 export function affectedDelta(records: readonly AffectedRecord[]): number {
   return records.reduce((sum, r) => (r.charged ? sum + r.newPrice - r.oldPrice : sum), 0);
-}
-
-/** "+120.000 ₫" / "-50.000 ₫" / "0 ₫" */
-export function signedMoney(n: number): string {
-  return n > 0 ? `+${formatMoney(n)}` : formatMoney(n);
 }
 
 /** Buổi điểm danh (danh sách) */

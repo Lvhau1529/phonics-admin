@@ -14,13 +14,16 @@ import {
   type StudentClassRef,
   type TeacherRef,
 } from '@phonics/contracts';
-import { t } from '@/shared/i18n';
-import type { IsoWeekday } from '@/shared/i18n';
+import { t, type IsoWeekday } from '@/shared/i18n';
 import { dayjs } from '@/shared/utils/dayjs';
-import { formatDate, formatMoney, shortList, toIsoDate } from '@/shared/utils/format';
-
-/** Contracts để weekday là number (1..7) → khoá từ điển thứ */
-export const isoWeekday = (n: number): IsoWeekday => Math.min(7, Math.max(1, Math.trunc(n))) as IsoWeekday;
+import {
+  formatDate,
+  formatMoney,
+  isoWeekday,
+  sessionDateText,
+  shortList,
+  toIsoDate,
+} from '@/shared/utils/format';
 
 /** "T3 18:00–19:30" */
 export function slotTimeText(slot: Pick<ExtraSlotRef, 'weekday' | 'startTime' | 'endTime'>): string {
@@ -48,11 +51,6 @@ export function priceText(price: number): string {
 /** Đơn giá áp dụng: "150.000 ₫", "Miễn phí" hoặc "Chưa có giá" */
 export function appliedRateText(rate: AppliedRate): string {
   return rate.source === 'NONE' ? t.rateSource.NONE : priceText(rate.pricePerSession);
-}
-
-/** "T3 18/11/2026" */
-export function sessionDateText(date: string): string {
-  return `${t.weekdayShort[isoWeekday(dayjs(date).day() || 7)]} ${formatDate(date)}`;
 }
 
 /** Ngày có buổi cuối cùng của ca thứ `weekday` trước ngày ngừng `endsOn` (không trước `startsOn`); null = không còn */

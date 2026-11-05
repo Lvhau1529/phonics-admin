@@ -6,7 +6,7 @@ import type { ClassModel } from '@/features/classes/models/ClassModel';
 import { TeacherSelect } from '@/features/teachers/components/TeacherSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
-import { parseForm } from '@/shared/utils/zodForm';
+import { firstParseError, parseForm } from '@/shared/utils/zodForm';
 
 interface AssignTeachersModalProps {
   cls: ClassModel | undefined;
@@ -22,8 +22,7 @@ export function AssignTeachersModal({ cls, onClose }: AssignTeachersModalProps) 
   const handleOk = async () => {
     if (!cls) return;
     const parsed = parseForm(SetClassTeachersBody, { teacherIds });
-    if (!parsed.success)
-      return void message.error(parsed.fieldErrors.teacherIds?.[0] ?? t.common.invalidValue);
+    if (!parsed.success) return void message.error(firstParseError(parsed));
     try {
       await setTeachers.mutateAsync({ id: cls.id, body: parsed.data });
       message.success(t.common.updated);
