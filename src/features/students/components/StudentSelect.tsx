@@ -11,12 +11,12 @@ type StudentSelectProps = Omit<
   classId: string | undefined;
 };
 
-/** Ô chọn học sinh trong một lớp (tìm theo tên / email) */
+/** Ô chọn học sinh trong một lớp (tìm theo tên) */
 export function StudentSelect({ classId, ...props }: StudentSelectProps) {
   const { data, isLoading } = StudentsService.useOptions(classId);
   const options = (data ?? []).map((s) => ({
     value: s.id,
-    label: s.email ? `${s.fullName} · ${s.email}` : s.fullName,
+    label: s.fullName,
   }));
   return (
     <Select<string>

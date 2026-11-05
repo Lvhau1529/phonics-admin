@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   CreateStudentsBody,
   MoveClassBody,
-  ResetPasswordBody,
   SetStudentGameUnlockBody,
   StudentDetail,
   UpdateStudentBody,
@@ -35,7 +34,6 @@ const api = {
   update: async (id: string, body: UpdateStudentBody) => toDetail(await studentsRepository.update(id, body)),
   moveClass: async (id: string, body: MoveClassBody) =>
     toDetail(await studentsRepository.moveClass(id, body)),
-  resetPassword: (id: string, body: ResetPasswordBody) => studentsRepository.resetPassword(id, body),
   points: async (id: string, query: QueryParams) =>
     mapPage(await studentsRepository.points(id, query), (e) => new PointEntryModel(e)),
   /** Điểm theo game là số liệu thống kê (biểu đồ) → giữ DTO */
@@ -147,11 +145,6 @@ export const StudentsService = {
       },
     });
   },
-
-  useResetPassword: () =>
-    useMutation({
-      mutationFn: ({ id, body }: { id: string; body: ResetPasswordBody }) => api.resetPassword(id, body),
-    }),
 
   useSetGameUnlock(studentId: string) {
     const qc = useQueryClient();

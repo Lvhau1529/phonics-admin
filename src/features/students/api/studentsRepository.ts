@@ -15,7 +15,6 @@ import {
   StudentSummary,
   type CreateStudentsBody,
   type MoveClassBody,
-  type ResetPasswordBody,
   type SetStudentGameUnlockBody,
   type UpdateStudentBody,
 } from '@phonics/contracts';
@@ -36,8 +35,6 @@ export const studentsRepository = {
     request(ENDPOINTS.students.detail(id), { method: HttpMethod.PATCH, body, schema: StudentDetail }),
   moveClass: (id: string, body: MoveClassBody) =>
     request(ENDPOINTS.students.moveClass(id), { method: HttpMethod.POST, body, schema: StudentDetail }),
-  resetPassword: (id: string, body: ResetPasswordBody) =>
-    request<void>(ENDPOINTS.students.resetPassword(id), { method: HttpMethod.POST, body }),
   points: (id: string, query: QueryParams) =>
     request(ENDPOINTS.students.points(id), { query, schema: PointsPage }),
   pointsByGame: (id: string, query: QueryParams) =>

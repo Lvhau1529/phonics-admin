@@ -1,6 +1,6 @@
 import { EyeOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, Select, Space, Tooltip } from 'antd';
-import { LoginMode, UserStatus } from '@phonics/contracts';
+import { UserStatus } from '@phonics/contracts';
 import type { StudentModel } from '@/features/students/models/StudentModel';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -20,7 +20,7 @@ export function StudentsPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const table = useTableQuery({
-    filterKeys: ['classId', 'status', 'loginMode'] as const,
+    filterKeys: ['classId', 'status'] as const,
     defaultSort: 'createdAt:desc',
   });
   const list = StudentsService.useList(table.params);
@@ -60,14 +60,6 @@ export function StudentsPage() {
             onChange={(v) => table.setFilter('status', v)}
             options={UserStatus.options.map((s) => ({ value: s, label: t.userStatus[s] }))}
             style={{ width: 150 }}
-          />
-          <Select
-            allowClear
-            placeholder={t.students.filterLoginMode}
-            value={table.filters.loginMode as LoginMode | undefined}
-            onChange={(v) => table.setFilter('loginMode', v)}
-            options={LoginMode.options.map((m) => ({ value: m, label: t.loginMode[m] }))}
-            style={{ width: 160 }}
           />
         </Flex>
       </PageHeader>

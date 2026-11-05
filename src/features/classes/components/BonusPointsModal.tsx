@@ -76,10 +76,8 @@ function BonusPointsForm({ classId, onClose, studentId, initialMode = 'single' }
         });
         const parsed = parseForm(AwardBonusBody, values);
         if (!parsed.success) return applyFieldErrors(form, parsed.fieldErrors);
-        const result = await single.mutateAsync(parsed.data);
-        message.success(
-          `${t.classes.bonusDone(1)} · ${t.classes.bonusRank(result.rank.previous, result.rank.current)}`,
-        );
+        await single.mutateAsync(parsed.data);
+        message.success(t.classes.bonusDone(1));
       } else {
         const entries = (raw.entries ?? []).map((e) => stripEmpty({ ...e }));
         const parsed = parseForm(AwardBonusBatchBody, { entries });

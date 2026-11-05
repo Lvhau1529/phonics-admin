@@ -66,14 +66,13 @@ export class PendingFamilyModel {
     this.createdAt = data.createdAt;
   }
 
-  /** Tên phụ huynh; đơn kiểu cũ → nhãn "Học sinh tự đăng ký" */
+  /** Tên phụ huynh */
   get title(): string {
-    return this.parent?.fullName ?? t.families.legacy;
+    return this.parent.fullName;
   }
 
   /** "email · SĐT" (bỏ phần trống) */
   get contactText(): string {
-    if (!this.parent) return '';
     return [this.parent.email, formatPhone(this.parent.phone)].filter(Boolean).join(' · ');
   }
 
@@ -83,7 +82,6 @@ export class PendingFamilyModel {
 
   /** Phụ huynh có sẵn (trong phạm vi người xem) để gộp — chỉ khi đơn có tài khoản phụ huynh; mỗi phụ huynh một lần */
   get mergeTargets(): MergeTarget[] {
-    if (!this.parent) return [];
     const seen = new Map<string, MergeTarget>();
     for (const d of this.duplicates) {
       if (!d.inScope || !d.guardianId || d.guardianId === this.parent.guardianId) continue;

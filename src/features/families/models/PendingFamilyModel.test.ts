@@ -42,13 +42,10 @@ const dto: PendingFamily = {
 };
 
 describe('PendingFamilyModel', () => {
-  it('title / contactText: đơn kiểu cũ không có phụ huynh', () => {
+  it('title / contactText theo phụ huynh', () => {
     const f = new PendingFamilyModel(dto);
     expect(f.title).toBe('Trần Mai');
     expect(f.contactText).toBe('mai@example.vn');
-    const legacy = new PendingFamilyModel({ ...dto, parent: null });
-    expect(legacy.title).toBe(t.families.legacy);
-    expect(legacy.contactText).toBe('');
   });
 
   it('requestedClassText của bé', () => {
@@ -57,7 +54,7 @@ describe('PendingFamilyModel', () => {
     expect(child?.fullName).toBe('Nguyễn Văn An (Andy)');
   });
 
-  it('mergeTargets: chỉ phụ huynh khác trong phạm vi, mỗi người một lần; đơn kiểu cũ không gộp', () => {
+  it('mergeTargets: chỉ phụ huynh khác trong phạm vi, mỗi người một lần', () => {
     const f = new PendingFamilyModel({
       ...dto,
       duplicates: [
@@ -68,9 +65,6 @@ describe('PendingFamilyModel', () => {
       ],
     });
     expect(f.mergeTargets).toEqual([{ guardianId: 'g-old', guardianName: 'Trần Thị Mai' }]);
-    expect(new PendingFamilyModel({ ...dto, parent: null, duplicates: [match({})] }).mergeTargets).toEqual(
-      [],
-    );
   });
 
   it('duplicateText: ngoài phạm vi không lộ tên gia đình kia', () => {

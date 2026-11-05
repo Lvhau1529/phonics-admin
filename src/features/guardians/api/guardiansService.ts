@@ -3,12 +3,7 @@
  * sang tài khoản gia đình và kết quả tạo tài khoản là response xác nhận → giữ DTO (kèm model phụ huynh khi cần).
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type {
-  ConvertFamilyBody,
-  CreateGuardianBody,
-  SetStudentGuardiansBody,
-  UpdateGuardianBody,
-} from '@phonics/contracts';
+import type { CreateGuardianBody, SetStudentGuardiansBody, UpdateGuardianBody } from '@phonics/contracts';
 import { guardiansRepository } from '@/features/guardians/api/guardiansRepository';
 import { GuardianModel, StudentGuardianModel } from '@/features/guardians/models/GuardianModel';
 import type { QueryParams } from '@/shared/api/client';
@@ -28,11 +23,6 @@ const api = {
   createFamilyAccount: async (id: string) => {
     const res = await guardiansRepository.createFamilyAccount(id);
     return { guardian: new GuardianModel(res.guardian), inviteSent: res.inviteSent };
-  },
-  convertPreview: (id: string, body: ConvertFamilyBody) => guardiansRepository.convertPreview(id, body),
-  convert: async (id: string, body: ConvertFamilyBody) => {
-    const res = await guardiansRepository.convert(id, body);
-    return { ...res, guardian: new GuardianModel(res.guardian) };
   },
   setStudentGuardians: async (studentId: string, body: SetStudentGuardiansBody) =>
     (await guardiansRepository.setStudentGuardians(studentId, body)).items.map(
@@ -85,19 +75,6 @@ export const GuardiansService = {
   useCreateFamilyAccount() {
     const invalidate = useInvalidateGuardians();
     return useMutation({ mutationFn: api.createFamilyAccount, onSuccess: (res) => invalidate(res.guardian) });
-  },
-
-  useConvertPreview: () =>
-    useMutation({
-      mutationFn: ({ id, body }: { id: string; body: ConvertFamilyBody }) => api.convertPreview(id, body),
-    }),
-
-  useConvert() {
-    const invalidate = useInvalidateGuardians();
-    return useMutation({
-      mutationFn: ({ id, body }: { id: string; body: ConvertFamilyBody }) => api.convert(id, body),
-      onSuccess: (res) => invalidate(res.guardian),
-    });
   },
 
   useSetStudentGuardians() {
