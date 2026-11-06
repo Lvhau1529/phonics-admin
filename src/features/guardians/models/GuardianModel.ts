@@ -1,11 +1,11 @@
 import {
+  formatPhone,
   studentFullName,
   type AvatarKey,
   type Guardian,
   type GuardianAccount,
   type GuardianChild,
   type GuardianRelation,
-  type LoginMode,
   type StudentClassRef,
   type StudentGuardianView,
   type UserStatus,
@@ -37,7 +37,6 @@ export class GuardianChildModel {
   readonly englishName: string | null;
   readonly avatarKey: AvatarKey;
   readonly status: UserStatus;
-  readonly loginMode: LoginMode;
   readonly class: StudentClassRef | null;
   readonly relation: GuardianRelation;
   readonly isBillingContact: boolean;
@@ -51,7 +50,6 @@ export class GuardianChildModel {
     this.englishName = data.englishName;
     this.avatarKey = data.avatarKey;
     this.status = data.status;
-    this.loginMode = data.loginMode;
     this.class = data.class;
     this.relation = data.relation;
     this.isBillingContact = data.isBillingContact;
@@ -101,17 +99,17 @@ export class GuardianModel {
 
   /** "Tên · email · SĐT" (bỏ phần trống) — nhãn ô chọn phụ huynh */
   get label(): string {
-    return [this.fullName, this.email, this.phone].filter(Boolean).join(' · ');
+    return [this.fullName, this.email, this.phoneText].filter(Boolean).join(' · ');
+  }
+
+  /** SĐT hiển thị `0912 345 678` (lưu E.164 `+84912345678`); rỗng khi chưa có */
+  get phoneText(): string {
+    return formatPhone(this.phone);
   }
 
   /** Tạo tài khoản gia đình được khi chưa có tài khoản và đã có email */
   get canCreateAccount(): boolean {
     return !this.account && !!this.email;
-  }
-
-  /** Con đang tự đăng nhập — gợi ý sẵn khi chuyển sang tài khoản gia đình */
-  get ownLoginChildren(): GuardianChildModel[] {
-    return this.children.filter((c) => c.loginMode === 'OWN');
   }
 
   get lastLoginText(): string {

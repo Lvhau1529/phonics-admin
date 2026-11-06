@@ -45,6 +45,8 @@ interface SettingsFormValues {
   dueDay?: number | null;
   note?: string;
   showSlot?: boolean;
+  /** Sửa ở trang Thông báo học phí — giữ nguyên khi lưu ở đây (PUT thay cả bản) */
+  noticeTemplate?: string;
 }
 
 const BANK_OPTIONS = VN_BANKS.map((b) => ({ value: b.bin, label: `${b.name} (${b.bin})` }));
@@ -79,6 +81,7 @@ export function TuitionSettingsPage() {
       dueDay: data.dueDay,
       note: data.note ?? undefined,
       showSlot: data.showSlot,
+      noticeTemplate: data.noticeTemplate ?? undefined,
     });
   }, [data, form]);
 
@@ -118,6 +121,9 @@ export function TuitionSettingsPage() {
       />
       <ErrorAlert error={settings.error} onRetry={() => void settings.refetch()} />
       <Form<SettingsFormValues> form={form} layout="vertical" onFinish={handleFinish} disabled={!data}>
+        <Form.Item name="noticeTemplate" hidden>
+          <Input />
+        </Form.Item>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={14}>
             <Card title={t.tuitionSettings.bankSection}>

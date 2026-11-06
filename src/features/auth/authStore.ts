@@ -3,7 +3,7 @@
  * localStorage (`phonics-admin:auth`). Access token nằm trong shared/api/client.
  *
  * Khởi động: có snapshot → refresh để lấy access token → /auth/me → authenticated; thất bại → anonymous.
- * Học sinh không được vào admin: đăng nhập xong thấy role STUDENT thì thu hồi phiên ngay.
+ * Chỉ admin / giáo viên vào admin: đăng nhập xong thấy role khác (học sinh, phụ huynh) thì thu hồi phiên ngay.
  */
 import { User, type LoginBody, type Permission, type Role } from '@phonics/contracts';
 import { useMemo, useSyncExternalStore } from 'react';
@@ -152,7 +152,7 @@ export async function loginWithGoogle(idToken: string): Promise<void> {
 }
 
 async function startSession(auth: LoginResult): Promise<void> {
-  if (auth.user.isStudent) {
+  if (!auth.user.isStaff) {
     if (auth.refreshToken)
       await AuthService.logout({ refreshToken: auth.refreshToken }).catch(() => undefined);
     throw new StudentNotAllowedError();

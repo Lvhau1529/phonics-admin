@@ -1,4 +1,4 @@
-import { CreateTeacherBody, Email, UpdateStudentBody } from '@phonics/contracts';
+import { CreateTeacherBody, Email, CreateStudentsBody, UpdateStudentBody } from '@phonics/contracts';
 import type { FormInstance } from 'antd';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '@/shared/api/errors';
@@ -33,11 +33,14 @@ describe('parseForm', () => {
   });
 
   it('gom lỗi theo field (kể cả field lồng nhau) và lỗi của cả form', () => {
-    const result = parseForm(UpdateStudentBody, { parent: { email: 'sai' }, displayName: '' });
+    const result = parseForm(CreateStudentsBody, {
+      students: [{ vietnameseName: '' }],
+      parent: { email: 'sai' },
+    });
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(Object.keys(result.fieldErrors)).toEqual(
-        expect.arrayContaining(['parent.email', 'displayName']),
+        expect.arrayContaining(['parent.email', 'students.0.vietnameseName']),
       );
     }
     const empty = parseForm(UpdateStudentBody, {});

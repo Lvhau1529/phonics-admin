@@ -47,7 +47,7 @@ export function GuardiansPage() {
     {
       title: t.guardians.phone,
       dataIndex: 'phone',
-      render: (v: string | null) => v ?? <Typography.Text type="secondary">{t.common.none}</Typography.Text>,
+      render: (_, g) => g.phoneText || <Typography.Text type="secondary">{t.common.none}</Typography.Text>,
     },
     {
       title: t.guardians.children,

@@ -1,10 +1,9 @@
-import type { ParentContact, StudentDetail } from '@phonics/contracts';
+import { type StudentDetail } from '@phonics/contracts';
 import { StudentGuardianModel } from '@/features/guardians/models/GuardianModel';
 import { StudentModel } from '@/features/students/models/StudentModel';
 
-/** Chi tiết học sinh (từ `StudentDetail` của BE): thêm liên hệ phụ huynh, ghi chú, điểm theo loại */
+/** Chi tiết học sinh (từ `StudentDetail` của BE): thêm phụ huynh, ghi chú, điểm theo loại */
 export class StudentDetailModel extends StudentModel {
-  readonly parent: ParentContact | null;
   /** null = không có quyền xem liên hệ phụ huynh */
   readonly guardians: StudentGuardianModel[] | null;
   readonly notes: string | null;
@@ -13,16 +12,9 @@ export class StudentDetailModel extends StudentModel {
 
   constructor(data: StudentDetail) {
     super(data);
-    this.parent = data.parent;
     this.guardians = data.guardians?.map((g) => new StudentGuardianModel(g)) ?? null;
     this.notes = data.notes;
     this.pointsByKind = data.pointsByKind;
     this.gamesPlayed = data.gamesPlayed;
-  }
-
-  /** "Tên · email · SĐT" (bỏ phần trống); chuỗi rỗng khi không có gì */
-  get parentContactText(): string {
-    if (!this.parent) return '';
-    return [this.parent.name, this.parent.email, this.parent.phone].filter(Boolean).join(' · ');
   }
 }

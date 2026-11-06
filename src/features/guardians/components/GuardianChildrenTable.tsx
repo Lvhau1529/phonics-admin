@@ -38,7 +38,6 @@ export function GuardianChildrenTable({ items }: { items: GuardianChildModel[] }
         </Flex>
       ),
     },
-    { title: t.students.loginMode, key: 'loginMode', render: (_, c) => t.loginMode[c.loginMode] },
     { title: t.common.status, key: 'status', render: (_, c) => <StatusTag status={c.status} /> },
   ];
   return (

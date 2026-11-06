@@ -19,6 +19,7 @@ export const ROUTES = {
   attendance: '/attendance',
   tuition: '/tuition',
   tuitionSettings: '/tuition/settings',
+  tuitionNotices: '/tuition/notices',
   attendanceSession: (id: string) => `/attendance/sessions/${id}`,
   /** Trang public duyệt nhanh từ mail 21:00 (không cần đăng nhập) */
   publicDigest: (token: string) => `/a/attendance/${token}`,
