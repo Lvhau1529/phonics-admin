@@ -1,0 +1,44 @@
+name: Deploy notify
+
+# Vercel báo trạng thái deploy về GitHub (deployment_status). Gửi Telegram khi deploy Production xong hoặc lỗi.
+# Bật bằng secret TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID (repo > Settings > Secrets and variables > Actions);
+# thiếu thì bước gửi tự bỏ qua. Preview deploy không báo.
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    if: >-
+      github.event.deployment.environment == 'Production' &&
+      contains(fromJSON('["success", "failure", "error"]'), github.event.deployment_status.state)
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Gửi Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GH_TOKEN: ${{ github.token }}
+          STATE: ${{ github.event.deployment_status.state }}
+          SHA: ${{ github.event.deployment.sha }}
+          SITE_URL: ${{ github.event.deployment_status.environment_url }}
+          LOG_URL: ${{ github.event.deployment_status.target_url }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "Chưa cấu hình TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID — bỏ qua"; exit 0
+          fi
+          app="${GITHUB_REPOSITORY#*/}"
+          if [ "$STATE" = success ]; then
+            title="✅ $app đã lên production"; link="${SITE_URL:-$LOG_URL}"
+          else
+            title="❌ $app deploy Vercel LỖI ($STATE)"; link="$LOG_URL"
+          fi
+          # Nội dung commit lấy qua API (payload deployment không có); lỗi thì chỉ hiện mã commit
+          subject=$(gh api "repos/$GITHUB_REPOSITORY/commits/$SHA" --jq '.commit.message' 2> /dev/null | head -n 1 || true)
+          text=$(printf '%s\n%s\n%s' "$title" "${SHA:0:7} $subject" "$link")
+          curl -fsS -m 20 -o /dev/null -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" --data-urlencode "text=${text}" \
+            --data-urlencode "disable_web_page_preview=true"
