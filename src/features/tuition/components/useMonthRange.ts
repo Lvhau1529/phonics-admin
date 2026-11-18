@@ -7,12 +7,10 @@ export interface MonthRange {
   to: string;
 }
 
-/** Khoảng `months` tháng gần nhất, kết thúc ở tháng này */
-export function useMonthRange(months: number) {
-  return useState<MonthRange>(() => ({
-    from: dayjs()
-      .subtract(months - 1, 'month')
-      .format('YYYY-MM'),
-    to: dayjs().format('YYYY-MM'),
-  }));
+/** Mặc định tháng hiện tại (học phí luôn mở ở tháng này — docs/attendance-calendar-design.md §4.3); đổi được */
+export function useMonthRange() {
+  return useState<MonthRange>(() => {
+    const month = dayjs().format('YYYY-MM');
+    return { from: month, to: month };
+  });
 }

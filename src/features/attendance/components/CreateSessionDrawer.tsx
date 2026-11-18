@@ -24,7 +24,16 @@ interface SessionFormValues {
 }
 
 /** Tạo buổi bù (không theo ca) — xong chuyển sang trang buổi để thêm học sinh. GV: buổi bù do chính mình phụ trách */
-export function CreateSessionDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function CreateSessionDrawer({
+  open,
+  date,
+  onClose,
+}: {
+  open: boolean;
+  /** Điền sẵn ngày 'YYYY-MM-DD' (mở từ lịch); mặc định hôm nay */
+  date?: string;
+  onClose: () => void;
+}) {
   const { message } = App.useApp();
   const navigate = useNavigate();
   const [form] = Form.useForm<SessionFormValues>();
@@ -34,8 +43,8 @@ export function CreateSessionDrawer({ open, onClose }: { open: boolean; onClose:
   useEffect(() => {
     if (!open) return;
     form.resetFields();
-    form.setFieldsValue({ date: dayjs() });
-  }, [open, form]);
+    form.setFieldsValue({ date: date ? dayjs(date) : dayjs() });
+  }, [open, date, form]);
 
   const handleFinish = async (raw: SessionFormValues) => {
     const parsed = parseForm(

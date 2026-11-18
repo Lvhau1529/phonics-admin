@@ -1,4 +1,4 @@
-import type { ExtraRate, ExtraSlot, SlotAssignment } from '@phonics/contracts';
+import type { ExtraRate, ExtraSlot, SlotAssignment, SlotStudent } from '@phonics/contracts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   appliedRateText,
@@ -8,6 +8,7 @@ import {
   isActiveOn,
   slotLabel,
   SlotAssignmentModel,
+  SlotStudentModel,
 } from '@/features/extra-slots/models/ExtraSlotModel';
 import { t } from '@/shared/i18n';
 import { formatDate, formatMoney } from '@/shared/utils/format';
@@ -167,5 +168,25 @@ describe('ngày ngừng ca', () => {
     expect(tutoring.isTutoring).toBe(true);
     expect(tutoring.kindLabel).toBe(t.extraSlots.kindLabel.TUTORING);
     expect(new ExtraSlotModel(slotDto).isTutoring).toBe(false);
+  });
+});
+
+describe('SlotStudentModel.limitedText (học tăng cường có thời hạn)', () => {
+  const dto: SlotStudent = {
+    studentId: 's1',
+    displayName: 'Bé An',
+    vietnameseName: 'Nguyễn An',
+    englishName: null,
+    avatarKey: 'a1' as SlotStudent['avatarKey'],
+    class: null,
+    assignmentId: 'as1',
+    effectiveFrom: '2026-11-23',
+    effectiveTo: '2026-12-01',
+    rate: null,
+  };
+
+  it('hiện ngày học cuối = ngày trước effectiveTo; học lâu dài → null', () => {
+    expect(new SlotStudentModel(dto).limitedText).toBe(t.studentExtra.limitedTag(formatDate('2026-11-30')));
+    expect(new SlotStudentModel({ ...dto, effectiveTo: null }).limitedText).toBeNull();
   });
 });

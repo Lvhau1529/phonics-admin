@@ -7,6 +7,7 @@ import type {
 import { describe, expect, it } from 'vitest';
 import {
   affectedDelta,
+  calendarEntryOf,
   AttendanceSessionDetailModel,
   DigestSessionModel,
 } from '@/features/attendance/models/AttendanceSessionModel';
@@ -181,5 +182,36 @@ describe('ảnh hưởng của sửa lịch / giá', () => {
     expect(new SlotAssignmentModel({ ...dto, affectedSessions: affected }).affectedSessions).toEqual(
       affected,
     );
+  });
+});
+
+describe('lịch buổi', () => {
+  it('buổi dự kiến: khoá theo ca + ngày, đếm học sinh có hạn', () => {
+    const entry = calendarEntryOf({
+      type: 'PLANNED',
+      date: '2026-11-23',
+      startTime: '17:30',
+      endTime: '18:30',
+      slot: {
+        id: 'slot1',
+        name: 'Ca T2',
+        kind: 'EXTRA_CLASS',
+        weekday: 1,
+        startTime: '17:30',
+        endTime: '18:30',
+        startsOn: null,
+        endsOn: null,
+        archivedAt: null,
+      },
+      teachers: [],
+      studentCount: 5,
+      limitedCount: 2,
+    });
+    expect(entry.kind).toBe('PLANNED');
+    expect(entry.key).toBe('slot1:2026-11-23');
+    if (entry.kind === 'PLANNED') {
+      expect(entry.planned.countText).toBe(t.attendanceCalendar.plannedCount(5, 2));
+      expect(entry.planned.timeRange).toBe('17:30–18:30');
+    }
   });
 });

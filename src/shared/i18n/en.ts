@@ -904,6 +904,30 @@ export const en = {
     emptyHint: 'Empty fields are not printed on the statement.',
   },
 
+  attendanceCalendar: {
+    viewTable: 'Table',
+    viewCalendar: 'Calendar',
+    week: 'Week',
+    month: 'Month',
+    today: 'Today',
+    prev: 'Previous',
+    next: 'Next',
+    planned: 'Planned',
+    plannedCount: (n: number, limited: number) =>
+      limited ? `${n} students · ${limited} short-term` : `${n} students`,
+    plannedTitle: 'Planned session',
+    plannedHint:
+      'Not created yet — at 00:05 on the day the system creates it from the student schedule below. Adding / removing students here changes their schedule.',
+    addBoost: 'Add short-term students',
+    reportOff: 'Cancel this session',
+    addMakeUp: 'Create make-up session',
+    cancelDay: 'Day off (all slots)',
+    dayActions: 'Day actions',
+    more: (n: number) => `+${n} more`,
+    empty: 'No sessions',
+    openSlot: 'View slot',
+  },
+
   studentExtra: {
     tab: 'Extra classes',
     schedule: 'Extra-class schedule',
@@ -935,6 +959,16 @@ export const en = {
     removeWarning: (student: string, slot: string, range: string) =>
       `Permanently remove ${student} from ${slot} (${range}). This schedule entry is deleted from history and cannot be restored; unconfirmed sessions drop the student. Use "Leave slot" to keep history.`,
     removed: 'Student removed from slot',
+    limited: 'Short-term boost (fixed end date)',
+    limitedHint:
+      'Joins this slot for a while (e.g. exam prep) then leaves automatically — regular schedule unchanged',
+    lastDay: 'Studies until (inclusive)',
+    lastDayHint: 'Includes this day; the student leaves the slot afterwards. Empty = ongoing',
+    lastDayBeforeFrom: 'Last day must be on or after the start date',
+    studentsPick: 'Students (multiple)',
+    addedCount: (n: number) => `Added ${n} student(s) to the slot`,
+    addFailed: (name: string, reason: string) => `${name}: ${reason}`,
+    limitedTag: (date: string) => `Until ${date}`,
   },
 
   games: {

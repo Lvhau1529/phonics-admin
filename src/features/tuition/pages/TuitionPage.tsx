@@ -19,7 +19,7 @@ import { PageHeader } from '@/shared/ui/PageHeader';
 
 /** Học phí tổng quát (ADMIN): tạm tính từ điểm danh theo tháng / ca / học sinh + cảnh báo buổi chờ, thiếu giá */
 export function TuitionPage() {
-  const [range, setRange] = useMonthRange(6);
+  const [range, setRange] = useMonthRange();
   const overview = TuitionService.useOverview(range.from, range.to);
   const data = overview.data;
   const loading = overview.isFetching;

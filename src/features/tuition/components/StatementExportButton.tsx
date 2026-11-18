@@ -10,12 +10,12 @@ import { saveBlob } from '@/shared/utils/download';
 
 /**
  * Chọn tháng + tải phiếu báo học phí PDF (gộp các bé cùng phụ huynh nhận học phí). Cần quyền xuất báo cáo; tab Học phí
- * đã chặn `extra.viewPricing`. Mặc định tháng trước (kỳ vừa kết thúc).
+ * đã chặn `extra.viewPricing`. Mặc định tháng hiện tại.
  */
 export function StatementExportButton({ studentId }: { studentId: string }) {
   const { message } = App.useApp();
   const allowed = useAuth().can('reports.export');
-  const [month, setMonth] = useState(() => dayjs().subtract(1, 'month'));
+  const [month, setMonth] = useState(() => dayjs());
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
