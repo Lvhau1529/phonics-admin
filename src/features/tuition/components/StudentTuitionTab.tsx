@@ -11,7 +11,7 @@ import { ErrorAlert } from '@/shared/ui/ErrorAlert';
 
 /** Tab "Học phí" ở chi tiết học sinh (extra.viewPricing): biểu đồ + bảng học phí tạm tính theo tháng + xuất phiếu PDF */
 export function StudentTuitionTab({ studentId }: { studentId: string }) {
-  const [range, setRange] = useMonthRange(12);
+  const [range, setRange] = useMonthRange();
   const tuition = TuitionService.useStudent(studentId, range.from, range.to);
   const data = tuition.data;
   const loading = tuition.isFetching;

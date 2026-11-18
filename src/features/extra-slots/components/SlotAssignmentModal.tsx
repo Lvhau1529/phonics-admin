@@ -1,4 +1,4 @@
-import { App, DatePicker, Form, Input, Modal } from 'antd';
+import { App, DatePicker, Form, Input, Modal, Switch } from 'antd';
 import {
   CreateSlotAssignmentBody,
   MoveSlotAssignmentBody,
@@ -10,7 +10,11 @@ import { useAuth } from '@/features/auth/authStore';
 import { ExtraSlotsService } from '@/features/extra-slots/api/extraSlotsService';
 import { ExtraSlotSelect } from '@/features/extra-slots/components/ExtraSlotSelect';
 import { PriceInput } from '@/features/extra-slots/components/PriceInput';
-import { StudentPickSelect } from '@/features/extra-slots/components/StudentPickSelect';
+import {
+  StudentMultiPickSelect,
+  type StudentPick,
+  StudentPickSelect,
+} from '@/features/extra-slots/components/StudentPickSelect';
 import { useAffectedPrompt } from '@/features/extra-slots/components/useAffectedPrompt';
 import type { SlotAssignmentModel } from '@/features/extra-slots/models/ExtraSlotModel';
 import { errorMessage, isApiError } from '@/shared/api/errors';
@@ -21,16 +25,30 @@ import { applyFieldErrors, applyServerErrors, diffValues, parseForm, zodRule } f
 
 /**
  * Thao tác trên lịch học thêm:
- *  - add: xếp học sinh vào ca từ ngày X (trang học sinh: chọn ca; trang ca: chọn học sinh), tuỳ chọn kèm đơn giá
- *    riêng ở ca (để trống = giá mặc định của ca);
+ *  - add: xếp học sinh vào ca từ ngày X (trang học sinh: chọn ca; trang ca / lịch: chọn nhiều học sinh), tuỳ chọn
+ *    "học đến hết ngày" (học tăng cường có thời hạn — docs/attendance-calendar-design.md) và đơn giá riêng ở ca (để
+ *    trống = giá mặc định của ca);
  *  - edit: sửa ngày nhập sai; leave: cho rời ca từ ngày Y; move: chuyển sang ca khác từ ngày Z.
  */
 export type SlotAssignmentAction =
-  | { mode: 'add'; studentId?: string; slotId?: string; slotPrice?: number | null }
+  | {
+      mode: 'add';
+      studentId?: string;
+      slotId?: string;
+      slotPrice?: number | null;
+      /** Điền sẵn ngày bắt đầu 'YYYY-MM-DD' (mặc định hôm nay) */
+      from?: string;
+      /** Bật sẵn "học tăng cường" (mở từ lịch) */
+      limited?: boolean;
+    }
   | { mode: 'edit' | 'leave' | 'move'; studentId: string; assignment: SlotAssignmentModel };
 
 interface AssignmentFormValues {
   studentId?: string;
+  students?: StudentPick[];
+  limited?: boolean;
+  /** Ngày học cuối (gồm cả ngày này) — gửi `effectiveTo` = ngày sau */
+  lastDay?: Dayjs | null;
   slotId?: string;
   effectiveFrom?: Dayjs;
   effectiveTo?: Dayjs | null;
@@ -67,7 +85,11 @@ export function SlotAssignmentModal({
   useEffect(() => {
     if (!action) return;
     form.resetFields();
-    if (action.mode === 'add') form.setFieldsValue({ effectiveFrom: dayjs() });
+    if (action.mode === 'add')
+      form.setFieldsValue({
+        effectiveFrom: action.from ? dayjs(action.from) : dayjs(),
+        limited: !!action.limited,
+      });
     if (action.mode === 'edit')
       form.setFieldsValue({
         effectiveFrom: dayjs(action.assignment.effectiveFrom),
@@ -78,38 +100,80 @@ export function SlotAssignmentModal({
     if (action.mode === 'move') form.setFieldsValue({ effectiveFrom: dayjs() });
   }, [action, form]);
 
-  const submit = async (values: AssignmentFormValues): Promise<boolean> => {
+  const multiPick = action?.mode === 'add' && !action.studentId && !!action.slotId;
+
+  /** Xếp một học sinh (+ giá riêng ở ca nếu nhập) rồi hỏi áp vào buổi đã xác nhận */
+  const addOne = async (studentId: string, body: CreateSlotAssignmentBody, price: number | undefined) => {
+    const created = await create.mutateAsync({ studentId, body });
+    // Giá riêng (HS, ca) cùng ngày bắt đầu; buổi đã xác nhận chưa có học sinh này nên không cần hỏi áp giá
+    // Lịch đã lưu: lỗi đặt giá chỉ báo riêng (thử lại không được vì sẽ trùng lịch)
+    if (price !== undefined)
+      await createRate
+        .mutateAsync({
+          studentId,
+          body: { pricePerSession: price, effectiveFrom: body.effectiveFrom, slotId: body.slotId },
+        })
+        .catch((error: unknown) => message.error(errorMessage(error)));
+    prompt.sessions(studentId, created.affectedSessions);
+  };
+
+  const submit = async (values: AssignmentFormValues): Promise<boolean | 'notified'> => {
     if (!action) return false;
     const note = values.note?.trim() || undefined;
     if (action.mode === 'add') {
-      const studentId = action.studentId ?? values.studentId;
+      const studentIds = action.studentId
+        ? [action.studentId]
+        : multiPick
+          ? (values.students ?? []).map((p) => p.value)
+          : values.studentId
+            ? [values.studentId]
+            : [];
+      if (values.limited && !values.lastDay) {
+        applyFieldErrors(form, { lastDay: [t.common.requiredField] });
+        return false;
+      }
+      if (values.lastDay && values.effectiveFrom && values.lastDay.isBefore(values.effectiveFrom, 'day')) {
+        applyFieldErrors(form, { lastDay: [t.studentExtra.lastDayBeforeFrom] });
+        return false;
+      }
       const parsed = parseForm(CreateSlotAssignmentBody, {
         slotId: action.slotId ?? values.slotId,
         effectiveFrom: optionalDate(values.effectiveFrom) ?? undefined,
-        effectiveTo: optionalDate(values.effectiveTo) ?? undefined,
+        // Ngày đầu tiên không học = ngày sau ngày học cuối
+        effectiveTo: values.lastDay ? toIsoDate(values.lastDay.add(1, 'day')) : undefined,
         note,
       });
-      if (!parsed.success || !studentId) {
-        applyFieldErrors(form, parsed.success ? { studentId: [t.common.requiredField] } : parsed.fieldErrors);
+      if (!parsed.success || studentIds.length === 0) {
+        const studentField = multiPick ? 'students' : 'studentId';
+        applyFieldErrors(
+          form,
+          parsed.success ? { [studentField]: [t.common.requiredField] } : parsed.fieldErrors,
+        );
         return false;
       }
       const price = typeof values.pricePerSession === 'number' ? values.pricePerSession : undefined;
-      const created = await create.mutateAsync({ studentId, body: parsed.data });
-      // Giá riêng (HS, ca) cùng ngày bắt đầu; buổi đã xác nhận chưa có học sinh này nên không cần hỏi áp giá
-      // Lịch đã lưu: lỗi đặt giá chỉ báo riêng (thử lại không được vì sẽ trùng lịch)
-      if (price !== undefined)
-        await createRate
-          .mutateAsync({
-            studentId,
-            body: {
-              pricePerSession: price,
-              effectiveFrom: parsed.data.effectiveFrom,
-              slotId: parsed.data.slotId,
-            },
-          })
-          .catch((error: unknown) => message.error(errorMessage(error)));
-      prompt.sessions(studentId, created.affectedSessions);
-      return true;
+      const names = new Map((values.students ?? []).map((p) => [p.value, String(p.label)]));
+      // Từng học sinh một: em lỗi (vd trùng lịch) không chặn em khác
+      const failed: StudentPick[] = [];
+      let added = 0;
+      for (const studentId of studentIds) {
+        try {
+          await addOne(studentId, parsed.data, price);
+          added += 1;
+        } catch (error) {
+          if (studentIds.length === 1) throw error;
+          failed.push({ value: studentId, label: names.get(studentId) ?? studentId });
+          message.error(t.studentExtra.addFailed(names.get(studentId) ?? '', errorMessage(error)));
+        }
+      }
+      if (studentIds.length > 1 && added) message.success(t.studentExtra.addedCount(added));
+      if (failed.length) {
+        // Giữ modal mở với các em chưa thêm được
+        form.setFieldsValue({ students: failed });
+        return false;
+      }
+      // Nhiều học sinh đã báo "Đã thêm N học sinh" — không báo "Đã lưu" lần nữa
+      return studentIds.length > 1 ? 'notified' : true;
     }
     const { studentId, assignment } = action;
     if (action.mode === 'move') {
@@ -154,8 +218,9 @@ export function SlotAssignmentModal({
 
   const handleFinish = async (values: AssignmentFormValues) => {
     try {
-      if (!(await submit(values))) return;
-      message.success(t.common.saved);
+      const done = await submit(values);
+      if (!done) return;
+      if (done !== 'notified') message.success(t.common.saved);
       onClose();
     } catch (error) {
       // Trùng khoảng ngày: báo ngay ở ô ngày (details của 409 là id dòng trùng, không phải field)
@@ -166,6 +231,7 @@ export function SlotAssignmentModal({
   };
 
   const mode = action?.mode;
+  const limited = Form.useWatch('limited', form);
   const required = [{ required: true, message: t.common.requiredField }];
   return (
     <Modal
@@ -179,7 +245,12 @@ export function SlotAssignmentModal({
       destroyOnHidden
     >
       <Form<AssignmentFormValues> form={form} layout="vertical" onFinish={handleFinish}>
-        {action?.mode === 'add' && !action.studentId && (
+        {action?.mode === 'add' && !action.studentId && multiPick && (
+          <Form.Item name="students" label={t.studentExtra.studentsPick} rules={required}>
+            <StudentMultiPickSelect />
+          </Form.Item>
+        )}
+        {action?.mode === 'add' && !action.studentId && !multiPick && (
           <Form.Item name="studentId" label={t.common.student} rules={required}>
             <StudentPickSelect />
           </Form.Item>
@@ -203,7 +274,27 @@ export function SlotAssignmentModal({
             <DatePicker format={t.format.date} style={{ width: '100%' }} />
           </Form.Item>
         )}
-        {(mode === 'add' || mode === 'edit' || mode === 'leave') && (
+        {mode === 'add' && (
+          <>
+            <Form.Item
+              name="limited"
+              label={t.studentExtra.limited}
+              valuePropName="checked"
+              extra={t.studentExtra.limitedHint}
+            >
+              <Switch />
+            </Form.Item>
+            <Form.Item
+              name="lastDay"
+              label={t.studentExtra.lastDay}
+              extra={t.studentExtra.lastDayHint}
+              rules={limited ? required : undefined}
+            >
+              <DatePicker format={t.format.date} style={{ width: '100%' }} />
+            </Form.Item>
+          </>
+        )}
+        {(mode === 'edit' || mode === 'leave') && (
           <Form.Item
             name="effectiveTo"
             label={mode === 'leave' ? t.studentExtra.leaveFrom : t.studentExtra.to}

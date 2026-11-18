@@ -71,6 +71,7 @@ function buildStudentColumns(
         <Space>
           <AvatarImg avatarKey={s.avatarKey} size={28} />
           <Link to={ROUTES.studentDetail(s.studentId)}>{s.fullName}</Link>
+          {s.limitedText && <Tag color="blue">{s.limitedText}</Tag>}
         </Space>
       ),
     },

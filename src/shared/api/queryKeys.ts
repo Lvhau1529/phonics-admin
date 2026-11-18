@@ -63,6 +63,8 @@ export const qk = {
   attendance: {
     all: ['attendance'] as const,
     list: (params: QueryParams) => ['attendance', 'list', params] as const,
+    /** Lịch buổi (buổi thật + dự kiến) — đổi lịch học sinh / ca cũng invalidate `attendance.all` */
+    calendar: (params: QueryParams) => ['attendance', 'calendar', params] as const,
     detail: (id: string) => ['attendance', 'detail', id] as const,
     pendingCount: ['attendance', 'pending', 'count'] as const,
     /** Điểm danh theo tháng của học sinh */

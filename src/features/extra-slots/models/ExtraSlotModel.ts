@@ -281,6 +281,13 @@ export class SlotStudentModel {
     return dateRangeText(this.effectiveFrom, this.effectiveTo);
   }
 
+  /** Học có thời hạn (vd tăng cường): "Đến hết dd/MM/YYYY" = ngày trước `effectiveTo`; null khi học lâu dài */
+  get limitedText(): string | null {
+    return this.effectiveTo
+      ? t.studentExtra.limitedTag(formatDate(toIsoDate(dayjs(this.effectiveTo).subtract(1, 'day'))))
+      : null;
+  }
+
   get rateText(): string | null {
     return this.rate ? appliedRateText(this.rate) : null;
   }

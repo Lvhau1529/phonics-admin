@@ -56,7 +56,7 @@ const phoneIssueText = (issue: NoticePhoneIssue): string =>
  */
 export function TuitionNoticesPage() {
   const { message } = App.useApp();
-  const [month, setMonth] = useState(() => dayjs().subtract(1, 'month'));
+  const [month, setMonth] = useState(() => dayjs());
   const [classId, setClassId] = useState<string>();
   const [mode, setMode] = useState<AmountMode>('attendance');
   const [flatAmount, setFlatAmount] = useState<number | null>(null);

@@ -1,12 +1,14 @@
 import { PlusOutlined, StopOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Flex, Select, Space, Tooltip, Typography } from 'antd';
+import { Button, DatePicker, Flex, Segmented, Select, Space, Tooltip, Typography } from 'antd';
 import { AttendanceSessionStatus } from '@phonics/contracts';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { ROUTES } from '@/app/routes';
 import { AttendanceService } from '@/features/attendance/api/attendanceService';
+import { AttendanceCalendar } from '@/features/attendance/components/AttendanceCalendar';
 import { AttendanceStatusTag } from '@/features/attendance/components/AttendanceStatusTag';
+import { type CalendarMode } from '@/features/attendance/components/calendarRange';
 import { CancelSessionsModal } from '@/features/attendance/components/CancelSessionsModal';
 import { ResendDigestButton } from '@/features/attendance/components/ResendDigestButton';
 import { CreateSessionDrawer } from '@/features/attendance/components/CreateSessionDrawer';
@@ -64,19 +66,39 @@ function buildColumns(): ColumnsType<AttendanceSessionModel> {
   ];
 }
 
-/** Điểm danh học thêm: danh sách buổi (GV: buổi mình dạy), tạo buổi bù / huỷ buổi (admin) */
+/**
+ * Điểm danh học thêm: bảng buổi hoặc lịch tuần / tháng (`?view=calendar&cal=week|month&at=YYYY-MM-DD`) — GV: buổi
+ * mình dạy; tạo buổi bù / huỷ buổi (extra.manageSlots)
+ */
 export function AttendancePage() {
   const { can, isAdmin } = useAuth();
   const table = useTableQuery({
     filterKeys: ['from', 'to', 'status', 'slotId', 'teacherId'] as const,
     defaultSort: 'date:desc',
   });
-  const list = AttendanceService.useList(table.params);
   const manage = can('extra.manageSlots');
   const [creating, setCreating] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const { from, to } = table.filters;
+  const [search, setSearch] = useSearchParams();
+  const view = search.get('view') === 'calendar' ? 'calendar' : 'table';
+  const calMode: CalendarMode = search.get('cal') === 'month' ? 'month' : 'week';
+  const anchor = search.get('at') ?? toIsoDate(dayjs());
+  // Xem lịch thì không tải bảng
+  const list = AttendanceService.useList(table.params, view === 'table');
+  const setView = (patch: Record<string, string | undefined>) =>
+    setSearch(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        for (const [k, v] of Object.entries(patch)) {
+          if (v === undefined) next.delete(k);
+          else next.set(k, v);
+        }
+        return next;
+      },
+      { replace: true },
+    );
   // Gửi lại mail chỉ áp cho buổi chưa xác nhận đang chọn (trên trang hiện tại)
   const pendingSelected = (list.data?.items ?? [])
     .filter((s) => s.isPending && selected.includes(s.id))
@@ -89,7 +111,7 @@ export function AttendancePage() {
         extra={
           manage && (
             <Space wrap>
-              {isAdmin && (
+              {isAdmin && view === 'table' && (
                 <ResendDigestButton sessionIds={pendingSelected} showCount onSent={() => setSelected([])} />
               )}
               <Button icon={<StopOutlined />} onClick={() => setCancelling(true)}>
@@ -103,16 +125,26 @@ export function AttendancePage() {
         }
       >
         <Flex gap={8} wrap>
-          <DatePicker.RangePicker
-            format={t.format.date}
-            value={from && to ? [dayjs(from), dayjs(to)] : null}
-            onChange={(range) =>
-              table.setFilters({
-                from: range?.[0] ? toIsoDate(range[0]) : undefined,
-                to: range?.[1] ? toIsoDate(range[1]) : undefined,
-              })
-            }
+          <Segmented<'table' | 'calendar'>
+            value={view}
+            onChange={(v) => setView({ view: v === 'calendar' ? 'calendar' : undefined })}
+            options={[
+              { value: 'table', label: t.attendanceCalendar.viewTable },
+              { value: 'calendar', label: t.attendanceCalendar.viewCalendar },
+            ]}
           />
+          {view === 'table' && (
+            <DatePicker.RangePicker
+              format={t.format.date}
+              value={from && to ? [dayjs(from), dayjs(to)] : null}
+              onChange={(range) =>
+                table.setFilters({
+                  from: range?.[0] ? toIsoDate(range[0]) : undefined,
+                  to: range?.[1] ? toIsoDate(range[1]) : undefined,
+                })
+              }
+            />
+          )}
           <Select
             allowClear
             placeholder={t.common.status}
@@ -131,26 +163,43 @@ export function AttendancePage() {
           )}
         </Flex>
       </PageHeader>
-      <ErrorAlert error={list.error} onRetry={() => void list.refetch()} />
-      <DataTable<AttendanceSessionModel>
-        columns={buildColumns()}
-        data={list.data}
-        loading={list.isFetching}
-        page={table.page}
-        pageSize={table.pageSize}
-        sort={table.sort}
-        onPageChange={table.setPage}
-        onSortChange={table.setSort}
-        rowSelection={
-          manage
-            ? {
-                selectedRowKeys: selected,
-                onChange: (keys) => setSelected(keys.map(String)),
-                getCheckboxProps: (s) => ({ disabled: s.isCancelled }),
-              }
-            : undefined
-        }
-      />
+      {view === 'calendar' ? (
+        <AttendanceCalendar
+          filters={{
+            slotId: table.filters.slotId,
+            teacherId: table.filters.teacherId,
+            status: table.filters.status,
+          }}
+          mode={calMode}
+          anchor={anchor}
+          onNavigate={(n) =>
+            setView({ cal: (n.mode ?? calMode) === 'month' ? 'month' : undefined, at: n.anchor ?? anchor })
+          }
+        />
+      ) : (
+        <>
+          <ErrorAlert error={list.error} onRetry={() => void list.refetch()} />
+          <DataTable<AttendanceSessionModel>
+            columns={buildColumns()}
+            data={list.data}
+            loading={list.isFetching}
+            page={table.page}
+            pageSize={table.pageSize}
+            sort={table.sort}
+            onPageChange={table.setPage}
+            onSortChange={table.setSort}
+            rowSelection={
+              manage
+                ? {
+                    selectedRowKeys: selected,
+                    onChange: (keys) => setSelected(keys.map(String)),
+                    getCheckboxProps: (s) => ({ disabled: s.isCancelled }),
+                  }
+                : undefined
+            }
+          />
+        </>
+      )}
       <CreateSessionDrawer open={creating} onClose={() => setCreating(false)} />
       <CancelSessionsModal
         open={cancelling}

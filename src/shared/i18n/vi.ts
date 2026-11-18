@@ -902,6 +902,29 @@ export const vi = {
     emptyHint: 'Ô nào để trống sẽ không in lên phiếu.',
   },
 
+  attendanceCalendar: {
+    viewTable: 'Bảng',
+    viewCalendar: 'Lịch',
+    week: 'Tuần',
+    month: 'Tháng',
+    today: 'Hôm nay',
+    prev: 'Trước',
+    next: 'Sau',
+    planned: 'Dự kiến',
+    plannedCount: (n: number, limited: number) => (limited ? `${n} HS · ${limited} có hạn` : `${n} HS`),
+    plannedTitle: 'Buổi dự kiến',
+    plannedHint:
+      'Buổi chưa được tạo — 00:05 ngày học hệ thống tạo buổi từ lịch học sinh bên dưới. Thêm / bớt học sinh ở đây là sửa lịch học của các em.',
+    addBoost: 'Thêm học sinh tăng cường',
+    reportOff: 'Báo nghỉ buổi này',
+    addMakeUp: 'Tạo buổi bù',
+    cancelDay: 'Nghỉ cả ngày',
+    dayActions: 'Thao tác ngày',
+    more: (n: number) => `+${n} buổi`,
+    empty: 'Không có buổi',
+    openSlot: 'Xem ca',
+  },
+
   studentExtra: {
     tab: 'Học thêm',
     schedule: 'Lịch học thêm',
@@ -933,6 +956,15 @@ export const vi = {
     removeWarning: (student: string, slot: string, range: string) =>
       `Xoá hẳn ${student} khỏi ca ${slot} (${range}). Dòng lịch này bị xoá khỏi lịch sử và không khôi phục được; buổi chưa xác nhận tự bỏ học sinh. Muốn giữ lịch sử thì dùng "Cho rời ca".`,
     removed: 'Đã xoá học sinh khỏi ca',
+    limited: 'Học tăng cường (có thời hạn)',
+    limitedHint: 'Học gộp thêm vào ca này một thời gian (vd ôn thi) rồi tự rời ca — lịch cố định không đổi',
+    lastDay: 'Học đến hết ngày',
+    lastDayHint: 'Gồm cả ngày này; sau ngày này học sinh tự rời ca. Để trống = học lâu dài',
+    lastDayBeforeFrom: 'Ngày cuối phải từ ngày bắt đầu trở đi',
+    studentsPick: 'Học sinh (chọn nhiều)',
+    addedCount: (n: number) => `Đã thêm ${n} học sinh vào ca`,
+    addFailed: (name: string, reason: string) => `${name}: ${reason}`,
+    limitedTag: (date: string) => `Đến hết ${date}`,
   },
 
   games: {
