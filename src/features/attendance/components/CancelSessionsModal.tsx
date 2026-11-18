@@ -5,7 +5,7 @@ import { AttendanceService } from '@/features/attendance/api/attendanceService';
 import { ExtraSlotSelect } from '@/features/extra-slots/components/ExtraSlotSelect';
 import { errorMessage } from '@/shared/api/errors';
 import { t } from '@/shared/i18n';
-import { type Dayjs } from '@/shared/utils/dayjs';
+import { dayjs, type Dayjs } from '@/shared/utils/dayjs';
 import { toIsoDate } from '@/shared/utils/format';
 import { applyFieldErrors, applyServerErrors, parseForm } from '@/shared/utils/zodForm';
 
@@ -25,11 +25,13 @@ interface CancelSessionsModalProps {
   open: boolean;
   /** Buổi đang chọn ở bảng (rỗng = chỉ huỷ theo ngày) */
   selectedIds: string[];
+  /** Điền sẵn huỷ theo ngày (mở từ lịch): ngày 'YYYY-MM-DD' + tuỳ chọn chỉ các ca */
+  preset?: { date: string; slotIds?: string[] };
   onClose: (cancelled: boolean) => void;
 }
 
 /** Huỷ buổi (nghỉ lễ): các buổi đang chọn, hoặc cả một ngày (buổi chưa tạo cũng được đánh dấu huỷ) */
-export function CancelSessionsModal({ open, selectedIds, onClose }: CancelSessionsModalProps) {
+export function CancelSessionsModal({ open, selectedIds, preset, onClose }: CancelSessionsModalProps) {
   const { message } = App.useApp();
   const [form] = Form.useForm<CancelFormValues>();
   const cancel = AttendanceService.useCancel();
@@ -38,8 +40,9 @@ export function CancelSessionsModal({ open, selectedIds, onClose }: CancelSessio
   useEffect(() => {
     if (!open) return;
     form.resetFields();
-    form.setFieldsValue({ mode: selectedIds.length ? 'selected' : 'date' });
-  }, [open, selectedIds.length, form]);
+    if (preset) form.setFieldsValue({ mode: 'date', date: dayjs(preset.date), slotIds: preset.slotIds });
+    else form.setFieldsValue({ mode: selectedIds.length ? 'selected' : 'date' });
+  }, [open, selectedIds.length, preset, form]);
 
   const handleFinish = async (values: CancelFormValues) => {
     const parsed = parseForm(CancelAttendanceSessionsBody, {

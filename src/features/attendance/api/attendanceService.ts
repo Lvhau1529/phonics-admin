@@ -11,6 +11,7 @@ import type {
 } from '@phonics/contracts';
 import { attendanceRepository } from '@/features/attendance/api/attendanceRepository';
 import {
+  calendarEntryOf,
   AttendanceSessionDetailModel,
   AttendanceSessionModel,
   DigestSessionModel,
@@ -34,6 +35,11 @@ const api = {
   list: async (query: QueryParams) =>
     mapPage(await attendanceRepository.list(query), (s) => new AttendanceSessionModel(s)),
   pendingCount: async () => (await attendanceRepository.pendingCount()).count,
+  /** Lịch: `today` theo múi giờ trung tâm + các mục (buổi thật / dự kiến) đã sắp */
+  calendar: async (query: QueryParams) => {
+    const res = await attendanceRepository.calendar(query);
+    return { from: res.from, to: res.to, today: res.today, entries: res.items.map(calendarEntryOf) };
+  },
   detail: async (id: string) => new AttendanceSessionDetailModel(await attendanceRepository.detail(id)),
   updateRecords: async (id: string, body: UpdateAttendanceRecordsBody) =>
     new AttendanceSessionDetailModel(await attendanceRepository.updateRecords(id, body)),
@@ -81,8 +87,15 @@ function useInvalidateAttendance() {
 export const AttendanceService = {
   ...api,
 
-  useList: (params: QueryParams) =>
-    useQuery({ queryKey: qk.attendance.list(params), queryFn: () => api.list(params) }),
+  useList: (params: QueryParams, enabled = true) =>
+    useQuery({ queryKey: qk.attendance.list(params), queryFn: () => api.list(params), enabled }),
+
+  useCalendar: (params: QueryParams) =>
+    useQuery({
+      queryKey: qk.attendance.calendar(params),
+      queryFn: () => api.calendar(params),
+      placeholderData: keepPreviousData,
+    }),
 
   usePendingCount: (enabled: boolean) =>
     useQuery({

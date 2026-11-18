@@ -3,6 +3,7 @@
  * contracts, trả DTO đúng như BE. Trang duyệt nhanh qua mail gọi không kèm token (`auth: false`).
  */
 import {
+  AttendanceCalendarResponse,
   AttendanceDigestView,
   AttendanceSessionDetail,
   AttendanceSessionSummary,
@@ -28,6 +29,8 @@ const SessionPage = paginated(AttendanceSessionSummary);
 export const attendanceRepository = {
   list: (query: QueryParams) => request(ENDPOINTS.attendance.sessions, { query, schema: SessionPage }),
   pendingCount: () => request(ENDPOINTS.attendance.pendingCount, { schema: PendingCountResponse }),
+  calendar: (query: QueryParams) =>
+    request(ENDPOINTS.attendance.calendar, { query, schema: AttendanceCalendarResponse }),
   detail: (id: string) => request(ENDPOINTS.attendance.session(id), { schema: AttendanceSessionDetail }),
   updateRecords: (id: string, body: UpdateAttendanceRecordsBody) =>
     request(ENDPOINTS.attendance.records(id), {

@@ -8,6 +8,8 @@ import {
   type AttendanceSessionStatus,
   type AttendanceSessionSummary,
   type AvatarKey,
+  type CalendarItem,
+  type CalendarPlannedItem,
   type ConfirmedVia,
   type DigestSession,
   type ExtraSlotKind,
@@ -298,4 +300,69 @@ export class StudentAttendanceItemModel {
   get priceText(): string | null {
     return this.unitPrice === null ? null : priceText(this.unitPrice);
   }
+}
+
+/** Buổi dự kiến trên lịch: ngày ≥ hôm nay, ca có học sinh theo lịch nhưng buổi chưa được tạo (00:05 ngày đó) */
+export class PlannedSessionModel {
+  readonly date: string;
+  readonly startTime: string;
+  readonly endTime: string;
+  readonly slot: ExtraSlotRef;
+  readonly teachers: TeacherRef[];
+  readonly studentCount: number;
+  readonly limitedCount: number;
+
+  constructor(data: CalendarPlannedItem) {
+    this.date = data.date;
+    this.startTime = data.startTime;
+    this.endTime = data.endTime;
+    this.slot = data.slot;
+    this.teachers = data.teachers;
+    this.studentCount = data.studentCount;
+    this.limitedCount = data.limitedCount;
+  }
+
+  get title(): string {
+    return this.slot.name;
+  }
+
+  get dateText(): string {
+    return sessionDateText(this.date);
+  }
+
+  get timeRange(): string {
+    return `${this.startTime}–${this.endTime}`;
+  }
+
+  get teacherNames(): string {
+    return this.teachers.length ? this.teachers.map((tc) => tc.displayName).join(', ') : t.common.none;
+  }
+
+  /** "8 HS" hoặc "8 HS · 2 có hạn" */
+  get countText(): string {
+    return t.attendanceCalendar.plannedCount(this.studentCount, this.limitedCount);
+  }
+}
+
+/** Một mục trên lịch: buổi thật hoặc buổi dự kiến */
+export type CalendarEntry =
+  | { kind: 'SESSION'; key: string; date: string; startTime: string; session: AttendanceSessionModel }
+  | { kind: 'PLANNED'; key: string; date: string; startTime: string; planned: PlannedSessionModel };
+
+export function calendarEntryOf(item: CalendarItem): CalendarEntry {
+  if (item.type === 'SESSION')
+    return {
+      kind: 'SESSION',
+      key: item.session.id,
+      date: item.date,
+      startTime: item.startTime,
+      session: new AttendanceSessionModel(item.session),
+    };
+  return {
+    kind: 'PLANNED',
+    key: `${item.slot.id}:${item.date}`,
+    date: item.date,
+    startTime: item.startTime,
+    planned: new PlannedSessionModel(item),
+  };
 }
